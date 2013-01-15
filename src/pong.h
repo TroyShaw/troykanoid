@@ -1,6 +1,7 @@
 #pragma once
 
 #include <stdbool.h>
+#include "highscore.h"
 
 #define PLAYER_MOVE_SPEED 7             //the movement speed of the player in pixels per tick
 
@@ -94,12 +95,13 @@ typedef struct
 {
     bool running;                       //true if running, false if on menu screen
     bool paused;                        //true if we are in a game and paused, false we are not paused
-    Keymanager Keymanager;              //the key manager, holds keystate
     Player player;                      //the player
     Ball balls[BALL_ARRAY_SIZE];        //the balls
     int numBalls;                       //number of balls in use (useful for various reasons)
     bool attached;                      //if the ball is attached to paddle (i.e at start of games and after death)
     PowerupManager powerupManager;      //the manager for powerups
+    HighscoreManager highscoreManager;  //the highscore manager
+    Keymanager Keymanager;              //the key manager, holds keystate
     Block blocks[MAX_BLOCKS];           //all the blocks
 } Game;
 

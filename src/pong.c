@@ -201,7 +201,6 @@ void movePlayer()
 void moveBalls()
 {
     int i;
-    Player* player = &game.player;
     Ball* ball = NULL;
 
     for (i = 0; i < BALL_ARRAY_SIZE; i++)
@@ -273,6 +272,8 @@ void initiateDeath()
     {
         enterScore("john", game.player.score);
         game.running = false;
+        //then save highscore
+        saveHighscoresToDisc();
         return;
     }
 

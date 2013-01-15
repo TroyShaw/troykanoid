@@ -2,34 +2,48 @@
 #include <stdlib.h>
 #include <string.h>
 
+#include "pong.h"
 #include "highscore.h"
-
-HighscoreManager highscoreManager;
-
 
 static const char *FILE_NAME = "hs.dat";
 
+Game game;
+
 void loadHighscoresFromDisc()
 {
+    printf("loading highscore data...\n");
+
     FILE *fp = fopen(FILE_NAME, "r");
 
     if (fp == NULL)
     {
+        printf("file didn't exist...\ncreating...\n");
         //file didn't exist, so load in some default data
         int i;
         for (i = 0; i < MAX_SCORES; i++)
         {
-            strcpy(highscoreManager.names[i], "-");
-            highscoreManager.scores[i] = 0;
+            strcpy(game.highscoreManager.names[i], "-");
+            game.highscoreManager.scores[i] = 0;
         }
 
         //then try save it
-        printf("ad");
         saveHighscoresToDisc();
         return;
     }
 
     //now we have to load in our saved data
+    printf("file opened... loading data...\n");
+
+    int i;
+
+    for (i = 0; i < MAX_SCORES; i++)
+    {
+        //first load the name
+        fgets(game.highscoreManager.names[i], MAX_CHAR_IN_NAME, fp);
+
+        //then the score
+        fscanf(fp, "%d\n", &game.highscoreManager.scores[i]);
+    }
 
     int status = fclose(fp);
 
@@ -38,6 +52,8 @@ void loadHighscoresFromDisc()
         printf("failed to close file when loading highscore data\n");
         exit(EXIT_FAILURE);
     }
+
+    printf("loaded");
 }
 void saveHighscoresToDisc()
 {
@@ -53,8 +69,8 @@ void saveHighscoresToDisc()
     int i;
     for (i = 0; i < MAX_SCORES; i++)
     {
-        fprintf(fp, highscoreManager.names[i]);
-        fprintf(fp, "\n%d\n", highscoreManager.scores[i]);
+        fprintf(fp, game.highscoreManager.names[i]);
+        fprintf(fp, "\n%d\n", game.highscoreManager.scores[i]);
     }
 
     int status = fclose(fp);
@@ -63,6 +79,10 @@ void saveHighscoresToDisc()
     {
         printf("failed to close file when saving highscore data\n");
         exit(EXIT_FAILURE);
+    }
+    else
+    {
+        printf("save succesfull");
     }
 }
 void enterScore(char* name, int score)
@@ -80,21 +100,25 @@ void enterScore(char* name, int score)
 
     int i;
 
+    //we iterate from highest to lowest score
+    //if we find a score we are bigger than,
+    //we iterate from MAX_SCORE back to the score we
+
     for (i = 0; i < MAX_SCORES; i++)
     {
-        if (score == 0 || score > highscoreManager.scores[i])
+        if (score == 0 || score > game.highscoreManager.scores[i])
         {
             int j;
             for (j = MAX_SCORES - 1; j < i; j--)
             {
                 //move everything up 1 level
-                highscoreManager.scores[j] = highscoreManager.scores[j - 1];
-                //highscoreManager.names[j] = highscoreManager.names[j - 1];
+                game.highscoreManager.scores[j] = game.highscoreManager.scores[j - 1];
+                strcpy(game.highscoreManager.names[j], name);
             }
 
             //then add our new data in
-            highscoreManager.scores[i] = score;
-            //highscoreManager.scores[i] = name;
+            game.highscoreManager.scores[i] = score;
+            strcpy(game.highscoreManager.names[i], name);
 
             break;
         }

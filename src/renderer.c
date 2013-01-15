@@ -244,16 +244,13 @@ void renderMenu()
 
     for (i = 0; i < MAX_SCORES; i++)
     {
-        glutPrint(100 + nameX, y + (8 - i) * 30 + o, highscoreManager.names[i], 1, 1, 1, 1);
+        glutPrint(100 + nameX, y + (8 - i) * 30 + o, game.highscoreManager.names[i], 1, 1, 1, 1);
 
         sprintf(score, "              ");
-        sprintf(score, "%d", highscoreManager.scores[i]);
+        sprintf(score, "%d", game.highscoreManager.scores[i]);
+        //printf("%d\n", game.highscoreManager.scores[i]);
         glutPrint(WIDTH / 2 + 5, y + (8 - i) * 30 + o, score, 1, 1, 1, 1);
     }
-
-
-
-
 
     glutSwapBuffers();
 }
