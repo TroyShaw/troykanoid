@@ -2,6 +2,7 @@
 #include <sys/time.h>
 #include <GL/glut.h>
 #include <stdbool.h>
+#include "highscore.h"
 #include "main.h"
 #include "pong.h"
 #include "renderer.h"
@@ -11,6 +12,7 @@ struct timeval tv;
 
 int main(int argc, char **argv)
 {
+    loadHighscoresFromDisc();
     glutInit(&argc, argv);
     initGlutWindow();
     initGL();
@@ -25,7 +27,7 @@ void initGlutWindow()
     glutInitWindowSize(WIDTH,HEIGHT);
     glutInitWindowPosition(10,10);
     glutInitDisplayMode(GLUT_RGB | GLUT_DOUBLE | GLUT_DEPTH);
-    glutCreateWindow("Pong");
+    glutCreateWindow("Troykanoid");
 
     glutDisplayFunc(display);
     glutKeyboardFunc(key);

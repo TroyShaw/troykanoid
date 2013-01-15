@@ -8,6 +8,13 @@ HighscoreManager highscoreManager;
 
 void loadHighscoresFromDisc()
 {
+    //for now we'll just load in dummy data
+    int i;
+    for (i = 0; i < MAX_SCORES; i++)
+    {
+        strcpy(highscoreManager.names[i], "-");
+        highscoreManager.scores[i] = 0;
+    }
 
 }
 void saveHighscoresToDisc()
@@ -31,7 +38,7 @@ void enterScore(char* name, int score)
 
     for (i = 0; i < MAX_SCORES; i++)
     {
-        if (score == 0 | score > highscoreManager.scores[i])
+        if (score == 0 || score > highscoreManager.scores[i])
         {
             int j;
             for (j = MAX_SCORES - 1; j < i; j++)

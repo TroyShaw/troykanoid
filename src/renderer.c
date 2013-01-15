@@ -5,6 +5,7 @@
 #include "main.h"
 #include "pong.h"
 #include "renderer.h"
+#include "highscore.h"
 
 Game game;
 
@@ -185,6 +186,9 @@ void renderMenu()
     int h = 300;
     int w = WIDTH - y * 2;
 
+    int nameX = 30;
+    int scoreX = WIDTH / 2;
+
     glBegin(GL_LINE_LOOP);
     {
         glVertex3f(x, y, 0);
@@ -205,19 +209,41 @@ void renderMenu()
     }
     glEnd();
 
+    glBegin(GL_LINES);
+    {
+        //vertical line after numbers
+        glVertex3f(x + nameX, y, 0);
+        glVertex3f(x + nameX, y + 9 * 30, 0);
+
+        //vertical line after name
+        glVertex3f(scoreX, y, 0);
+        glVertex3f(scoreX, y + 9 * 30, 0);
+    }
+    glEnd();
     glPopMatrix();
 
-    int o = 5;
+    //now the actual text
+    int o = 7;
 
     char* header = "Highscores";
     x = (WIDTH - glutBitmapLength(GLUT_BITMAP_TIMES_ROMAN_24, header)) / 2;
     glutPrint(x, y + 9 * 30 + o, header, 1, 1, 1, 1);
 
     int i;
+    char* str = malloc(2 * sizeof(char));
+
     for (i = 0; i < 9; i++)
     {
-        //x = (WIDTH - glutBitmapLength(GLUT_BITMAP_TIMES_ROMAN_24, header)) / 2;
-        glutPrint(100, y + (8 - i) * 30 + o, header, 1, 1, 1, 1);
+        str[0] = (char) (i + '1');
+        str[1] = '\0';
+        str[2] = 'as';
+        glutPrint(108, y + (8 - i) * 30 + o, str, 1, 1, 1, 1);
+    }
+    free(str);
+
+    for (i = 0; i < MAX_SCORES; i++)
+    {
+        glutPrint(100 + nameX, y + (8 - i) * 30 + o, highscoreManager.names[i], 1, 1, 1, 1);
     }
 
 
