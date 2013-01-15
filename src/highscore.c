@@ -140,12 +140,3 @@ void enterScore(char* name, int score)
         }
     }
 }
-
-void eraseAndCopy(char* original, char* name)
-{
-    while (*original)
-    {
-
-    }
-
-}
