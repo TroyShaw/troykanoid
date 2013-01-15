@@ -132,7 +132,7 @@ void renderGame()
     if (game.paused)
     {
         glPushMatrix();
-        glColor4f(0, 0, 0, 0.5);
+        glColor4f(0, 0, 0, 0.75);
 
         glBegin(GL_POLYGON);
         {
@@ -174,6 +174,52 @@ void renderMenu()
     char* start = "Push spacebar to start!";
     x = (WIDTH - glutBitmapLength(GLUT_BITMAP_TIMES_ROMAN_24, start)) / 2;
     glutPrint(x, 30, start, 1, 1, 1, 1);
+
+    //highscore table
+
+    glPushMatrix();
+    glColor4f(1, 1, 1, 1);
+
+    x = 100;
+    int y = 100;
+    int h = 300;
+    int w = WIDTH - y * 2;
+
+    glBegin(GL_LINE_LOOP);
+    {
+        glVertex3f(x, y, 0);
+        glVertex3f(x + w, y, 0);
+        glVertex3f(x + w, y + h, 0);
+        glVertex3f(x, y + h, 0);
+    }
+    glEnd();
+
+    glBegin(GL_LINES);
+    {
+        int i;
+        for (i = 0; i < 10; i++)
+        {
+            glVertex3f(x, y + i * 30, 0);
+            glVertex3f(x + w, y + i * 30, 0);
+        }
+    }
+    glEnd();
+
+    glPopMatrix();
+
+    int o = 5;
+
+    char* header = "Highscores";
+    x = (WIDTH - glutBitmapLength(GLUT_BITMAP_TIMES_ROMAN_24, header)) / 2;
+    glutPrint(x, y + 9 * 30 + o, header, 1, 1, 1, 1);
+
+    int i;
+    for (i = 0; i < 9; i++)
+    {
+        //x = (WIDTH - glutBitmapLength(GLUT_BITMAP_TIMES_ROMAN_24, header)) / 2;
+        glutPrint(100, y + (8 - i) * 30 + o, header, 1, 1, 1, 1);
+    }
+
 
     glutSwapBuffers();
 }
