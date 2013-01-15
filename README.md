@@ -1,0 +1,1 @@
+Basic arkanoid clone written in C, using the original glut library, as well as openGL.
