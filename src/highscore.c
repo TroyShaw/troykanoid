@@ -34,15 +34,29 @@ void loadHighscoresFromDisc()
     //now we have to load in our saved data
     printf("file opened... loading data...\n");
 
-    int i;
+    int i, j;
 
     for (i = 0; i < MAX_SCORES; i++)
     {
         //first load the name
         fgets(game.highscoreManager.names[i], MAX_CHAR_IN_NAME, fp);
 
+
         //then the score
         fscanf(fp, "%d\n", &game.highscoreManager.scores[i]);
+    }
+
+    //now replace \n with \0
+    for (i = 0; i < MAX_SCORES; i++)
+    {
+        for (j = 0; j < MAX_CHAR_IN_NAME; j++)
+        {
+            if (game.highscoreManager.names[i][j] == '\n')
+            {
+                game.highscoreManager.names[i][j] = '\0';
+                break;
+            }
+        }
     }
 
     int status = fclose(fp);
@@ -106,14 +120,16 @@ void enterScore(char* name, int score)
 
     for (i = 0; i < MAX_SCORES; i++)
     {
-        if (score == 0 || score > game.highscoreManager.scores[i])
+        //if the score is greater than the current score...
+        if (game.highscoreManager.scores[i] == 0 || score > game.highscoreManager.scores[i])
         {
+            //we want to move all old scores down, then overwrite new position
             int j;
-            for (j = MAX_SCORES - 1; j < i; j--)
+            for (j = MAX_SCORES - 1; j > i; j--)
             {
                 //move everything up 1 level
                 game.highscoreManager.scores[j] = game.highscoreManager.scores[j - 1];
-                strcpy(game.highscoreManager.names[j], name);
+                strcpy(game.highscoreManager.names[j], game.highscoreManager.names[j - 1]);
             }
 
             //then add our new data in
