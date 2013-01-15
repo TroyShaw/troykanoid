@@ -236,15 +236,23 @@ void renderMenu()
     {
         str[0] = (char) (i + '1');
         str[1] = '\0';
-        str[2] = 'as';
         glutPrint(108, y + (8 - i) * 30 + o, str, 1, 1, 1, 1);
     }
     free(str);
 
+    char score[15];
+
     for (i = 0; i < MAX_SCORES; i++)
     {
         glutPrint(100 + nameX, y + (8 - i) * 30 + o, highscoreManager.names[i], 1, 1, 1, 1);
+
+        sprintf(score, "              ");
+        sprintf(score, "%d", highscoreManager.scores[i]);
+        glutPrint(WIDTH / 2 + 5, y + (8 - i) * 30 + o, score, 1, 1, 1, 1);
     }
+
+
+
 
 
     glutSwapBuffers();

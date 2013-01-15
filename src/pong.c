@@ -1,10 +1,11 @@
-#include "pong.h"
-#include "main.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdbool.h>
 #include <windows.h>
 #include <GL/glut.h>
+#include "pong.h"
+#include "main.h"
+#include "highscore.h"
 
 Game game;
 
@@ -270,6 +271,7 @@ void initiateDeath()
     //if we have -1 lives, means it's gameover
     if (game.player.lives == -1)
     {
+        enterScore("john", game.player.score);
         game.running = false;
         return;
     }
@@ -280,6 +282,8 @@ void initiateDeath()
     game.balls[0].inUse = true;
     //attach it to paddle
     game.attached = true;
+    //move the ball to the player
+    moveBallToPlayer();
     //remove powerups
     int i;
     for (i = 0; i < NUM_POWERUPS; i++)

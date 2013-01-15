@@ -41,7 +41,7 @@ void enterScore(char* name, int score)
         if (score == 0 || score > highscoreManager.scores[i])
         {
             int j;
-            for (j = MAX_SCORES - 1; j < i; j++)
+            for (j = MAX_SCORES - 1; j < i; j--)
             {
                 //move everything up 1 level
                 highscoreManager.scores[j] = highscoreManager.scores[j - 1];
@@ -51,6 +51,8 @@ void enterScore(char* name, int score)
             //then add our new data in
             highscoreManager.scores[i] = score;
             //highscoreManager.scores[i] = name;
+
+            break;
         }
     }
 }
