@@ -7,6 +7,8 @@
 #include "main.h"
 #include "highscore.h"
 
+void doubleBalls();
+
 Game game;
 
 //general algorithm
@@ -129,55 +131,8 @@ void moveAndProcessPowerups()
             case BALL_COMET:
                 break;
             case MULT_BALL:
-            {
-                //double the amount of balls
-                //create a temp array half the size (all we'd ever need)
-                //and fill it with our new balls on first iteration
-                //then iterate through this and fill up our original ball array
-                Ball tempBalls[BALL_ARRAY_SIZE / 2];
-                int i, count = 0, tempI = 0;
-
-                for (i = 0; i < BALL_ARRAY_SIZE && count != game.numBalls; i++)
-                {
-                    if (game.balls[i].inUse)
-                    {
-                        //we temp clone the ball into our temp ball array
-                        Ball* b = &tempBalls[tempI];
-                        Ball* o = &game.balls[i];
-
-                        b->color = o->color;
-                        b->radius = o->radius;
-                        b->velX = -o->velX;
-                        b->velY = o->velY;
-                        b->x = o->x;
-                        b->y = o->y;
-                        b->inUse = true;
-
-                        tempI++;
-                        count++;
-                    }
-                }
-
-                for (i = 0, tempI = 0; i < BALL_ARRAY_SIZE / 2 && tempBalls[i].inUse; i++)
-                {
-                    while(game.balls[tempI++].inUse);
-                    printf("%d\n", tempI);
-                    Ball* b = &game.balls[tempI];
-                    Ball* o = &tempBalls[i];
-
-                    b->color = o->color;
-                    b->radius = o->radius;
-                    b->velX = o->velX;
-                    b->velY = o->velY;
-                    b->x = o->x;
-                    b->y = o->y;
-                    b->inUse = true;
-                }
-
-                //finally increment our number of balls
-                game.numBalls = min(BALL_ARRAY_SIZE, game.numBalls * 2);
-            }
-            break;
+                doubleBalls();
+                break;
             case FORCE_FIELD:
                 manager->forceFieldCount = FORCE_FIELD_COUNTDOWN;
                 manager->forceField = true;
@@ -216,6 +171,45 @@ void moveAndProcessPowerups()
         manager->forceFieldCount--;
         if (manager->forceFieldCount == 0) manager->forceField = false;
     }
+}
+
+void doubleBalls()
+{
+    //return if we have no room left for balls
+    if (BALL_ARRAY_SIZE == game.numBalls) return;
+    int numNewBalls = min(game.numBalls, BALL_ARRAY_SIZE - game.numBalls);
+
+    Ball tBalls[numNewBalls];
+    int i, j , count = 0;
+
+    //set to not in use
+    for (i = 0; i < numNewBalls; i++) tBalls[i].inUse = false;
+
+    //first we clone balls until we have enough
+    for (i = 0; i < BALL_ARRAY_SIZE && count != numNewBalls; i++)
+    {
+        if (!game.balls[i].inUse) continue;
+
+        //if ball is in use we copy it
+        tBalls[count] = game.balls[i];
+        count++;
+    }
+
+    //now we transfer cloned balls to the main ball array
+    for (i = 0; i < numNewBalls; i++)
+    {
+        for (j = 0; j < BALL_ARRAY_SIZE; j++)
+        {
+            if (game.balls[j].inUse) continue;
+
+            game.balls[j] = tBalls[i];
+            game.balls[j].velX *= -1;
+            break;
+        }
+    }
+
+    //then increment our ball
+    game.numBalls += numNewBalls;
 }
 
 void movePlayer()
@@ -271,7 +265,6 @@ void moveBalls()
             game.powerupManager.forceField = false;
         }
 
-
         if (ball->y < 0)
         {
             ball->inUse = false;
@@ -279,7 +272,6 @@ void moveBalls()
 
             //if there are no balls left, no point iterating over the rest
             if (game.numBalls == 0) return;
-
         }
         else if (ball->y + 2 * ball->radius > HEIGHT)
         {
@@ -370,6 +362,8 @@ void initGame()
 {
     int i;
 
+    game.paused = false;
+
     game.player.color = (Color)
     {
         0.5f, 0.5f, 0.5f, 0.5f
@@ -411,6 +405,8 @@ void initGame()
         p->inUse = false;
         p->width = 5;
     }
+    game.powerupManager.forceField = false;
+    game.powerupManager.forceFieldCount = 0;
 
     //controller stuff
     game.Keymanager.pause = false;
