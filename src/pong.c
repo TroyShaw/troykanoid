@@ -111,7 +111,8 @@ void moveAndProcessPowerups()
         //if we've collided, do some logic
         if (playerCollidePowerup(*p))
         {
-            switch (p->type)
+            //switch (p->type)
+            switch (MULT_BALL)
             {
             case PADDLE_INCREASE:
                 player->realWidth += PADDLE_CHANGE;
@@ -128,21 +129,55 @@ void moveAndProcessPowerups()
             case BALL_COMET:
                 break;
             case MULT_BALL:
-                //we double the amount of balls onscreen
-//                if (game.numBalls == 32) break;
-//
-//                game.numBalls++;
-//                Ball* bn = &game.balls[game.numBalls - 1];
-//                Ball* bo = &game.balls[game.numBalls - 2];
-//
-//                bn->x = bo->x;
-//                bn->y = bo->y;
-//                bn->color = bo->color;
-//                bn->velX = -bo->velX;
-//                bn->velY = bo->velY;
-//                bn->inUse = true;
-//                bn->radius = bo->radius;
-                break;
+            {
+                //double the amount of balls
+                //create a temp array half the size (all we'd ever need)
+                //and fill it with our new balls on first iteration
+                //then iterate through this and fill up our original ball array
+                Ball tempBalls[BALL_ARRAY_SIZE / 2];
+                int i, count = 0, tempI = 0;
+
+                for (i = 0; i < BALL_ARRAY_SIZE && count != game.numBalls; i++)
+                {
+                    if (game.balls[i].inUse)
+                    {
+                        //we temp clone the ball into our temp ball array
+                        Ball* b = &tempBalls[tempI];
+                        Ball* o = &game.balls[i];
+
+                        b->color = o->color;
+                        b->radius = o->radius;
+                        b->velX = -o->velX;
+                        b->velY = o->velY;
+                        b->x = o->x;
+                        b->y = o->y;
+                        b->inUse = true;
+
+                        tempI++;
+                        count++;
+                    }
+                }
+
+                for (i = 0, tempI = 0; i < BALL_ARRAY_SIZE / 2 && tempBalls[i].inUse; i++)
+                {
+                    while(game.balls[tempI++].inUse);
+                    printf("%d\n", tempI);
+                    Ball* b = &game.balls[tempI];
+                    Ball* o = &tempBalls[i];
+
+                    b->color = o->color;
+                    b->radius = o->radius;
+                    b->velX = o->velX;
+                    b->velY = o->velY;
+                    b->x = o->x;
+                    b->y = o->y;
+                    b->inUse = true;
+                }
+
+                //finally increment our number of balls
+                game.numBalls = min(BALL_ARRAY_SIZE, game.numBalls * 2);
+            }
+            break;
             case FORCE_FIELD:
                 manager->forceFieldCount = FORCE_FIELD_COUNTDOWN;
                 manager->forceField = true;
@@ -277,6 +312,11 @@ void initiateDeath()
         return;
     }
 
+    //reset paddle size and position
+    game.player.realWidth = PADDLE_DEFAULT_WIDTH;
+    game.player.width = PADDLE_DEFAULT_WIDTH;
+    game.player.x = (WIDTH - game.player.width) / 2;
+
     //set num balls back to 1
     game.numBalls = 1;
     //set first ball to on
@@ -334,12 +374,12 @@ void initGame()
     {
         0.5f, 0.5f, 0.5f, 0.5f
     };
-    game.player.width = 100;
+    game.player.width = PADDLE_DEFAULT_WIDTH;
     game.player.realWidth = game.player.width;
     game.player.x = (WIDTH - game.player.width) / 2;
     game.player.y = 10;
     game.player.height = 15;
-    game.player.lives = 3;
+    game.player.lives = DEFAULT_LIVES;
     game.player.score = 0;
 
     Ball* ball;

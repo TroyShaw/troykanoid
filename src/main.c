@@ -1,4 +1,4 @@
-#include <windows.h>
+#include <Windows.h>
 #include <sys/time.h>
 #include <GL/glut.h>
 #include <stdbool.h>
@@ -6,13 +6,14 @@
 #include "main.h"
 #include "pong.h"
 #include "renderer.h"
+#include <unistd.h>
 
 long long timeT = 0;
 struct timeval tv;
 
 int main(int argc, char **argv)
 {
-    loadHighscoresFromDisc();
+    //loadHighscoresFromDisc();
     glutInit(&argc, argv);
     initGlutWindow();
     initGL();
@@ -24,8 +25,11 @@ int main(int argc, char **argv)
 
 void initGlutWindow()
 {
+    RECT rc;
+    GetWindowRect(GetDesktopWindow(), &rc);
     glutInitWindowSize(WIDTH,HEIGHT);
-    glutInitWindowPosition(10,10);
+    glutInitWindowPosition((rc.right - WIDTH) / 2, (rc.bottom - HEIGHT) / 2);
+
     glutInitDisplayMode(GLUT_RGB | GLUT_DOUBLE | GLUT_DEPTH);
     glutCreateWindow("Troykanoid");
 

@@ -4,6 +4,8 @@
 #include "highscore.h"
 
 #define PLAYER_MOVE_SPEED 7             //the movement speed of the player in pixels per tick
+#define PADDLE_DEFAULT_WIDTH 100        //the default paddle size, and size it's set to on respawn
+#define DEFAULT_LIVES 3                 //the number of lives you get at start of game
 
 #define BALL_ARRAY_SIZE 32              //the max number, and size of the array, of balls on screen
 #define MAX_BLOCKS 128                  //the max number, and size of the array, of blocks the player can destroy
