@@ -13,7 +13,25 @@ struct timeval tv;
 
 int main(int argc, char **argv)
 {
-    //loadHighscoresFromDisc();
+    HANDLE h;
+
+    if (!OpenClipboard(NULL))
+    {
+        printf("Can't open clipboard");
+    }
+    else
+    {
+        h = GetClipboardData(CF_TEXT);
+
+        printf("%s\n", (char *)h);
+    }
+
+
+
+
+
+
+    loadHighscoresFromDisc();
     glutInit(&argc, argv);
     initGlutWindow();
     initGL();

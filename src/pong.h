@@ -82,7 +82,14 @@ typedef struct
 
 typedef struct
 {
-
+    int x;                                  //the absolute x position of this block
+    int y;                                  //the absolute y position of this block
+    int width;                              //the width of this block
+    int height;                             //the height of this block
+    Color color;                            //the color of this block
+    int type;                               //the type of this block
+    int hitsLeft;                           //the "health" of this block, how many more hits required before it dies
+    bool indestructable;                    //if this block is indestructable; balls just bounce off it
 } Block;
 
 typedef struct
@@ -97,6 +104,7 @@ typedef struct
 {
     bool running;                       //true if running, false if on menu screen
     bool paused;                        //true if we are in a game and paused, false we are not paused
+    int currentLevel;                   //the current level the player is on
     Player player;                      //the player
     Ball balls[BALL_ARRAY_SIZE];        //the balls
     int numBalls;                       //number of balls in use (useful for various reasons)
