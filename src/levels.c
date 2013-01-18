@@ -50,34 +50,58 @@ void populateLevel(int level)
 
     char c;
     int i = 0, x, y;
+    int height = (HEIGHT - 100) / BLOCKS_DOWN;
+    int width = WIDTH / BLOCKS_ACROSS;
 
     while ((c = fgetc(fp)) != EOF)
     {
-        if (c == '\n') continue; //ignore newlines
-        x = i % BLOCKS_ACROSS;
-        y = i / BLOCKS_DOWN;
+        if (c == '\n' || c == 13) continue; //ignore newlines
+        x = i % (BLOCKS_ACROSS - 0);
+        y = i / BLOCKS_ACROSS;
+
+        printf("(%d,%d) ", x, y);
+
+        if (i != 0 && i % 11 == 0) printf("\n");
 
         Block* b = &game.blocks[x][y];
         switch(c)
         {
             case '0': case '1': case '2': case '3': case '4':
             case '5': case '6': case '7': case '8':
-                b->color = (Color) {1, 0.1, 0.1, 1};
-                b->height = (HEIGHT - 50) / BLOCKS_DOWN;
-                b->width = WIDTH / BLOCKS_ACROSS;
+                b->color = colors[c - '0'];
+                b->height = height;
+                b->width = width;
                 b->hitsLeft = 1;
                 b->indestructable = false;
                 b->inUse = true;
                 b->points = points[c - '0'];
                 b->type = c - '0';
-                b->x = x * b->width;
-                b->y = HEIGHT - y * b->height;
+                b->x = x * width;
+                b->y = HEIGHT - (y + 1) * height;
                 break;
             case '9':
-                //do gold block stuff here
+                b->color = colors[c - '0'];
+                b->height = height;
+                b->width = width;
+                b->hitsLeft = 1;
+                b->indestructable = true;
+                b->inUse = true;
+                b->points = points[c - '0'];
+                b->type = c - '0';
+                b->x = x * width;
+                b->y = HEIGHT - (y + 1) * height;
                 break;
             case '.':
+                b->color = (Color) {0, 0, 0, 0};
+                b->height = height;
+                b->width = width;
+                b->hitsLeft = 1;
+                b->indestructable = false;
                 b->inUse = false;
+                b->points = points[c - '0'];
+                b->type = c - '0';
+                b->x = x * width;
+                b->y = HEIGHT - (y + 1) * height;
                 break;
             default:
                 printf("loaded wrong block %c/ %d\nprogram closing\b", c, c);
@@ -87,7 +111,6 @@ void populateLevel(int level)
 
         i++;
     }
-
 }
 
 static void initLoad()
@@ -98,5 +121,27 @@ static void initLoad()
     for (i = 0; i < 9; i++) points[i] = 50 + i * 10;
     //for ()
 
+// 0 = white,           50 points
+// 1 = orange,          60 points
+// 2 = light blue,      70 points
+// 3 = green,           80 points
+// 4 = red,             90 points
+// 5 = blue,            100 points
+// 6 = pink,            110 points
+// 7 = yellow,          120 points
+// 8 = silver,          50 pts x round number
+// 9 = gold,            (indestructable)
+// . = empty,           no block
+
+    colors[0] = (Color) {1, 1, 1, 1};       // white
+    colors[1] = (Color) {1, 0.5, 0, 0};     // orange
+    colors[2] = (Color) {0, 0, 0.5, 0};       // light blue
+    colors[3] = (Color) {0, 1, 0, 0};       // green
+    colors[4] = (Color) {1, 0, 0, 0};   // red
+    colors[5] = (Color) {0, 0, 1, 0};   // blue
+    colors[6] = (Color) {0.737, 0.43, 0.78, 0};   // pink
+    colors[7] = (Color) {1, 1, 0, 0};   // yellow
+    colors[8] = (Color) {0.9, 0.91, 0.98, 0};   // silver
+    colors[9] = (Color) {0.85, 0.85, 0.1, 0};   // gold
 
 }
