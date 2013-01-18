@@ -4,3 +4,5 @@ This is a very basic game, written mostly for learning purposes.
 <p>
 It features various powerups, including lots of balls, different sized paddles, powerful comet balls, and more.<br>
 It also includes a save feature which saves the best 9 scores to disc, along with the users name.
+<p>
+Uses the same level designs as the original arkanoid game.
