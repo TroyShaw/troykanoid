@@ -6,31 +6,12 @@
 #include "main.h"
 #include "pong.h"
 #include "renderer.h"
-#include <unistd.h>
 
 long long timeT = 0;
 struct timeval tv;
 
 int main(int argc, char **argv)
 {
-    HANDLE h;
-
-    if (!OpenClipboard(NULL))
-    {
-        printf("Can't open clipboard");
-    }
-    else
-    {
-        h = GetClipboardData(CF_TEXT);
-
-        printf("%s\n", (char *)h);
-    }
-
-
-
-
-
-
     loadHighscoresFromDisc();
     glutInit(&argc, argv);
     initGlutWindow();
@@ -43,6 +24,7 @@ int main(int argc, char **argv)
 
 void initGlutWindow()
 {
+    //center the screen
     RECT rc;
     GetWindowRect(GetDesktopWindow(), &rc);
     glutInitWindowSize(WIDTH,HEIGHT);
