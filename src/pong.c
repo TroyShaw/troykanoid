@@ -410,6 +410,9 @@ void initGame()
 
     //controller stuff
     game.Keymanager.pause = false;
+
+    //load level 1
+    populateLevel(1);
 }
 
 void setPowerupColor(int type)

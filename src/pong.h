@@ -2,6 +2,7 @@
 
 #include <stdbool.h>
 #include "highscore.h"
+#include "levels.h"
 
 #define PLAYER_MOVE_SPEED 7             //the movement speed of the player in pixels per tick
 #define PADDLE_DEFAULT_WIDTH 100        //the default paddle size, and size it's set to on respawn
@@ -42,8 +43,8 @@ typedef struct
 
 typedef struct
 {
-    int x;                              //x coord
-    int y;                              //y coord
+    float x;                              //x coord
+    float y;                              //y coord
     int radius;                         //radius of ball
     Color color;                        //its color
     float velX;                         //velocity in x axis
@@ -86,10 +87,12 @@ typedef struct
     int y;                                  //the absolute y position of this block
     int width;                              //the width of this block
     int height;                             //the height of this block
+    int points;                             //the number of points for destroying this block
     Color color;                            //the color of this block
     int type;                               //the type of this block
     int hitsLeft;                           //the "health" of this block, how many more hits required before it dies
     bool indestructable;                    //if this block is indestructable; balls just bounce off it
+    bool inUse;                             //true if we are displaying this
 } Block;
 
 typedef struct
@@ -112,7 +115,7 @@ typedef struct
     PowerupManager powerupManager;      //the manager for powerups
     HighscoreManager highscoreManager;  //the highscore manager
     Keymanager Keymanager;              //the key manager, holds keystate
-    Block blocks[MAX_BLOCKS];           //all the blocks
+    Block blocks[BLOCKS_ACROSS][BLOCKS_DOWN];//all the blocks
 } Game;
 
 
