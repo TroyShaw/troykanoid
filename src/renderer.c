@@ -7,6 +7,11 @@
 #include "renderer.h"
 #include "highscore.h"
 
+//fills a rectangle with the given dimensions in the last color that was set
+void fillRect(int x, int y, int w, int h);
+//draws the outline of a rectangle with the given dimensions in the last color that was set
+void drawRect(int x, int y, int w, int h);
+
 Game game;
 
 void render()
@@ -20,7 +25,7 @@ void renderGame()
     PowerupManager manager = game.powerupManager;
     Player player = game.player;
     //const double t = glutGet(GLUT_ELAPSED_TIME) / 1000.0;
-    int i;
+    int i, j;
 
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     glColor3d(1,0,0);
@@ -31,130 +36,72 @@ void renderGame()
     {
         Ball ball = game.balls[i];
         if (!ball.inUse) continue;
-        glPushMatrix();
-        glColor3f(ball.color.r, ball.color.g, ball.color.b);
-        glBegin(GL_POLYGON);
-        {
-            int x = ball.x;
-            int y = ball.y;
-            int h = ball.radius * 2;
-            int w = h;
 
-            glVertex3f(x, y, 0);
-            glVertex3f(x + w, y, 0);
-            glVertex3f(x + w, y + h, 0);
-            glVertex3f(x, y + h, 0);
-        }
-        glEnd();
-        glPopMatrix();
+        glColor3f(ball.color.r, ball.color.g, ball.color.b);
+        fillRect(ball.x, ball.y, ball.radius * 2, ball.radius * 2);
     }
 
-
-
 //draw powerups
-
     for (i = 0; i < POWERUP_ARRAY_SIZE; i++)
     {
         Powerup p = manager.powerups[i];
-
         if (!p.inUse) continue;
 
-        glPushMatrix();
         setPowerupColor(p.type);
-        glBegin(GL_POLYGON);
-        {
-            int x = p.x;
-            int y = p.y;
-            int h = p.height;
-            int w = p.width;
-
-            glVertex3f(x, y, 0);
-            glVertex3f(x + w, y, 0);
-            glVertex3f(x + w, y + h, 0);
-            glVertex3f(x, y + h, 0);
-        }
-        glEnd();
-        glPopMatrix();
+        fillRect(p.x, p.y, p.width, p.height);
     }
-
 //end draw powerups
+
+//draw blocks
+    for (i = 0; i < BLOCKS_ACROSS; i++)
+    {
+        for (j = 0; j < BLOCKS_DOWN; j++)
+        {
+            Block* block = &game.blocks[i][j];
+            if (!block->inUse) continue;
+
+            glColor3f(0.5, 0.5, 0.5);
+            drawRect(block->x, block->y, block->width, block->height);
+            glColor3f(block->color.r, block->color.g, block->color.b);
+            fillRect(block->x, block->y, block->width, block->height);
+        }
+    }
 
 //draw forcefield
     if (manager.forceField)
     {
-        glPushMatrix();
         glColor3f(player.color.r, player.color.g, player.color.b);
-        glBegin(GL_POLYGON);
-        {
-            int x = 0;
-            int y = 3;
-            int h = 7;
-            int w = WIDTH;
-
-            glVertex3f(x, y, 0);
-            glVertex3f(x + w, y, 0);
-            glVertex3f(x + w, y + h, 0);
-            glVertex3f(x, y + h, 0);
-        }
-        glEnd();
-        glPopMatrix();
+        drawRect(0, 3, 7, WIDTH);
     }
 //end draw forcefield
 
 //draw player
-    glPushMatrix();
     glColor3f(player.color.r, player.color.g, player.color.b);
-    glBegin(GL_POLYGON);
-    {
-        int x = player.x;
-        int y = player.y;
-        int h = player.height;
-        int w = player.width;
-
-        glVertex3f(x, y, 0);
-        glVertex3f(x + w, y, 0);
-        glVertex3f(x + w, y + h, 0);
-        glVertex3f(x, y + h, 0);
-    }
-    glEnd();
-    glPopMatrix();
+    fillRect(player.x, player.y, player.width, player.height);
 //end draw player
 
-    //info strings
+//info strings
     char lives[25];
     char score[100];
     sprintf(lives, "%s %d", "lives: ", player.lives);
     sprintf(score, "%s %d", "score: ", player.score);
     glutPrint(0, HEIGHT - 24, lives, 1.0f, 1.0f, 1.0f, 1.0f);
     glutPrint(0, HEIGHT - 48, score, 1.0f, 1.0f, 1.0f, 1.0f);
+//end draw info strings
 
-
-    //if we are paused, we draw a slightly transparent overly across the whole screen, then the "paused" string
+//if we are paused, we draw a slightly transparent overly across the whole screen, then the "paused" string
     if (game.paused)
     {
         glPushMatrix();
         glColor4f(0, 0, 0, 0.75);
 
-        glBegin(GL_POLYGON);
-        {
-            int x = 0;
-            int y = 0;
-            int h = HEIGHT;
-            int w = WIDTH;
-
-            glVertex3f(x, y, 0);
-            glVertex3f(x + w, y, 0);
-            glVertex3f(x + w, y + h, 0);
-            glVertex3f(x, y + h, 0);
-        }
-        glEnd();
-        glPopMatrix();
+        fillRect(0, 0, WIDTH, HEIGHT);
 
         char* pause = "paused - press P to unpause";
         int x = (WIDTH - glutBitmapLength(GLUT_BITMAP_TIMES_ROMAN_24, pause)) / 2;
         glutPrint(x, HEIGHT / 2, pause, 1.0f, 1.0f, 1.0f, 1.0f);
     }
-
+//end draw pause information
 
     glutSwapBuffers();
 }
@@ -189,14 +136,7 @@ void renderMenu()
     int nameX = 30;
     int scoreX = WIDTH / 2;
 
-    glBegin(GL_LINE_LOOP);
-    {
-        glVertex3f(x, y, 0);
-        glVertex3f(x + w, y, 0);
-        glVertex3f(x + w, y + h, 0);
-        glVertex3f(x, y + h, 0);
-    }
-    glEnd();
+    drawRect(x, y, w, h);
 
     glBegin(GL_LINES);
     {
@@ -248,13 +188,35 @@ void renderMenu()
 
         sprintf(score, "              ");
         sprintf(score, "%d", game.highscoreManager.scores[i]);
-        //printf("%d\n", game.highscoreManager.scores[i]);
         glutPrint(WIDTH / 2 + 5, y + (8 - i) * 30 + o, score, 1, 1, 1, 1);
     }
 
     glutSwapBuffers();
 }
 
+void fillRect(int x, int y, int w, int h)
+{
+    glBegin(GL_POLYGON);
+    {
+        glVertex3f(x, y, 0);
+        glVertex3f(x + w, y, 0);
+        glVertex3f(x + w, y + h, 0);
+        glVertex3f(x, y + h, 0);
+    }
+    glEnd();
+}
+
+void drawRect(int x, int y, int w, int h)
+{
+    glBegin(GL_LINE_LOOP);
+    {
+        glVertex3f(x, y, 0);
+        glVertex3f(x + w, y, 0);
+        glVertex3f(x + w, y + h, 0);
+        glVertex3f(x, y + h, 0);
+    }
+    glEnd();
+}
 
 void glutPrint(float x, float y, char* text, float r, float g, float b, float a)
 {
