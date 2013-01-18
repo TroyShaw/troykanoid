@@ -67,7 +67,7 @@ void loadHighscoresFromDisc()
         exit(EXIT_FAILURE);
     }
 
-    printf("loaded");
+    printf("loaded\n");
 }
 void saveHighscoresToDisc()
 {
@@ -96,19 +96,19 @@ void saveHighscoresToDisc()
     }
     else
     {
-        printf("save succesfull");
+        printf("save succesfull\n");
     }
 }
 void enterScore(char* name, int score)
 {
     if(!name || !strlen(name))
     {
-        printf("supplied name was null or empty");
+        printf("supplied name was null or empty\n");
         exit(EXIT_FAILURE);
     }
     if (score < 0)
     {
-        printf("supplied score was negative");
+        printf("supplied score was negative\n");
         exit(EXIT_FAILURE);
     }
 
