@@ -8,7 +8,7 @@
 #define PADDLE_DEFAULT_WIDTH 100        //the default paddle size, and size it's set to on respawn
 #define DEFAULT_LIVES 3                 //the number of lives you get at start of game
 
-#define BALL_ARRAY_SIZE 32              //the max number, and size of the array, of balls on screen
+#define BALL_ARRAY_SIZE 1024              //the max number, and size of the array, of balls on screen
 #define MAX_BLOCKS 128                  //the max number, and size of the array, of blocks the player can destroy
 #define POWERUP_ARRAY_SIZE 32           //the max number, and size of the array, of the powerups
 #define POWERUP_DROP_SPEED 4            //the drop speed in pixels per game tick
@@ -127,6 +127,8 @@ void movePlayer();
 void moveBalls();
 //moves the first ball to players location, should be used when ball is attached
 void moveBallToPlayer();
+//test collision of balls and blocks
+void ballBlockCollisions();
 //test collision of player vs ball
 void playerBallCollision();
 //returns true if player collided with that powerup

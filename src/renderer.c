@@ -57,6 +57,7 @@ void renderGame()
     {
         for (j = 0; j < BLOCKS_DOWN; j++)
         {
+
             Block* block = &game.blocks[i][j];
             if (!block->inUse) continue;
 

@@ -7,7 +7,7 @@
 
 static void initLoad();
 
-//
+
 // 0 = white,           50 points
 // 1 = orange,          60 points
 // 2 = light blue,      70 points
@@ -25,7 +25,7 @@ Color colors[10];
 int points[9];
 
 
-static const char* LEVEL_FILE = "levels.dat";
+static const char* LEVEL_FILE = "levels/l2.dat";
 
 Game game;
 void populateLevel(int level)
@@ -55,9 +55,9 @@ void populateLevel(int level)
 
     while ((c = fgetc(fp)) != EOF)
     {
-        if (c == '\n' || c == 13) continue; //ignore newlines
-        x = i % (BLOCKS_ACROSS - 0);
+        if (c == '\n' || c == 13) continue; //ignore newlines and carriage returns
         y = i / BLOCKS_ACROSS;
+        x = i - y * BLOCKS_ACROSS;
 
         printf("(%d,%d) ", x, y);
 

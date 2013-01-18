@@ -73,6 +73,7 @@ void tickGame()
         movePlayer();
         moveBalls();
         moveAndProcessPowerups();
+        ballBlockCollisions();
         playerBallCollision();
         if (game.numBalls == 0) initiateDeath();
     }
@@ -179,7 +180,7 @@ void doubleBalls()
     if (BALL_ARRAY_SIZE == game.numBalls) return;
     int numNewBalls = min(game.numBalls, BALL_ARRAY_SIZE - game.numBalls);
 
-    Ball tBalls[numNewBalls];
+    Ball tBalls[BALL_ARRAY_SIZE];
     int i, j , count = 0;
 
     //set to not in use
@@ -329,6 +330,36 @@ bool playerCollidePowerup(Powerup p)
 {
     Player pl = game.player;
     return collide(pl.x, pl.y, pl.width, pl.height, p.x, p.y, p.width, p.height);
+}
+
+void ballBlockCollisions()
+{
+    //need to test every ball against every block to determine if
+    int i, x, y;
+    Block *bl;
+    Ball *b;
+
+    for (i = 0; i < BALL_ARRAY_SIZE; i++)
+    {
+        b = &game.balls[i];
+        if (!b->inUse) continue;
+
+        for (x = 0; x < BLOCKS_ACROSS; x++)
+            for (y = 0; y < BLOCKS_DOWN; y++)
+            {
+                bl = &game.blocks[x][y];
+                if (!bl->inUse) continue;
+
+                if (collide(bl->x, bl->y, bl->width, bl->height, b->x, b->y, b->radius * 2, b->radius * 2))
+                {
+                    if (!bl->indestructable) bl->inUse = false;
+
+                    game.player.score += bl->points;
+                    b->velY *= -1;
+                }
+
+            }
+    }
 }
 
 void playerBallCollision()
