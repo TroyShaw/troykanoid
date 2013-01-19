@@ -4,6 +4,13 @@
 #include "highscore.h"
 #include "levels.h"
 
+typedef enum
+{
+    MAIN_MENU,
+    POST_GAME,
+    GAME
+} ScreenMode;
+
 #define PLAYER_MOVE_SPEED 7             //the movement speed of the player in pixels per tick
 #define PADDLE_DEFAULT_WIDTH 100        //the default paddle size, and size it's set to on respawn
 #define DEFAULT_LIVES 3                 //the number of lives you get at start of game
