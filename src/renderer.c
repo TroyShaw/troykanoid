@@ -71,7 +71,7 @@ void renderGame()
     if (manager.forceField)
     {
         glColor3f(player.color.r, player.color.g, player.color.b);
-        drawRect(0, 3, 7, WIDTH);
+        fillRect(0, 3, WIDTH, 7);
     }
 //end draw forcefield
 
