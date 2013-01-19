@@ -32,10 +32,9 @@ void renderGame()
 
 
 //draw ball
-    for (i = 0; i < BALL_ARRAY_SIZE; i++)
+    for (i = 0; i < game.numBalls; i++)
     {
         Ball ball = game.balls[i];
-        if (!ball.inUse) continue;
 
         glColor3f(ball.color.r, ball.color.g, ball.color.b);
         fillRect(ball.x, ball.y, ball.radius * 2, ball.radius * 2);

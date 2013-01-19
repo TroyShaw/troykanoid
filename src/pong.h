@@ -8,7 +8,7 @@
 #define PADDLE_DEFAULT_WIDTH 100        //the default paddle size, and size it's set to on respawn
 #define DEFAULT_LIVES 3                 //the number of lives you get at start of game
 
-#define BALL_ARRAY_SIZE 1024              //the max number, and size of the array, of balls on screen
+#define BALL_ARRAY_SIZE 64              //the max number, and size of the array, of balls on screen
 #define MAX_BLOCKS 128                  //the max number, and size of the array, of blocks the player can destroy
 #define POWERUP_ARRAY_SIZE 32           //the max number, and size of the array, of the powerups
 #define POWERUP_DROP_SPEED 4            //the drop speed in pixels per game tick
@@ -57,7 +57,7 @@ typedef struct
     int score;                          //score of player
     float x;                            //x coord
     float y;                            //y coord
-    int width;                          //current width of paddle
+    int width;                          //current width of paddle, drawing/ calculations will be done using this
     int realWidth;                      //actual width. current width will approach this each tick (to make a smooth transition)
     int height;                         //height of paddle
     int lives;                          //number of lives the player has left. Getting 0 will mean game over

@@ -82,9 +82,9 @@ void tickGame()
 void moveAndProcessPowerups()
 {
     PowerupManager *manager = &game.powerupManager;
-    Player* player = &game.player;
+    Player *player = &game.player;
     int i = 0;
-    Powerup* p;
+    Powerup *p;
     //true if we are generating a powerup this tick
     bool newP = randF() < POWERUP_PROB;
 
@@ -92,7 +92,7 @@ void moveAndProcessPowerups()
     for (i = 0; i < POWERUP_ARRAY_SIZE; i++)
     {
         //get powerup
-        p = &(manager->powerups[i]);
+        p = &manager->powerups[i];
         if (!p->inUse)
         {
             if (newP)
@@ -112,7 +112,7 @@ void moveAndProcessPowerups()
         }
 
         //if we've collided, do some logic
-        if (playerCollidePowerup(*p))
+        if (collide(player->x, player->y, player->width, player->height, p->x, p->y, p->width, p->height))
         {
             //switch (p->type)
             switch (MULT_BALL)
@@ -179,47 +179,26 @@ void doubleBalls()
     //return if we have no room left for balls
     if (BALL_ARRAY_SIZE == game.numBalls) return;
     int numNewBalls = min(game.numBalls, BALL_ARRAY_SIZE - game.numBalls);
+    int i;
 
-    Ball tBalls[BALL_ARRAY_SIZE];
-    int i, j , count = 0;
-
-    //set to not in use
-    for (i = 0; i < numNewBalls; i++) tBalls[i].inUse = false;
-
-    //first we clone balls until we have enough
-    for (i = 0; i < BALL_ARRAY_SIZE && count != numNewBalls; i++)
-    {
-        if (!game.balls[i].inUse) continue;
-
-        //if ball is in use we copy it
-        tBalls[count] = game.balls[i];
-        count++;
-    }
-
-    //now we transfer cloned balls to the main ball array
+    //clone our balls and invert x velocity
     for (i = 0; i < numNewBalls; i++)
     {
-        for (j = 0; j < BALL_ARRAY_SIZE; j++)
-        {
-            if (game.balls[j].inUse) continue;
-
-            game.balls[j] = tBalls[i];
-            game.balls[j].velX *= -1;
-            break;
-        }
+        game.balls[game.numBalls + i] = game.balls[i];
+        game.balls[game.numBalls + i].velX *= -1;
     }
 
-    //then increment our ball
+    //then increment our ball count
     game.numBalls += numNewBalls;
 }
 
 void movePlayer()
 {
-    Player* player = &game.player;
-    Keymanager kManager = game.Keymanager;
+    Player *player = &game.player;
+    Keymanager *kManager = &game.Keymanager;
 
     //will be -1 if left, 0 if left + right, 1 if right, 0 if neither
-    int x = kManager.right - kManager.left;
+    int x = kManager->right - kManager->left;
 
     //move player
     player->x += x * PLAYER_MOVE_SPEED;
@@ -231,14 +210,13 @@ void movePlayer()
 void moveBalls()
 {
     int i;
-    Ball* ball = NULL;
+    Ball *ball = NULL;
 
-    for (i = 0; i < BALL_ARRAY_SIZE; i++)
+    for (i = 0; i < game.numBalls; i++)
     {
-        ball = &(game.balls[i]);
-
-        //continue if ball isn't being used
-        if (!ball->inUse) continue;
+//if we move a ball, we redo the loop using the same i so that it also gets counted
+redo:
+        ball = &game.balls[i];
 
         //increment velocity
         ball->x += ball->velX;
@@ -268,11 +246,16 @@ void moveBalls()
 
         if (ball->y < 0)
         {
-            ball->inUse = false;
+            game.balls[i] = game.balls[max(game.numBalls - 1, 0)];
+            game.balls[max(game.numBalls - 1, 0)].inUse = false;
+            //ball->inUse = false;
             game.numBalls--;
 
             //if there are no balls left, no point iterating over the rest
-            if (game.numBalls == 0) return;
+            //also if i == game.numBalls otherwise we'll iterate over the last (and dead) ball
+            if (game.numBalls == 0 || i == game.numBalls) return;
+            //otherwise we have to redo the loop with this new ball so it's processed
+            else goto redo;
         }
         else if (ball->y + 2 * ball->radius > HEIGHT)
         {
@@ -284,8 +267,8 @@ void moveBalls()
 
 void moveBallToPlayer()
 {
-    Ball* ball = &game.balls[0];
-    Player* player = &game.player;
+    Ball *ball = &game.balls[0];
+    Player *player = &game.player;
 
     ball->y = player->y + player->height;
     ball->x = player->x + player->width / 2 - ball->radius;
@@ -326,11 +309,6 @@ void initiateDeath()
     }
 }
 
-bool playerCollidePowerup(Powerup p)
-{
-    Player pl = game.player;
-    return collide(pl.x, pl.y, pl.width, pl.height, p.x, p.y, p.width, p.height);
-}
 
 void ballBlockCollisions()
 {
@@ -339,10 +317,9 @@ void ballBlockCollisions()
     Block *bl;
     Ball *b;
 
-    for (i = 0; i < BALL_ARRAY_SIZE; i++)
+    for (i = 0; i < game.numBalls; i++)
     {
         b = &game.balls[i];
-        if (!b->inUse) continue;
 
         for (x = 0; x < BLOCKS_ACROSS; x++)
             for (y = 0; y < BLOCKS_DOWN; y++)
@@ -357,7 +334,6 @@ void ballBlockCollisions()
                     game.player.score += bl->points;
                     b->velY *= -1;
                 }
-
             }
     }
 }
@@ -365,25 +341,22 @@ void ballBlockCollisions()
 void playerBallCollision()
 {
     int i;
-    Ball ball;
-    Player player = game.player;
+    Ball *ball;
+    Player *player = &game.player;
 
-    for (i = 0; i < BALL_ARRAY_SIZE; i++)
+    for (i = 0; i < game.numBalls; i++)
     {
-        ball = game.balls[i];
+        ball = &game.balls[i];
 
-        if (!ball.inUse) continue;
-
-        if (collide(player.x, player.y, player.width, player.height, ball.x, ball.y, ball.radius * 2, ball.radius * 2))
+        if (collide(player->x, player->y, player->width, player->height, ball->x, ball->y, ball->radius * 2, ball->radius * 2))
         {
-            float pos = (ball.x + ball.radius - player.x) / (float) player.width;
+            float pos = (ball->x + ball->radius - player->x) / (float) player->width;
             if (pos < 0) pos = 0;
             if (pos > 1) pos = 1;
 
-            ball.velY *= -1;
-            ball.velX = 5.0f * (2.0f * pos - 1.0f);
-            ball.y = player.y + player.height;
-            game.balls[i] = ball;
+            ball->velY *= -1;
+            ball->velX = 5.0f * (2.0f * pos - 1.0f);
+            ball->y = player->y + player->height;
         }
     }
 }

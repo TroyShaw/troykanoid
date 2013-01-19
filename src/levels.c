@@ -25,7 +25,7 @@ Color colors[10];
 int points[9];
 
 
-static const char* LEVEL_FILE = "levels/l2.dat";
+static const char* LEVEL_FILE = "levels/l3.dat";
 
 Game game;
 void populateLevel(int level)
@@ -49,7 +49,7 @@ void populateLevel(int level)
     printf("loading level file...\n");
 
     char c;
-    int i = 0, x, y;
+    int i = 0, x, y, blocks = 0;
     int height = (HEIGHT - 100) / BLOCKS_DOWN;
     int width = WIDTH / BLOCKS_ACROSS;
 
@@ -58,10 +58,6 @@ void populateLevel(int level)
         if (c == '\n' || c == 13) continue; //ignore newlines and carriage returns
         y = i / BLOCKS_ACROSS;
         x = i - y * BLOCKS_ACROSS;
-
-        printf("(%d,%d) ", x, y);
-
-        if (i != 0 && i % 11 == 0) printf("\n");
 
         Block* b = &game.blocks[x][y];
         switch(c)
@@ -78,6 +74,7 @@ void populateLevel(int level)
                 b->type = c - '0';
                 b->x = x * width;
                 b->y = HEIGHT - (y + 1) * height;
+                blocks++;
                 break;
             case '9':
                 b->color = colors[c - '0'];
@@ -90,6 +87,7 @@ void populateLevel(int level)
                 b->type = c - '0';
                 b->x = x * width;
                 b->y = HEIGHT - (y + 1) * height;
+                blocks++;
                 break;
             case '.':
                 b->color = (Color) {0, 0, 0, 0};
@@ -98,7 +96,7 @@ void populateLevel(int level)
                 b->hitsLeft = 1;
                 b->indestructable = false;
                 b->inUse = false;
-                b->points = points[c - '0'];
+                b->points = 0;
                 b->type = c - '0';
                 b->x = x * width;
                 b->y = HEIGHT - (y + 1) * height;
