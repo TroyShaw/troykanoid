@@ -25,7 +25,7 @@ Color colors[10];
 int points[9];
 
 
-static const char* LEVEL_FILE = "levels/l3.dat";
+static char LEVEL_FILE[] = "levels/lxx.dat";
 
 Game game;
 void populateLevel(int level)
@@ -37,6 +37,18 @@ void populateLevel(int level)
         printf("tried to load invalid level %d\n", level);
         exit(1);
     }
+
+    if (level < 10)
+    {
+        LEVEL_FILE[8] = '0';
+        LEVEL_FILE[9] = (char) ('0' + level);
+    }
+    else
+    {
+        LEVEL_FILE[8] = (char) ('0' + level / 10);
+        LEVEL_FILE[9] = (char) ('0' + level % 10);
+    }
+
 
     FILE *fp = fopen(LEVEL_FILE, "r");
 
@@ -83,11 +95,10 @@ void populateLevel(int level)
                 b->hitsLeft = 1;
                 b->indestructable = true;
                 b->inUse = true;
-                b->points = points[c - '0'];
+                b->points = 0;
                 b->type = c - '0';
                 b->x = x * width;
                 b->y = HEIGHT - (y + 1) * height;
-                blocks++;
                 break;
             case '.':
                 b->color = (Color) {0, 0, 0, 0};
@@ -109,6 +120,8 @@ void populateLevel(int level)
 
         i++;
     }
+
+    game.blocksLeft = blocks;
 }
 
 static void initLoad()
@@ -117,19 +130,6 @@ static void initLoad()
     int i;
 
     for (i = 0; i < 9; i++) points[i] = 50 + i * 10;
-    //for ()
-
-// 0 = white,           50 points
-// 1 = orange,          60 points
-// 2 = light blue,      70 points
-// 3 = green,           80 points
-// 4 = red,             90 points
-// 5 = blue,            100 points
-// 6 = pink,            110 points
-// 7 = yellow,          120 points
-// 8 = silver,          50 pts x round number
-// 9 = gold,            (indestructable)
-// . = empty,           no block
 
     colors[0] = (Color) {1, 1, 1, 1};       // white
     colors[1] = (Color) {1, 0.5, 0, 0};     // orange

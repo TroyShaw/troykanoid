@@ -76,6 +76,7 @@ void tickGame()
         ballBlockCollisions();
         playerBallCollision();
         if (game.numBalls == 0) initiateDeath();
+        if (game.blocksLeft == 0) gotoNextLevel();
     }
 }
 
@@ -114,8 +115,7 @@ void moveAndProcessPowerups()
         //if we've collided, do some logic
         if (collide(player->x, player->y, player->width, player->height, p->x, p->y, p->width, p->height))
         {
-            //switch (p->type)
-            switch (MULT_BALL)
+            switch (p->type)
             {
             case PADDLE_INCREASE:
                 player->realWidth += PADDLE_CHANGE;
@@ -137,6 +137,9 @@ void moveAndProcessPowerups()
             case FORCE_FIELD:
                 manager->forceFieldCount = FORCE_FIELD_COUNTDOWN;
                 manager->forceField = true;
+                break;
+            case EXTRA_LIFE:
+                player->lives++;
                 break;
             }
 
@@ -309,6 +312,23 @@ void initiateDeath()
     }
 }
 
+void gotoNextLevel()
+{
+    if (game.currentLevel == NUM_LEVELS)
+    {
+        //we just beat the final level, so gameover
+        game.running = false;
+        //then save highscore
+        saveHighscoresToDisc();
+        return;
+    }
+
+    //reset balls/ powerups/ paddle/ load new level
+    game.currentLevel++;
+    populateLevel(game.currentLevel);
+
+}
+
 
 void ballBlockCollisions()
 {
@@ -329,9 +349,14 @@ void ballBlockCollisions()
 
                 if (collide(bl->x, bl->y, bl->width, bl->height, b->x, b->y, b->radius * 2, b->radius * 2))
                 {
-                    if (!bl->indestructable) bl->inUse = false;
-
-                    game.player.score += bl->points;
+                    if (!bl->indestructable)
+                    {
+                        //ball wasn't indestructable, so set it to not used, subtract from total blocks, increment score
+                        bl->inUse = false;
+                        game.blocksLeft--;
+                        game.player.score += bl->points;
+                    }
+                    //invert direction of bounce
                     b->velY *= -1;
                 }
             }
@@ -379,6 +404,7 @@ void initGame()
     game.player.height = 15;
     game.player.lives = DEFAULT_LIVES;
     game.player.score = 0;
+    game.currentLevel = 1;
 
     Ball* ball;
     for (i = 0; i < BALL_ARRAY_SIZE; i++)
