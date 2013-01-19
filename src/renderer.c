@@ -36,7 +36,8 @@ void renderGame()
     {
         Ball ball = game.balls[i];
 
-        glColor3f(ball.color.r, ball.color.g, ball.color.b);
+        if (manager.meteor) glColor3f(1, 0.1, 0.1);
+        else glColor3f(ball.color.r, ball.color.g, ball.color.b);
         fillRect(ball.x, ball.y, ball.radius * 2, ball.radius * 2);
     }
 

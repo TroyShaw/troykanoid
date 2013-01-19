@@ -13,8 +13,9 @@
 #define POWERUP_ARRAY_SIZE 32           //the max number, and size of the array, of the powerups
 #define POWERUP_DROP_SPEED 4            //the drop speed in pixels per game tick
 #define POWERUP_PROB 0.005              //the probability of a powerup appearing in a tick
-#define FORCE_FIELD_COUNTDOWN 600       //number of ticks it takes before forcefield goes away
 #define POWERUP_POINTS 50               //amount of points you get for picking up a powerup
+#define FORCE_FIELD_COUNTDOWN 600       //number of ticks it takes before forcefield goes away
+#define METEOR_COUNTDOWN 600            //number of ticks it takes before meteor powerup goes away
 
 ////////////////
 //  POWERUPS  //
@@ -81,6 +82,8 @@ typedef struct
     Powerup powerups[POWERUP_ARRAY_SIZE];   //the array of all powerups.
     bool forceField;                        //true if the user has activated the forcefield
     int forceFieldCount;                    //ticks left the field has
+    bool meteor;                            //true if the balls are in meteor mode (go straight through destructable blocks)
+    int meteorCount;                        //ticks left the meteor has
 } PowerupManager;
 
 typedef struct

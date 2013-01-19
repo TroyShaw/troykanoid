@@ -130,13 +130,15 @@ void moveAndProcessPowerups()
             case BALL_SLOWDOWN:
                 break;
             case BALL_COMET:
+                manager->meteor = true;
+                manager->meteorCount = METEOR_COUNTDOWN;
                 break;
             case MULT_BALL:
                 doubleBalls();
                 break;
             case FORCE_FIELD:
-                manager->forceFieldCount = FORCE_FIELD_COUNTDOWN;
                 manager->forceField = true;
+                manager->forceFieldCount = FORCE_FIELD_COUNTDOWN;
                 break;
             case EXTRA_LIFE:
                 player->lives++;
@@ -174,6 +176,13 @@ void moveAndProcessPowerups()
     {
         manager->forceFieldCount--;
         if (manager->forceFieldCount == 0) manager->forceField = false;
+    }
+
+    //decrement the meteor
+    if (manager->meteor > 0)
+    {
+        manager->meteorCount--;
+        if (manager->meteorCount == 0) manager->meteor = false;
     }
 }
 
@@ -356,8 +365,8 @@ void ballBlockCollisions()
                         game.blocksLeft--;
                         game.player.score += bl->points;
                     }
-                    //invert direction of bounce
-                    b->velY *= -1;
+                    //invert direction of bounce (don't do if balls are in meteor mode
+                    if (!game.powerupManager.meteor || bl->indestructable) b->velY *= -1;
                 }
             }
     }
