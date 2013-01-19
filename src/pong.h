@@ -13,7 +13,6 @@
 #define POWERUP_ARRAY_SIZE 32           //the max number, and size of the array, of the powerups
 #define POWERUP_DROP_SPEED 4            //the drop speed in pixels per game tick
 #define POWERUP_PROB 0.005              //the probability of a powerup appearing in a tick
-#define NUM_POWERUPS 7                  //the number of powerups defined (check below)
 #define FORCE_FIELD_COUNTDOWN 600       //number of ticks it takes before forcefield goes away
 #define POWERUP_POINTS 50               //amount of points you get for picking up a powerup
 
@@ -27,6 +26,9 @@
 #define BALL_COMET 4                    //causes the ball to become a comet for a duration, which means it destroys blocks instantly
 #define MULT_BALL 5                     //causes the number of balls on screent to double (to a max of BALL_ARRAY_SIZE
 #define FORCE_FIELD 6                   //causes a forcefield to appear below the player which rebounds a single ball
+#define EXTRA_LIFE 7                    //gives the player an extra life
+
+#define NUM_POWERUPS 7                  //the number of powerups defined (check below)
 
 #define MAX_PADDLE_SIZE 350             //the maximum size of the paddle
 #define MIN_PADDLE_SIZE 10              //the minimum size of the paddle
@@ -108,6 +110,7 @@ typedef struct
     bool running;                       //true if running, false if on menu screen
     bool paused;                        //true if we are in a game and paused, false we are not paused
     int currentLevel;                   //the current level the player is on
+    int blocksLeft;                     //the amount of breakable blocks left on this level
     Player player;                      //the player
     Ball balls[BALL_ARRAY_SIZE];        //the balls
     int numBalls;                       //number of balls in use (useful for various reasons)

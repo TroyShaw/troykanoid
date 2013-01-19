@@ -52,7 +52,6 @@ void initGL()
 
 void key(unsigned char key, int x, int y)
 {
-    printf("%c",  key);
     if (key > 'z') key = key - ('A' - 'a');
     switch (key)
     {
