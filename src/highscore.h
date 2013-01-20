@@ -11,6 +11,8 @@ void saveHighscoresToDisc();
 void enterScore(char* name, int score);
 //sets the position variable in the struct to what position the score is
 //will be between 1 and MAX_SCORES. If it is -1 it means it is did not get a placing
+//doesn't actually change the highscore, just allows you to check what placing the player is
+//get the players name, call enterScore(name, score), then call saveHighscoresToDisc() to save scores properly
 void setScore(int score);
 
 typedef struct {
