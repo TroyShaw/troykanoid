@@ -12,11 +12,16 @@ struct timeval tv;
 
 int main(int argc, char **argv)
 {
+    //initialize the random number generator with new value
+    srand(time(NULL));
+    //load scores
     loadHighscoresFromDisc();
+    //init stuff
     glutInit(&argc, argv);
     initGlutWindow();
     initGL();
 
+    //main game happens here
     glutMainLoop();
 
     return EXIT_SUCCESS;

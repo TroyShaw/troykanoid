@@ -486,14 +486,16 @@ void initGame()
 
 void setPowerupColor(int type)
 {
-    //glColor3f(1.0f, 0.2f, 0.2f);
-    glColor3f(randF(), randF(), randF());
+    glColor3f(0.2f, 0.9f, 0.2f);
+    //glColor3f(randF(), randF(), randF());
 }
 
 
 float randF()
 {
-    return ((float) rand()) / RAND_MAX;
+    float r = (float) rand() / RAND_MAX;
+    printf("%f\n", r);
+    return r;
 }
 
 bool collide(int tx, int ty, int tw, int th, int rx, int ry, int rw, int rh)
