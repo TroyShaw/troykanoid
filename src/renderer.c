@@ -7,6 +7,8 @@
 #include "renderer.h"
 #include "highscore.h"
 
+void renderPostGame();
+
 //fills a rectangle with the given dimensions in the last color that was set
 void fillRect(int x, int y, int w, int h);
 //draws the outline of a rectangle with the given dimensions in the last color that was set
@@ -16,8 +18,18 @@ Game game;
 
 void render()
 {
-    if (game.running)   renderGame();
-    else                renderMenu();
+    switch (game.mode)
+    {
+    case GAME:
+        renderGame();
+        break;
+    case MAIN_MENU:
+        renderMenu();
+        break;
+    case POST_GAME:
+        renderPostGame();
+        break;
+    }
 }
 
 void renderGame()
@@ -190,6 +202,76 @@ void renderMenu()
         sprintf(score, "              ");
         sprintf(score, "%d", game.highscoreManager.scores[i]);
         glutPrint(WIDTH / 2 + 5, y + (8 - i) * 30 + o, score, 1, 1, 1, 1);
+    }
+
+    glutSwapBuffers();
+}
+
+void renderPostGame()
+{
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    glColor3d(1,0,0);
+
+    char *won = "Congratulations, you completed Troykanoid!";
+    char *lost = "Oh no! You died!";
+
+    char *noHS = "You didn't make it onto the highscores... Press enter to continue";
+    char highscore[] = "You came xxx! Enter your name and press enter!";
+
+    int i = game.highscoreManager.position;
+    int x, y;
+
+    if (game.currentLevel == NUM_LEVELS)
+    {
+        x = (WIDTH - glutBitmapLength(GLUT_BITMAP_TIMES_ROMAN_24, won)) / 2;
+        glutPrint(x, HEIGHT - 50, won, 1, 1, 1, 1);
+    }
+    else
+    {
+        x = (WIDTH - glutBitmapLength(GLUT_BITMAP_TIMES_ROMAN_24, lost)) / 2;
+        glutPrint(x, HEIGHT - 50, lost, 1, 1, 1, 1);
+    }
+
+    if (i != -1)
+    {
+        //add 1st/2nd/3rd etc to string
+        //1st - 2nd - 3rd - 4/5/6/7/8/9th
+        switch (i)
+        {
+        case 1:
+            highscore[10] = '1';
+            highscore[11] = 's';
+            highscore[12] = 't';
+            break;
+        case 2:
+            highscore[10] = '2';
+            highscore[11] = 'n';
+            highscore[12] = 'd';
+            break;
+        case 3:
+            highscore[10] = '3';
+            highscore[11] = 'r';
+            highscore[12] = 'd';
+            break;
+        case 4:
+        case 5:
+        case 6:
+        case 7:
+        case 8:
+        case 9:
+            highscore[10] = '0' + i;
+            highscore[11] = 't';
+            highscore[12] ='h';
+            break;
+        }
+
+        x = (WIDTH - glutBitmapLength(GLUT_BITMAP_TIMES_ROMAN_24, highscore)) / 2;
+        glutPrint(x, HEIGHT - 50, highscore, 1, 1, 1, 1);
+    }
+    else
+    {
+        x = (WIDTH - glutBitmapLength(GLUT_BITMAP_TIMES_ROMAN_24, noHS)) / 2;
+        glutPrint(x, HEIGHT - 50, noHS, 1, 1, 1, 1);
     }
 
     glutSwapBuffers();

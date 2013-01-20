@@ -9,7 +9,7 @@ typedef enum
     MAIN_MENU,
     POST_GAME,
     GAME
-} ScreenMode;
+} GameMode;
 
 #define PLAYER_MOVE_SPEED 7             //the movement speed of the player in pixels per tick
 #define PADDLE_DEFAULT_WIDTH 100        //the default paddle size, and size it's set to on respawn
@@ -117,7 +117,7 @@ typedef struct
 
 typedef struct
 {
-    bool running;                       //true if running, false if on menu screen
+    GameMode mode;                      //the mode of the game
     bool paused;                        //true if we are in a game and paused, false we are not paused
     int currentLevel;                   //the current level the player is on
     int blocksLeft;                     //the amount of breakable blocks left on this level
@@ -133,7 +133,7 @@ typedef struct
 
 
 //ticks the game. Should be done at around 30 times per second
-void tickGame();
+void tick();
 //moves the player
 void movePlayer();
 //moves all the ball, (to be used when ball isn't attached). Keeps them within bounds of left/right/ceiling

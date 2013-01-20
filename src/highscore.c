@@ -140,3 +140,18 @@ void enterScore(char* name, int score)
         }
     }
 }
+
+void setScore(int score)
+{
+    int i;
+    game.highscoreManager.position = -1;
+
+    for (i = 0; i < MAX_SCORES; i++)
+    {
+        if (game.highscoreManager.scores[i] == 0 || score > game.highscoreManager.scores[i])
+        {
+            game.highscoreManager.position = i + 1;
+            return;
+        }
+    }
+}

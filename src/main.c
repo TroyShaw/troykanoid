@@ -119,7 +119,7 @@ void process()
 
     if (milli - timeT >= TICK_TIME)
     {
-        tickGame();
+        tick();
         timeT = milli;
 
         //only need to redraw if we have changed state

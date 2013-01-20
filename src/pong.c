@@ -7,7 +7,12 @@
 #include "main.h"
 #include "highscore.h"
 
+void tickMenu();
+void tickGame();
+void tickPostGame();
+
 void doubleBalls();
+
 
 Game game;
 
@@ -31,25 +36,36 @@ Game game;
 //          set first ball to active
 //          set attached mode
 
+void tick()
+{
+    switch (game.mode)
+    {
+    case MAIN_MENU:
+        tickMenu();
+        break;
+    case GAME:
+        tickGame();
+        break;
+    case POST_GAME:
+        tickPostGame();
+        break;
+    }
+}
+
+void tickMenu()
+{
+    if (game.Keymanager.space)
+    {
+        game.mode = GAME;
+        initGame();
+
+        //do this so that the user needs to push space again to fire the ball
+        game.Keymanager.space = false;
+    }
+}
+
 void tickGame()
 {
-
-    if (!game.running)
-    {
-        if (game.Keymanager.space)
-        {
-            game.running = true;
-            initGame();
-
-            //do this so that the user needs to push space again to fire the ball
-            game.Keymanager.space = false;
-        }
-        else
-        {
-            return;
-        }
-    }
-
     if (game.Keymanager.pause)
     {
         //set to false so we don't redo this next tick
@@ -78,6 +94,11 @@ void tickGame()
         if (game.numBalls == 0) initiateDeath();
         if (game.blocksLeft == 0) gotoNextLevel();
     }
+}
+
+void tickPostGame()
+{
+
 }
 
 void moveAndProcessPowerups()
@@ -294,7 +315,7 @@ void initiateDeath()
     if (game.player.lives == -1)
     {
         enterScore("john", game.player.score);
-        game.running = false;
+        game.mode = MAIN_MENU;
         //then save highscore
         saveHighscoresToDisc();
         return;
@@ -326,12 +347,12 @@ void gotoNextLevel()
     if (game.currentLevel == NUM_LEVELS)
     {
         //we just beat the final level, so gameover
-        game.running = false;
+        game.mode = MAIN_MENU;
         //then save highscore
         saveHighscoresToDisc();
         return;
     }
-
+    game.mode = POST_GAME;
     //reset balls/ powerups/ paddle/ load new level
     game.currentLevel++;
     populateLevel(game.currentLevel);
