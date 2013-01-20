@@ -11,8 +11,13 @@ void tickMenu();
 void tickGame();
 void tickPostGame();
 
-void doubleBalls();
+void gotoNextLevel();
 
+void doubleBalls();
+//generates a new powerup (assumes a block has been destroyed and probability determined to generate one)
+//x and y are the middle of the block in which the powerup was destroyed. It needs to be adjusted
+//for the width of the powerup too
+void generatePowerup(int x, int y);
 
 Game game;
 
@@ -107,31 +112,13 @@ void moveAndProcessPowerups()
     Player *player = &game.player;
     int i = 0;
     Powerup *p;
-    //true if we are generating a powerup this tick
-    bool newP = randF() < POWERUP_PROB;
 
     //iterate over whole range
     for (i = 0; i < POWERUP_ARRAY_SIZE; i++)
     {
         //get powerup
         p = &manager->powerups[i];
-        if (!p->inUse)
-        {
-            if (newP)
-            {
-                //if not in use and we want a new one, we should generate it
-                p->inUse = true;
-                p->y = 400;
-                p->width = 10;
-                p->height = 10;
-                p->x = randF() * WIDTH;
-                p->type = randF() * NUM_POWERUPS;
-                //then set flag to false so we don't generate another
-                newP = false;
-            }
-            //otherwise continue loop
-            continue;
-        }
+        if (!p->inUse) continue;
 
         //if we've collided, do some logic
         if (collide(player->x, player->y, player->width, player->height, p->x, p->y, p->width, p->height))
@@ -223,6 +210,29 @@ void doubleBalls()
 
     //then increment our ball count
     game.numBalls += numNewBalls;
+}
+
+void generatePowerup(int x, int y)
+{
+    int w = 10, h = 10;
+    int i;
+    Powerup *p;
+
+    for (i = 0; i < POWERUP_ARRAY_SIZE; i++)
+    {
+        p = &game.powerupManager.powerups[i];
+        if (p->inUse) continue;
+
+        p->width = w;
+        p->height = h;
+        p->x = x - w / 2;
+        p->y = y - h / 2;
+        p->type = randF() * NUM_POWERUPS;
+        p->inUse = true;
+
+        //return since we only generate 1 powerup
+        return;
+    }
 }
 
 void movePlayer()
@@ -356,9 +366,7 @@ void gotoNextLevel()
     //reset balls/ powerups/ paddle/ load new level
     game.currentLevel++;
     populateLevel(game.currentLevel);
-
 }
-
 
 void ballBlockCollisions()
 {
@@ -385,6 +393,7 @@ void ballBlockCollisions()
                         bl->inUse = false;
                         game.blocksLeft--;
                         game.player.score += bl->points;
+                        if (randF() < POWERUP_PROB) generatePowerup(bl->x + bl->width / 2, bl->y + bl->height);
                     }
                     //invert direction of bounce (don't do if balls are in meteor mode
                     if (!game.powerupManager.meteor || bl->indestructable) b->velY *= -1;

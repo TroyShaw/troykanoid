@@ -19,7 +19,7 @@ typedef enum
 #define MAX_BLOCKS 128                  //the max number, and size of the array, of blocks the player can destroy
 #define POWERUP_ARRAY_SIZE 32           //the max number, and size of the array, of the powerups
 #define POWERUP_DROP_SPEED 4            //the drop speed in pixels per game tick
-#define POWERUP_PROB 0.005              //the probability of a powerup appearing in a tick
+#define POWERUP_PROB 0.2                //the probability of a powerup appearing in a tick
 #define POWERUP_POINTS 50               //amount of points you get for picking up a powerup
 #define FORCE_FIELD_COUNTDOWN 600       //number of ticks it takes before forcefield goes away
 #define METEOR_COUNTDOWN 600            //number of ticks it takes before meteor powerup goes away
