@@ -42,7 +42,6 @@ void renderGame()
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     glColor3d(1,0,0);
 
-
 //draw ball
     for (i = 0; i < game.numBalls; i++)
     {
