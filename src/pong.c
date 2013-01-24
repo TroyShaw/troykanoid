@@ -103,6 +103,7 @@ void tickGame()
 
 void tickPostGame()
 {
+    //don't think I need to do anything here yet
 
 }
 
@@ -324,10 +325,9 @@ void initiateDeath()
     //if we have -1 lives, means it's gameover
     if (game.player.lives == -1)
     {
-        enterScore("john", game.player.score);
-        game.mode = MAIN_MENU;
-        //then save highscore
-        saveHighscoresToDisc();
+        setScore(game.player.score);
+        game.mode = POST_GAME;
+
         return;
     }
 
@@ -357,12 +357,11 @@ void gotoNextLevel()
     if (game.currentLevel == NUM_LEVELS)
     {
         //we just beat the final level, so gameover
-        game.mode = MAIN_MENU;
-        //then save highscore
-        saveHighscoresToDisc();
+        setScore(game.player.score);
+        game.mode = POST_GAME;
         return;
     }
-    game.mode = POST_GAME;
+
     //reset balls/ powerups/ paddle/ load new level
     game.currentLevel++;
     populateLevel(game.currentLevel);
