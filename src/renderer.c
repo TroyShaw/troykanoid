@@ -267,8 +267,20 @@ void renderPostGame()
         x = (WIDTH - glutBitmapLength(GLUT_BITMAP_TIMES_ROMAN_24, highscore)) / 2;
         glutPrint(x, HEIGHT - 250, highscore, 1, 1, 1, 1);
 
-        x = (WIDTH - glutBitmapLength(GLUT_BITMAP_TIMES_ROMAN_24, game.highscoreManager.nameBuffer)) / 2;
-        glutPrint(x, HEIGHT - 280, game.highscoreManager.nameBuffer, 1, 1, 1, 1);
+        char *nb = game.highscoreManager.nameBuffer;
+        x = (WIDTH - glutBitmapLength(GLUT_BITMAP_TIMES_ROMAN_24, nb)) / 2;
+        glutPrint(x, HEIGHT - 280, nb, 1, 1, 1, 1);
+
+        //print a flashing curser
+        struct timeval tv;
+        gettimeofday(&tv, NULL);
+        unsigned long long milli = (unsigned long long)(tv.tv_sec) * 1000 + (unsigned long long)(tv.tv_usec) / 1000;
+
+        if ((milli / CURSER_BLINK_RATE) % 2 == 0)
+        {
+            glColor4f(1.0, 1.0, 1.0, 1.0);
+            drawRect(x + glutBitmapLength(GLUT_BITMAP_TIMES_ROMAN_24, nb), HEIGHT - 283, 1, 23);
+        }
     }
     else
     {
