@@ -238,19 +238,19 @@ void renderPostGame()
         switch (i)
         {
         case 1:
-            highscore[10] = '1';
-            highscore[11] = 's';
-            highscore[12] = 't';
+            highscore[9] = '1';
+            highscore[10] = 's';
+            highscore[11] = 't';
             break;
         case 2:
-            highscore[10] = '2';
-            highscore[11] = 'n';
-            highscore[12] = 'd';
+            highscore[9]  = '2';
+            highscore[10] = 'n';
+            highscore[11] = 'd';
             break;
         case 3:
-            highscore[10] = '3';
-            highscore[11] = 'r';
-            highscore[12] = 'd';
+            highscore[9]  = '3';
+            highscore[10] = 'r';
+            highscore[11] = 'd';
             break;
         case 4:
         case 5:
@@ -258,19 +258,22 @@ void renderPostGame()
         case 7:
         case 8:
         case 9:
-            highscore[10] = '0' + i;
-            highscore[11] = 't';
-            highscore[12] ='h';
+            highscore[9]  = '0' + i;
+            highscore[10] = 't';
+            highscore[11] ='h';
             break;
         }
 
         x = (WIDTH - glutBitmapLength(GLUT_BITMAP_TIMES_ROMAN_24, highscore)) / 2;
-        glutPrint(x, HEIGHT - 50, highscore, 1, 1, 1, 1);
+        glutPrint(x, HEIGHT - 250, highscore, 1, 1, 1, 1);
+
+        x = (WIDTH - glutBitmapLength(GLUT_BITMAP_TIMES_ROMAN_24, game.highscoreManager.nameBuffer)) / 2;
+        glutPrint(x, HEIGHT - 280, game.highscoreManager.nameBuffer, 1, 1, 1, 1);
     }
     else
     {
         x = (WIDTH - glutBitmapLength(GLUT_BITMAP_TIMES_ROMAN_24, noHS)) / 2;
-        glutPrint(x, HEIGHT - 50, noHS, 1, 1, 1, 1);
+        glutPrint(x, HEIGHT - 250, noHS, 1, 1, 1, 1);
     }
 
     glutSwapBuffers();
