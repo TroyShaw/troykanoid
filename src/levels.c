@@ -1,4 +1,3 @@
-
 #include <stdio.h>
 #include <stdlib.h>
 #include "levels.h"
@@ -72,50 +71,36 @@ void populateLevel(int level)
         x = i - y * BLOCKS_ACROSS;
 
         Block* b = &game.blocks[x][y];
+
+        b->width = width;
+        b->height = height;
+        b->x = x * width;
+        b->y = HEIGHT - (y + 1) * height;
+        b->type = c - '0';
+
         switch(c)
         {
             case '0': case '1': case '2': case '3': case '4':
             case '5': case '6': case '7': case '8':
                 b->color = colors[c - '0'];
-                b->height = height;
-                b->width = width;
                 b->hitsLeft = 1;
                 b->indestructable = false;
                 b->inUse = true;
                 b->points = points[c - '0'];
-                b->type = c - '0';
-                b->x = x * width;
-                b->y = HEIGHT - (y + 1) * height;
                 blocks++;
                 break;
             case '9':
                 b->color = colors[c - '0'];
-                b->height = height;
-                b->width = width;
-                b->hitsLeft = 1;
                 b->indestructable = true;
                 b->inUse = true;
-                b->points = 0;
-                b->type = c - '0';
-                b->x = x * width;
-                b->y = HEIGHT - (y + 1) * height;
                 break;
             case '.':
                 b->color = (Color) {0, 0, 0, 0};
-                b->height = height;
-                b->width = width;
-                b->hitsLeft = 1;
-                b->indestructable = false;
                 b->inUse = false;
-                b->points = 0;
-                b->type = c - '0';
-                b->x = x * width;
-                b->y = HEIGHT - (y + 1) * height;
                 break;
             default:
                 printf("loaded wrong block %c/ %d\nprogram closing\b", c, c);
                 exit(1);
-                //break;
         }
 
         i++;
@@ -141,5 +126,4 @@ static void initLoad()
     colors[7] = (Color) {1, 1, 0, 0};   // yellow
     colors[8] = (Color) {0.9, 0.91, 0.98, 0};   // silver
     colors[9] = (Color) {0.85, 0.85, 0.1, 0};   // gold
-
 }
