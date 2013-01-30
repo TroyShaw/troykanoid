@@ -1,7 +1,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-
+#include <ctype.h>
+#include <windows.h>
 #include "pong.h"
 #include "highscore.h"
 
@@ -99,8 +100,13 @@ void saveHighscoresToDisc()
         printf("save succesfull\n");
     }
 }
-void enterScore(char* name, int score)
+
+void enterScore(int score)
 {
+    HighscoreManager *hm = &game.highscoreManager;
+    char *name = hm->nameBuffer;
+    int i;
+
     if(!name || !strlen(name))
     {
         printf("supplied name was null or empty\n");
@@ -112,33 +118,37 @@ void enterScore(char* name, int score)
         exit(EXIT_FAILURE);
     }
 
-    int i;
-
     //we iterate from highest to lowest score
     //if we find a score we are bigger than,
     //we iterate from MAX_SCORE back to the score we
-
     for (i = 0; i < MAX_SCORES; i++)
     {
         //if the score is greater than the current score...
-        if (game.highscoreManager.scores[i] == 0 || score > game.highscoreManager.scores[i])
+        if (hm->scores[i] == 0 || score > hm->scores[i])
         {
             //we want to move all old scores down, then overwrite new position
             int j;
             for (j = MAX_SCORES - 1; j > i; j--)
             {
                 //move everything up 1 level
-                game.highscoreManager.scores[j] = game.highscoreManager.scores[j - 1];
-                strcpy(game.highscoreManager.names[j], game.highscoreManager.names[j - 1]);
+                hm->scores[j] = hm->scores[j - 1];
+                strcpy(hm->names[j], hm->names[j - 1]);
             }
 
             //then add our new data in
-            game.highscoreManager.scores[i] = score;
-            strcpy(game.highscoreManager.names[i], name);
+            hm->scores[i] = score;
+            strcpy(hm->names[i], name);
 
             break;
         }
     }
+
+    //finally we reset the variables for the next game
+    for (i = 0; i < MAX_CHAR_IN_NAME; i++)
+        hm->nameBuffer[i] = '\0';
+
+    hm->bufferIndex = 0;
+    hm->position = -1;
 }
 
 void setScore(int score)
@@ -154,4 +164,41 @@ void setScore(int score)
             return;
         }
     }
+}
+
+void enterChar(unsigned char c)
+{
+    HighscoreManager *m = &game.highscoreManager;
+    int i = m->bufferIndex;
+
+    //ctrl + backspace / del key
+    if (c == 127)
+    {
+        for (; i > 0; i--) m->nameBuffer[i - 1] = '\0';
+        m->bufferIndex = 0;
+    }
+    //backspace chara
+    else if (c == 8 && i != 0)
+    {
+        //backspace
+        m->nameBuffer[i - 1] = '\0';
+        m->bufferIndex--;
+    }
+    //only characters a-zA-Z0-9_ are valid
+    else if ((isalnum(c) || isalpha(c) || c == '_'))
+    {
+        //restrict i so we don't go out of string
+        i = min(i, MAX_CHAR_IN_NAME - 2);
+
+        m->nameBuffer[i] = c;
+        m->nameBuffer[i + 1] = '\0';
+        //restrict index from going past the last null terminator
+        m->bufferIndex = min(i + 1, MAX_CHAR_IN_NAME - 1);
+    }
+}
+//verifies the highscore name
+//this checks it is of valid length, has no invalid charas, etc
+bool verifyHighscoreName()
+{
+    return true;
 }
