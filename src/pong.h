@@ -41,7 +41,7 @@ typedef enum
 #define NUM_POWERUPS 9                  //the number of powerups defined (check below)
 
 #define MAX_PADDLE_SIZE 350             //the maximum size of the paddle
-#define MIN_PADDLE_SIZE 10              //the minimum size of the paddle
+#define MIN_PADDLE_SIZE 40              //the minimum size of the paddle
 #define PADDLE_CHANGLE_SPEED 5          //the speed at which the paddle increases
 #define PADDLE_CHANGE 40                //the amount of pixels the paddle increases/ decreases by when picking up that powerup
 
