@@ -57,12 +57,31 @@ void initGL()
 
 void key(unsigned char key, int x, int y)
 {
+    if (key == 27) exit(0);
+
+
+    if (game.mode == POST_GAME)
+    {
+        switch (key)
+        {
+        case 13:
+            if (verifyHighscoreName())
+            {
+                enterScore(game.player.score);
+                saveHighscoresToDisc();
+                game.mode = MAIN_MENU;
+            }
+        default:
+            enterChar(key);
+        }
+
+        process();
+        return;
+    }
+
     if (key > 'z') key = key - ('A' - 'a');
     switch (key)
     {
-    case 27:
-        exit(0);
-        break;
     case 32:
         game.Keymanager.space = true;
         break;
@@ -104,6 +123,11 @@ void keyUp(unsigned char key, int x, int y)
     }
 
     process();
+}
+
+void specialFunc()
+{
+
 }
 
 void idle()

@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include <math.h>
 #include <windows.h>
 #include <GL/glut.h>
 #include "pong.h"
@@ -369,36 +370,188 @@ void gotoNextLevel()
 
 void ballBlockCollisions()
 {
-    //need to test every ball against every block to determine if
-    int i, x, y;
-    Block *bl;
-    Ball *b;
+    //algorithm:
+    //  we have a 3x3 2d array of bools that represent collisions with adjacent squares
+    //  imagine the ball is in the center of the array (1, 1) and each
+
+
+    int i, j, k, x, y, xV, yV;
+    Block *bl = NULL;
+    Ball *b = NULL;
+    //true if the ball collided in either direction this tick
+    //invert that directions velocity after iterating over all balls to change direction only once
+    bool collidedX = false, collidedY = false;
+    bool collided[3][3];
 
     for (i = 0; i < game.numBalls; i++)
     {
         b = &game.balls[i];
+        for (j = 0; j < 9; j++) collided[j % 3][j / 3] = false;
 
-        for (x = 0; x < BLOCKS_ACROSS; x++)
-            for (y = 0; y < BLOCKS_DOWN; y++)
+        //get (x,y) of ball on screen in blocks. Coordinate system starts (0,0) at top left corner
+        x = (float) (b->x + b->radius) / WIDTH * BLOCKS_ACROSS;
+        y = (HEIGHT - (b->y + b->radius)) / game.blocks[0]->height;
+
+        //we default to not affecting velocities
+        xV = 0;
+        yV = 0;
+
+        for (j = -1; j < 2; j++)
+        {
+            for (k = -1; k < 2; k++)
             {
-                bl = &game.blocks[x][y];
-                if (!bl->inUse) continue;
+                int ix = j + x;
+                int iy = k + y;
+                if (ix < 0 || iy < 0 || ix >= BLOCKS_ACROSS || iy >= BLOCKS_DOWN) continue;
 
-                if (collide(bl->x, bl->y, bl->width, bl->height, b->x, b->y, b->radius * 2, b->radius * 2))
+                bl = &game.blocks[ix][iy];
+
+                collided[j + 1][k + 1] = bl->inUse && collide(bl->x, bl->y, bl->width, bl->height, b->x, b->y, b->radius * 2, b->radius * 2);
+            }
+        }
+
+        //for (j = 0; j < 9; j++) if (collided[j % 3][j / 3]) printf("asd %d ", collided[j % 3][j / 3]);
+
+        //diagonals
+        if (collided[0][1] && collided[1][0])
+        {
+            collided[0][0] = false;
+            xV = 1;
+            yV = -1;
+        }
+        else if (collided[1][0] && collided[2][1])
+        {
+            collided[2][0] = false;
+            xV = 1;
+            yV = -1;
+        }
+        else if (collided[0][1] && collided[1][2])
+        {
+            collided[0][2] = false;
+            xV = 1;
+            yV = 1;
+        }
+        else if (collided[1][2] && collided[2][1])
+        {
+            collided[2][2] = false;
+            xV = -1;
+            yV = 1;
+        }
+
+        //left and right
+        if ((collided[0][0] && collided[0][1]) || (collided[0][1] && collided[0][2]))
+        {
+            xV = 1;
+            yV = 0;
+        }
+        else if ((collided[2][0] && collided[2][1]) || (collided[2][1] && collided[2][2]))
+        {
+            xV = -1;
+            yV = 0;
+        }
+
+        //top and bottom
+        if ((collided[0][0] && collided[1][0]) || (collided[1][0] && collided[2][0]))
+        {
+            xV = 0;
+            yV = -1;
+        }
+        else if ((collided[0][2] && collided[1][2]) || (collided[1][2] && collided[2][2]))
+        {
+            xV = 0;
+            yV = 1;
+        }
+
+        //single middles
+        if (collided[1][0])
+        {
+            xV = 0;
+            yV = -1;
+        }
+        if (collided[0][1])
+        {
+            xV = 1;
+            yV = 0;
+        }
+        if (collided[1][2])
+        {
+            xV = 0;
+            yV = 1;
+        }
+        if (collided[2][1])
+        {
+            xV = -1;
+            yV = 0;
+        }
+
+        //adjust velocities based on collisions
+        if (xV != 0) b->velX = xV * abs(b->velX);
+        if (yV != 0) b->velY = yV * abs(b->velY);
+
+        //destroy blocks now
+        for (j = -1; j < 2; j++)
+        {
+            for (k = -1; k < 2; k++)
+            {
+                int ix = j + x;
+                int iy = k + y;
+                if (!collided[j + 1][k + 1] || ix < 0 || iy < 0 || ix >= BLOCKS_ACROSS || iy >= BLOCKS_DOWN) continue;
+
+                bl = &game.blocks[ix][iy];
+
+                if (!bl->indestructable)
                 {
-                    if (!bl->indestructable)
-                    {
-                        //ball wasn't indestructable, so set it to not used, subtract from total blocks, increment score
-                        bl->inUse = false;
-                        game.blocksLeft--;
-                        game.player.score += bl->points;
-                        if (randF() < POWERUP_PROB) generatePowerup(bl->x + bl->width / 2, bl->y + bl->height);
-                    }
-                    //invert direction of bounce (don't do if balls are in meteor mode
-                    if (!game.powerupManager.meteor || bl->indestructable) b->velY *= -1;
+                    //ball wasn't indestructable, so set it to not used, subtract from total blocks, increment score
+                    bl->inUse = false;
+                    game.blocksLeft--;
+                    game.player.score += bl->points;
+                    if (randF() < POWERUP_PROB) generatePowerup(bl->x + bl->width / 2, bl->y + bl->height);
                 }
             }
+        }
     }
+
+
+//    for (i = 0; i < game.numBalls; i++)
+//    {
+//        b = &game.balls[i];
+//        collidedX = false;
+//        collidedY = false;
+//
+//        for (x = 0; x < BLOCKS_ACROSS; x++)
+//            for (y = 0; y < BLOCKS_DOWN; y++)
+//            {
+//                bl = &game.blocks[x][y];
+//                if (!bl->inUse) continue;
+//
+//                if (collide(bl->x, bl->y, bl->width, bl->height, b->x, b->y, b->radius * 2, b->radius * 2))
+//                {
+//                    int xb;
+//                    int yb;
+//
+//                    xb = (float) (b->x + b->radius) / WIDTH * BLOCKS_ACROSS;
+//                    yb = (float) (b->y - b->radius) / HEIGHT * BLOCKS_DOWN;
+//                    yb = (BLOCKS_DOWN - 1) - yb;
+//                    //printf("collided (%d, %d)   ball (%d, %d)\n", x, y, xb, yb);
+//
+//
+//                    if (!bl->indestructable)
+//                    {
+//                        //ball wasn't indestructable, so set it to not used, subtract from total blocks, increment score
+//                        bl->inUse = false;
+//                        game.blocksLeft--;
+//                        game.player.score += bl->points;
+//                        if (randF() < POWERUP_PROB) generatePowerup(bl->x + bl->width / 2, bl->y + bl->height);
+//                    }
+//                    //invert direction of bounce (don't do if balls are in meteor mode
+//                    if (!game.powerupManager.meteor || bl->indestructable) b->velY *= -1;
+//                }
+//            }
+//
+//        //invert direction if ball collided
+//        if (collidedX) b->velX *= -1.0;
+//        if (collidedY) b->velY *= -1.0;
+//    }
 }
 
 void playerBallCollision()
@@ -493,7 +646,6 @@ void setPowerupColor(int type)
 float randF()
 {
     float r = (float) rand() / RAND_MAX;
-    printf("%f\n", r);
     return r;
 }
 
