@@ -109,6 +109,9 @@ void doubleBalls()
     {
         game.balls[game.numBalls + i] = game.balls[i];
         game.balls[game.numBalls + i].velX *= -1;
+        //make ball always shoot upwards otherwise makes it hard to keep ball in play
+        //when ball is descending
+        game.balls[game.numBalls + i].velY = abs(game.balls[game.numBalls + i].velY);
     }
 
     //then increment our ball count
