@@ -195,24 +195,24 @@ void renderMenu()
 //end vertical lines
 //end table
 
-//text
+//vertical numbers (1-9), names, scores
     char* header = "Highscores";
     sx = (WIDTH - glutBitmapLength(GLUT_BITMAP_TIMES_ROMAN_24, header)) / 2;
     glutPrint(sx, y + 9 * rowHeight + o, header, 1, 1, 1, 1);
 
-    char* str = malloc(2 * sizeof(char));
-
+//numbers from 1-9
+    char str[2];
     for (i = 0; i < 9; i++)
     {
         str[0] = (char) (i + '1');
         str[1] = '\0';
         glutPrint(x + o, y + (8 - i) * rowHeight + o, str, 1, 1, 1, 1);
     }
-    free(str);
+//end numbers
 
-    //no way we'd need more than 15 sized array for our score (int only holds 5)
+//name and score
+    //array for score string (15 is a safe amount for our purposes)
     char score[15];
-
     for (i = 0; i < MAX_SCORES; i++)
     {
         glutPrint(nameX + o, y + (8 - i) * rowHeight + o, game.highscoreManager.names[i], 1, 1, 1, 1);
@@ -222,6 +222,8 @@ void renderMenu()
         sx = x + w - glutBitmapLength(GLUT_BITMAP_TIMES_ROMAN_24, score) - o;
         glutPrint(sx, y + (8 - i) * rowHeight + o, score, 1, 1, 1, 1);
     }
+//end name and score
+//end numbers, names and scores
 
     glutSwapBuffers();
 }
