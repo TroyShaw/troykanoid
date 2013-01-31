@@ -1,7 +1,7 @@
 #pragma once
 
 #define MAX_SCORES 9
-#define MAX_CHAR_IN_NAME 16
+#define MAX_CHAR_IN_NAME 14
 
 //loads the highscores from the disc to the manager struct
 void loadHighscoresFromDisc();

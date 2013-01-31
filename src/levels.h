@@ -4,6 +4,7 @@
 #define BLOCKS_ACROSS 11
 #define BLOCKS_DOWN 20
 
-//populates the level
-//if the level is out of bounds, it crashes the program
+//populates the level array
+
+//if the level is out of bounds, the program aborts
 void populateLevel(int level);

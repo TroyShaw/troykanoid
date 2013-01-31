@@ -6,6 +6,7 @@
 #include "pong.h"
 #include "renderer.h"
 #include "highscore.h"
+#include "powerups.h"
 
 void renderPostGame();
 
