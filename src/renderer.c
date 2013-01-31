@@ -121,87 +121,106 @@ void renderGame()
 
 void renderMenu()
 {
+    //coordinates of main table
+    int x = 75;
+    int y = 100;
+    //dimensions of main table
+    int h = 300;
+    int w = WIDTH - x * 2;
+
+    //x coordinate of line divider for the name columns
+    int nameX = x + 25;
+    //x coordinate of line divider for the score columns
+    int scoreX = WIDTH / 2 + 100;
+    //height of each row
+    int rowHeight = 30;
+
+    //offset for letters from column lines
+    int o = 7;
+
+    //string x var (strength length) and temp var for transient use
+    int sx, i;
+
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     glColor3d(1,0,0);
 
+//info strings
     char* title = "Troykanoid!";
-    int x = (WIDTH - glutBitmapLength(GLUT_BITMAP_TIMES_ROMAN_24, title)) / 2;
-    glutPrint(x, HEIGHT - 50, title, 1, 1, 1, 1);
+    sx = (WIDTH - glutBitmapLength(GLUT_BITMAP_TIMES_ROMAN_24, title)) / 2;
+    glutPrint(sx, HEIGHT - 50, title, 1, 1, 1, 1);
 
     char* keys = "wasd to move, spacebar to fire ball";
-    x = (WIDTH - glutBitmapLength(GLUT_BITMAP_TIMES_ROMAN_24, keys)) / 2;
-    glutPrint(x, 70, keys, 1, 1, 1, 1);
+    sx = (WIDTH - glutBitmapLength(GLUT_BITMAP_TIMES_ROMAN_24, keys)) / 2;
+    glutPrint(sx, 70, keys, 1, 1, 1, 1);
 
     char* start = "Push spacebar to start!";
-    x = (WIDTH - glutBitmapLength(GLUT_BITMAP_TIMES_ROMAN_24, start)) / 2;
-    glutPrint(x, 30, start, 1, 1, 1, 1);
+    sx = (WIDTH - glutBitmapLength(GLUT_BITMAP_TIMES_ROMAN_24, start)) / 2;
+    glutPrint(sx, 30, start, 1, 1, 1, 1);
+//end info strings
 
-    //highscore table
-
+//highscore table
     glPushMatrix();
     glColor4f(1, 1, 1, 1);
 
-    x = 100;
-    int y = 100;
-    int h = 300;
-    int w = WIDTH - y * 2;
-
-    int nameX = 30;
-    int scoreX = WIDTH / 2;
-
+//main table
+//outline
     drawRect(x, y, w, h);
+//end outline
 
+//horozontal lines
     glBegin(GL_LINES);
     {
-        int i;
         for (i = 0; i < 10; i++)
         {
-            glVertex3f(x, y + i * 30, 0);
-            glVertex3f(x + w, y + i * 30, 0);
+            glVertex3f(x, y + i * rowHeight, 0);
+            glVertex3f(x + w, y + i * rowHeight, 0);
         }
     }
     glEnd();
+//end horozontal lines
 
+//two vertical lines
     glBegin(GL_LINES);
     {
         //vertical line after numbers
-        glVertex3f(x + nameX, y, 0);
-        glVertex3f(x + nameX, y + 9 * 30, 0);
+        glVertex3f(nameX, y, 0);
+        glVertex3f(nameX, y + 9 * rowHeight, 0);
 
         //vertical line after name
         glVertex3f(scoreX, y, 0);
-        glVertex3f(scoreX, y + 9 * 30, 0);
+        glVertex3f(scoreX, y + 9 * rowHeight, 0);
     }
     glEnd();
     glPopMatrix();
+//end vertical lines
+//end table
 
-    //now the actual text
-    int o = 7;
-
+//text
     char* header = "Highscores";
-    x = (WIDTH - glutBitmapLength(GLUT_BITMAP_TIMES_ROMAN_24, header)) / 2;
-    glutPrint(x, y + 9 * 30 + o, header, 1, 1, 1, 1);
+    sx = (WIDTH - glutBitmapLength(GLUT_BITMAP_TIMES_ROMAN_24, header)) / 2;
+    glutPrint(sx, y + 9 * rowHeight + o, header, 1, 1, 1, 1);
 
-    int i;
     char* str = malloc(2 * sizeof(char));
 
     for (i = 0; i < 9; i++)
     {
         str[0] = (char) (i + '1');
         str[1] = '\0';
-        glutPrint(108, y + (8 - i) * 30 + o, str, 1, 1, 1, 1);
+        glutPrint(x + o, y + (8 - i) * rowHeight + o, str, 1, 1, 1, 1);
     }
     free(str);
 
+    //no way we'd need more than 15 sized array for our score (int only holds 5)
     char score[15];
 
     for (i = 0; i < MAX_SCORES; i++)
     {
-        glutPrint(100 + nameX, y + (8 - i) * 30 + o, game.highscoreManager.names[i], 1, 1, 1, 1);
+        glutPrint(nameX + o, y + (8 - i) * rowHeight + o, game.highscoreManager.names[i], 1, 1, 1, 1);
 
         sprintf(score, "              ");
         sprintf(score, "%d", game.highscoreManager.scores[i]);
-        glutPrint(WIDTH / 2 + 5, y + (8 - i) * 30 + o, score, 1, 1, 1, 1);
+        sx = x + w - glutBitmapLength(GLUT_BITMAP_TIMES_ROMAN_24, score) - o;
+        glutPrint(sx, y + (8 - i) * rowHeight + o, score, 1, 1, 1, 1);
     }
 
     glutSwapBuffers();
