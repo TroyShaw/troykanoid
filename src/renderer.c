@@ -276,8 +276,8 @@ void renderPostGame()
         struct timeval tv;
         gettimeofday(&tv, NULL);
         unsigned long long milli = (unsigned long long)(tv.tv_sec) * 1000 + (unsigned long long)(tv.tv_usec) / 1000;
-
-        if ((milli / CURSER_BLINK_RATE) % 2 == 0)
+        unsigned long long dif = milli - getLastPress();
+        if (dif < CURSER_BLINK_RATE || (dif / CURSER_BLINK_RATE) % 2 == 0)
         {
             glColor4f(1.0, 1.0, 1.0, 1.0);
             drawRect(x + glutBitmapLength(GLUT_BITMAP_TIMES_ROMAN_24, nb), HEIGHT - 283, 1, 23);

@@ -9,6 +9,7 @@
 static const char *FILE_NAME = "hs.dat";
 
 Game game;
+unsigned long long lastPress;
 
 void loadHighscoresFromDisc()
 {
@@ -171,6 +172,7 @@ void enterChar(unsigned char c)
     HighscoreManager *m = &game.highscoreManager;
     int i = m->bufferIndex;
 
+    bool setTime = true;
     //ctrl + backspace / del key
     if (c == 127)
     {
@@ -194,6 +196,13 @@ void enterChar(unsigned char c)
         m->nameBuffer[i + 1] = '\0';
         //restrict index from going past the last null terminator
         m->bufferIndex = min(i + 1, MAX_CHAR_IN_NAME - 1);
+    } else setTime = false; //no valid character pressed, so don't set time
+
+    if (setTime)
+    {
+        struct timeval tv;
+        gettimeofday(&tv, NULL);
+        lastPress = (unsigned long long)(tv.tv_sec) * 1000 + (unsigned long long)(tv.tv_usec) / 1000;
     }
 }
 //verifies the highscore name
@@ -201,4 +210,9 @@ void enterChar(unsigned char c)
 bool verifyHighscoreName()
 {
     return true;
+}
+
+unsigned long long getLastPress()
+{
+    return lastPress;
 }

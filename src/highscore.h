@@ -23,6 +23,8 @@ void enterChar(unsigned char c);
 //verifies the highscore name
 //this checks it is of valid length, has no invalid charas, etc
 bool verifyHighscoreName();
+//returns the time in millis since the last valid key press (backspace included)
+unsigned long long getLastPress();
 
 typedef struct {
     char names[MAX_SCORES][MAX_CHAR_IN_NAME];
