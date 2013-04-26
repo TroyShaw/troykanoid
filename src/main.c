@@ -7,6 +7,14 @@
 #include "pong.h"
 #include "renderer.h"
 
+void initGlutWindow();
+void initGL();
+void display();
+void key(unsigned char key, int x, int y);
+void keyUp(unsigned char key, int x, int y);
+void idle();
+void process();
+
 long long timeT = 0;
 struct timeval tv;
 
@@ -64,6 +72,7 @@ void key(unsigned char key, int x, int y)
     {
         switch (key)
         {
+        //enter
         case 13:
             if (verifyHighscoreName())
             {

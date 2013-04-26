@@ -14,6 +14,10 @@ void renderPostGame();
 void fillRect(int x, int y, int w, int h);
 //draws the outline of a rectangle with the given dimensions in the last color that was set
 void drawRect(int x, int y, int w, int h);
+//draws a rectangle with given dimensions and GL mode
+void rect(int x, int y, int w, int h, int mode);
+//draws a single solid line in the last color that was set
+void drawLine(float x1, float y1, float x2, float y2);
 
 Game game;
 
@@ -168,30 +172,20 @@ void renderMenu()
 //end outline
 
 //horozontal lines
-    glBegin(GL_LINES);
+    for (i = 0; i < 10; i++)
     {
-        for (i = 0; i < 10; i++)
-        {
-            glVertex3f(x, y + i * rowHeight, 0);
-            glVertex3f(x + w, y + i * rowHeight, 0);
-        }
+        drawLine(x, y + i * rowHeight, x + w, y + i * rowHeight);
+        //glVertex3f(x, y + i * rowHeight, 0);
+        //glVertex3f(x + w, y + i * rowHeight, 0);
     }
-    glEnd();
 //end horozontal lines
 
 //two vertical lines
-    glBegin(GL_LINES);
-    {
-        //vertical line after numbers
-        glVertex3f(nameX, y, 0);
-        glVertex3f(nameX, y + 9 * rowHeight, 0);
+    //vertical line after numbers
+    drawLine(nameX, y, nameX, y + 9 * rowHeight);
 
-        //vertical line after name
-        glVertex3f(scoreX, y, 0);
-        glVertex3f(scoreX, y + 9 * rowHeight, 0);
-    }
-    glEnd();
-    glPopMatrix();
+    //vertical line after name
+    drawLine(scoreX, y, scoreX, y + 9 * rowHeight);
 //end vertical lines
 //end table
 
@@ -217,7 +211,7 @@ void renderMenu()
     {
         glutPrint(nameX + o, y + (8 - i) * rowHeight + o, game.highscoreManager.names[i], 1, 1, 1, 1);
 
-        sprintf(score, "              ");
+        sprintf(score, "\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0");
         sprintf(score, "%d", game.highscoreManager.scores[i]);
         sx = x + w - glutBitmapLength(GLUT_BITMAP_TIMES_ROMAN_24, score) - o;
         glutPrint(sx, y + (8 - i) * rowHeight + o, score, 1, 1, 1, 1);
@@ -315,7 +309,17 @@ void renderPostGame()
 
 void fillRect(int x, int y, int w, int h)
 {
-    glBegin(GL_POLYGON);
+    rect(x, y, w, h, GL_POLYGON);
+}
+
+void drawRect(int x, int y, int w, int h)
+{
+    rect(x, y, w, h, GL_LINE_LOOP);
+}
+
+void rect(int x, int y, int w, int h, int mode)
+{
+    glBegin(mode);
     {
         glVertex3f(x, y, 0);
         glVertex3f(x + w, y, 0);
@@ -325,14 +329,12 @@ void fillRect(int x, int y, int w, int h)
     glEnd();
 }
 
-void drawRect(int x, int y, int w, int h)
+void drawLine(float x1, float y1, float x2, float y2)
 {
-    glBegin(GL_LINE_LOOP);
+    glBegin(GL_LINES);
     {
-        glVertex3f(x, y, 0);
-        glVertex3f(x + w, y, 0);
-        glVertex3f(x + w, y + h, 0);
-        glVertex3f(x, y + h, 0);
+        glVertex2f(x1, y1);
+        glVertex2f(x2, y2);
     }
     glEnd();
 }
