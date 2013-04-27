@@ -8,6 +8,7 @@
 #include "main.h"
 #include "highscore.h"
 #include "powerups.h"
+#include "physics.h"
 
 void tickMenu();
 void tickGame();
@@ -270,7 +271,7 @@ void ballBlockCollisions()
 
                 bl = &game.blocks[ix][iy];
 
-                collided[j + 1][k + 1] = bl->inUse && collide(bl->x, bl->y, bl->width, bl->height, b->x, b->y, b->radius * 2, b->radius * 2);
+                collided[j + 1][k + 1] = bl->inUse && rectToRect(bl->x, bl->y, bl->width, bl->height, b->x, b->y, b->radius * 2, b->radius * 2);
             }
         }
 
@@ -436,7 +437,7 @@ void playerBallCollision()
     {
         ball = &game.balls[i];
 
-        if (collide(player->x, player->y, player->width, player->height, ball->x, ball->y, ball->radius * 2, ball->radius * 2))
+        if (rectToRect(player->x, player->y, player->width, player->height, ball->x, ball->y, ball->radius * 2, ball->radius * 2))
         {
             float pos = (ball->x + ball->radius - player->x) / (float) player->width;
             if (pos < 0) pos = 0;
@@ -512,20 +513,4 @@ float randF()
 {
     float r = (float) rand() / RAND_MAX;
     return r;
-}
-
-bool collide(int tx, int ty, int tw, int th, int rx, int ry, int rw, int rh)
-{
-    //no collision
-    if (rw <= 0 || rh <= 0 || tw <= 0 || th <= 0) return false;
-
-    rw += rx;
-    rh += ry;
-    tw += tx;
-    th += ty;
-    //      overflow || intersect
-    return ((rw > tx) &&
-            (rh > ty) &&
-            (tw > rx) &&
-            (th > ry));
 }

@@ -1,5 +1,6 @@
 #include <GL/glut.h>
 #include "pong.h"
+#include "physics.h"
 
 void doubleBalls();
 //generates a new powerup (assumes a block has been destroyed and probability determined to generate one)
@@ -24,7 +25,7 @@ void moveAndProcessPowerups()
         if (!p->inUse) continue;
 
         //if we've collided, do some logic
-        if (collide(player->x, player->y, player->width, player->height, p->x, p->y, p->width, p->height))
+        if (rectToRect(player->x, player->y, player->width, player->height, p->x, p->y, p->width, p->height))
         {
             switch (p->type)
             {

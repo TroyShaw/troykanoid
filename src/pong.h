@@ -27,6 +27,8 @@ typedef enum
 #define PADDLE_CHANGLE_SPEED 5          //the speed at which the paddle increases
 #define PADDLE_CHANGE 40                //the amount of pixels the paddle increases/ decreases by when picking up that powerup
 
+//NOTE: coordinate system starts at bottom left (x, y) and goes positive right x, positive up y
+
 typedef struct
 {
     float r;                            //red component
@@ -136,7 +138,5 @@ void initGame();
 void initiateDeath();
 //returns a random float between 0-1
 float randF();
-//returns if rectangle t collides with rectangle r
-bool collide(int tx, int ty, int tw, int th, int rx, int ry, int rw, int rh);
 
 extern Game game;
