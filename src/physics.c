@@ -61,5 +61,3 @@ bool rectToCircle(float x1, float y1, float w, float h, float x2, float y2, floa
     float d = dx * dx + dy * dy;
     return d <= (r * r);
 }
-
-

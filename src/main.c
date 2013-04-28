@@ -67,6 +67,11 @@ void key(unsigned char key, int x, int y)
 {
     if (key == 27) exit(0);
 
+    //if it's game-mode, game is paused and they hit 'q', quit the game
+    if (game.mode == GAME && game.paused && key == 'q')
+    {
+        game.mode = MAIN_MENU;
+    }
 
     if (game.mode == POST_GAME)
     {

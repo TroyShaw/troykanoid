@@ -6,7 +6,6 @@
 
 static void initLoad();
 
-
 // 0 = white,           50 points
 // 1 = orange,          60 points
 // 2 = light blue,      70 points
@@ -23,10 +22,10 @@ bool hasLoaded = false;
 Color colors[10];
 int points[9];
 
-
 static char LEVEL_FILE[] = "levels/lxx.dat";
 
 Game game;
+
 void populateLevel(int level)
 {
     if (!hasLoaded) initLoad();
@@ -116,14 +115,14 @@ static void initLoad()
 
     for (i = 0; i < 9; i++) points[i] = 50 + i * 10;
 
-    colors[0] = (Color) {1, 1, 1, 1};       // white
-    colors[1] = (Color) {1, 0.5, 0, 0};     // orange
-    colors[2] = (Color) {0, 0, 0.5, 0};       // light blue
-    colors[3] = (Color) {0, 1, 0, 0};       // green
-    colors[4] = (Color) {1, 0, 0, 0};   // red
-    colors[5] = (Color) {0, 0, 1, 0};   // blue
-    colors[6] = (Color) {0.737, 0.43, 0.78, 0};   // pink
-    colors[7] = (Color) {1, 1, 0, 0};   // yellow
+    colors[0] = (Color) {1, 1, 1, 1};           // white
+    colors[1] = (Color) {1, 0.5, 0, 0};         // orange
+    colors[2] = (Color) {0, 0, 0.5, 0};         // light blue
+    colors[3] = (Color) {0, 1, 0, 0};           // green
+    colors[4] = (Color) {1, 0, 0, 0};           // red
+    colors[5] = (Color) {0, 0, 1, 0};           // blue
+    colors[6] = (Color) {0.737, 0.43, 0.78, 0}; // pink
+    colors[7] = (Color) {1, 1, 0, 0};           // yellow
     colors[8] = (Color) {0.9, 0.91, 0.98, 0};   // silver
     colors[9] = (Color) {0.85, 0.85, 0.1, 0};   // gold
 }

@@ -11,11 +11,11 @@
 void renderPostGame();
 
 //fills a rectangle with the given dimensions in the last color that was set
-void fillRect(int x, int y, int w, int h);
+void fillRect(float x, float y, float w, float h);
 //draws the outline of a rectangle with the given dimensions in the last color that was set
-void drawRect(int x, int y, int w, int h);
+void drawRect(float x, float y, float w, float h);
 //draws a rectangle with given dimensions and GL mode
-void rect(int x, int y, int w, int h, int mode);
+void rect(float x, float y, float w, float h, int mode);
 //draws a single solid line in the last color that was set
 void drawLine(float x1, float y1, float x2, float y2);
 
@@ -114,9 +114,20 @@ void renderGame()
 
         fillRect(0, 0, WIDTH, HEIGHT);
 
-        char* pause = "paused - press P to unpause";
+        char* pause = "paused";
+        char* unpause = "press P to upause";
+        char* quit = "press Q to quit";
+
+        int offset = 30;
+
         int x = (WIDTH - glutBitmapLength(GLUT_BITMAP_TIMES_ROMAN_24, pause)) / 2;
-        glutPrint(x, HEIGHT / 2, pause, 1.0f, 1.0f, 1.0f, 1.0f);
+        glutPrint(x, HEIGHT / 2 + offset, pause, 1.0f, 1.0f, 1.0f, 1.0f);
+
+        x = (WIDTH - glutBitmapLength(GLUT_BITMAP_TIMES_ROMAN_24, unpause)) / 2;
+        glutPrint(x, HEIGHT / 2 - offset, unpause, 1.0f, 1.0f, 1.0f, 1.0f);
+
+        x = (WIDTH - glutBitmapLength(GLUT_BITMAP_TIMES_ROMAN_24, quit)) / 2;
+        glutPrint(x, HEIGHT / 2 - offset * 2, quit, 1.0f, 1.0f, 1.0f, 1.0f);
     }
 //end draw pause information
 
@@ -307,17 +318,17 @@ void renderPostGame()
     glutSwapBuffers();
 }
 
-void fillRect(int x, int y, int w, int h)
+void fillRect(float x, float y, float w, float h)
 {
     rect(x, y, w, h, GL_POLYGON);
 }
 
-void drawRect(int x, int y, int w, int h)
+void drawRect(float x, float y, float w, float h)
 {
     rect(x, y, w, h, GL_LINE_LOOP);
 }
 
-void rect(int x, int y, int w, int h, int mode)
+void rect(float x, float y, float w, float h, int mode)
 {
     glBegin(mode);
     {

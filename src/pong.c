@@ -383,48 +383,6 @@ void ballBlockCollisions()
             }
         }
     }
-
-
-//    for (i = 0; i < game.numBalls; i++)
-//    {
-//        b = &game.balls[i];
-//        collidedX = false;
-//        collidedY = false;
-//
-//        for (x = 0; x < BLOCKS_ACROSS; x++)
-//            for (y = 0; y < BLOCKS_DOWN; y++)
-//            {
-//                bl = &game.blocks[x][y];
-//                if (!bl->inUse) continue;
-//
-//                if (collide(bl->x, bl->y, bl->width, bl->height, b->x, b->y, b->radius * 2, b->radius * 2))
-//                {
-//                    int xb;
-//                    int yb;
-//
-//                    xb = (float) (b->x + b->radius) / WIDTH * BLOCKS_ACROSS;
-//                    yb = (float) (b->y - b->radius) / HEIGHT * BLOCKS_DOWN;
-//                    yb = (BLOCKS_DOWN - 1) - yb;
-//                    //printf("collided (%d, %d)   ball (%d, %d)\n", x, y, xb, yb);
-//
-//
-//                    if (!bl->indestructable)
-//                    {
-//                        //ball wasn't indestructable, so set it to not used, subtract from total blocks, increment score
-//                        bl->inUse = false;
-//                        game.blocksLeft--;
-//                        game.player.score += bl->points;
-//                        if (randF() < POWERUP_PROB) generatePowerup(bl->x + bl->width / 2, bl->y + bl->height);
-//                    }
-//                    //invert direction of bounce (don't do if balls are in meteor mode
-//                    if (!game.powerupManager.meteor || bl->indestructable) b->velY *= -1;
-//                }
-//            }
-//
-//        //invert direction if ball collided
-//        if (collidedX) b->velX *= -1.0;
-//        if (collidedY) b->velY *= -1.0;
-//    }
 }
 
 void playerBallCollision()

@@ -71,6 +71,7 @@ void loadHighscoresFromDisc()
 
     printf("loaded\n");
 }
+
 void saveHighscoresToDisc()
 {
     FILE *fp = fopen(FILE_NAME, "w");
@@ -205,6 +206,7 @@ void enterChar(unsigned char c)
         lastPress = (unsigned long long)(tv.tv_sec) * 1000 + (unsigned long long)(tv.tv_usec) / 1000;
     }
 }
+
 //verifies the highscore name
 //this checks it is of valid length, has no invalid charas, etc
 bool verifyHighscoreName()
