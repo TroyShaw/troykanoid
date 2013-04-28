@@ -2,6 +2,7 @@
 #include <GL/glut.h>
 #include <stdbool.h>
 #include <stdio.h>
+#include <math.h>
 #include "main.h"
 #include "pong.h"
 #include "renderer.h"
@@ -18,6 +19,10 @@ void drawRect(float x, float y, float w, float h);
 void rect(float x, float y, float w, float h, int mode);
 //draws a single solid line in the last color that was set
 void drawLine(float x1, float y1, float x2, float y2);
+//draws a circle in the last color that was set
+void drawCircle(float cx, float cy, float r, int num_segments);
+//fills a circle in the last color that was set
+void fillCircle(float cx, float cy, float r, int num_segments);
 
 Game game;
 
@@ -54,7 +59,9 @@ void renderGame()
 
         if (manager.meteor) glColor3f(1, 0.1, 0.1);
         else glColor3f(ball.color.r, ball.color.g, ball.color.b);
-        fillRect(ball.x, ball.y, ball.radius * 2, ball.radius * 2);
+
+        //fillRect(ball.x, ball.y, ball.radius * 2, ball.radius * 2);
+        fillCircle(ball.x + ball.radius, ball.y + ball.radius, ball.radius, 10);
     }
 
 //draw powerups
@@ -348,6 +355,56 @@ void drawLine(float x1, float y1, float x2, float y2)
         glVertex2f(x2, y2);
     }
     glEnd();
+}
+
+void drawCircle(float cx, float cy, float r, int num_segments)
+{
+	float theta = 2 * 3.1415926 / (float)(num_segments);
+	float c = cosf(theta);//precalculate the sine and cosine
+	float s = sinf(theta);
+	float t;
+
+	float x = r;//we start at angle = 0
+	float y = 0;
+
+	int i;
+
+	glBegin(GL_LINE_LOOP);
+	for(i = 0; i < num_segments; i++)
+	{
+		glVertex2f(x + cx, y + cy);//output vertex
+
+		//apply the rotation matrix
+		t = x;
+		x = c * x - s * y;
+		y = s * t + c * y;
+	}
+	glEnd();
+}
+
+void fillCircle(float cx, float cy, float r, int num_segments)
+{
+	float theta = 2 * 3.1415926 / (float)(num_segments);
+	float c = cosf(theta);//precalculate the sine and cosine
+	float s = sinf(theta);
+	float t;
+
+	float x = r;//we start at angle = 0
+	float y = 0;
+
+	int i;
+
+	glBegin(GL_POLYGON);
+	for(i = 0; i < num_segments; i++)
+	{
+		glVertex2f(x + cx, y + cy);//output vertex
+
+		//apply the rotation matrix
+		t = x;
+		x = c * x - s * y;
+		y = s * t + c * y;
+	}
+	glEnd();
 }
 
 void glutPrint(float x, float y, char* text, float r, float g, float b, float a)
