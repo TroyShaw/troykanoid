@@ -160,6 +160,8 @@ void process()
 
     unsigned long long milli = (unsigned long long)(tv.tv_sec) * 1000 + (unsigned long long)(tv.tv_usec) / 1000;
 
+    Sleep(1);
+
     if (milli - timeT >= TICK_TIME)
     {
         tick();

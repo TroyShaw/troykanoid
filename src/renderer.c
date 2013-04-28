@@ -357,6 +357,8 @@ void drawLine(float x1, float y1, float x2, float y2)
     glEnd();
 }
 
+
+//courtesy of http://slabode.exofire.net/circle_draw.shtml
 void drawCircle(float cx, float cy, float r, int num_segments)
 {
 	float theta = 2 * 3.1415926 / (float)(num_segments);
@@ -382,6 +384,7 @@ void drawCircle(float cx, float cy, float r, int num_segments)
 	glEnd();
 }
 
+//courtesy of http://slabode.exofire.net/circle_draw.shtml
 void fillCircle(float cx, float cy, float r, int num_segments)
 {
 	float theta = 2 * 3.1415926 / (float)(num_segments);
