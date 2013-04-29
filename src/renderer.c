@@ -181,7 +181,6 @@ void renderMenu()
 //end info strings
 
 //highscore table
-    glPushMatrix();
     glColor4f(1, 1, 1, 1);
 
 //main table

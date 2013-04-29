@@ -10,10 +10,12 @@
 void initGlutWindow();
 void initGL();
 void display();
+void checkGLError();
 void key(unsigned char key, int x, int y);
 void keyUp(unsigned char key, int x, int y);
 void idle();
 void process();
+void callback();
 
 long long timeT = 0;
 struct timeval tv;
@@ -29,12 +31,20 @@ int main(int argc, char **argv)
     initGlutWindow();
     initGL();
 
+    //PlaySound(TEXT("sounds/tongue_toad.wav"), NULL, SND_ASYNC);
+    //open "foo.wav" type mpegvideo alias bgmusic
+    //mciSendString("open sounds/tongue_toad.wav type mpegvideo alias bgmusic", NULL, 0, NULL);
+    //mciSendString("play bgmusic repeat", NULL, 0, NULL);
     //main game happens here
     glutMainLoop();
 
     return EXIT_SUCCESS;
 }
 
+void statusFunc(int status)
+{
+    //printf("status: %d", status);
+}
 void initGlutWindow()
 {
     //center the screen
@@ -45,6 +55,9 @@ void initGlutWindow()
 
     glutInitDisplayMode(GLUT_RGB | GLUT_DOUBLE | GLUT_DEPTH);
     glutCreateWindow("Troykanoid");
+
+    glutWindowStatusFunc(statusFunc);
+
 
     glutDisplayFunc(display);
     glutKeyboardFunc(key);
@@ -97,6 +110,7 @@ void key(unsigned char key, int x, int y)
     switch (key)
     {
     case 32:
+        PlaySound(TEXT("sounds/Coins.wav"), NULL, SND_ASYNC);
         game.Keymanager.space = true;
         break;
     case 'a':
@@ -166,8 +180,19 @@ void process()
     {
         tick();
         timeT = milli;
-
+        checkGLError();
         //only need to redraw if we have changed state
         glutPostRedisplay();
+    }
+}
+
+void checkGLError()
+{
+    int val = glGetError();
+    printf("status: %d\n", val);
+    if (val == 1282)
+    {
+        //window has been closed, so close the process
+        exit(0);
     }
 }

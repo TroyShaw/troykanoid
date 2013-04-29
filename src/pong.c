@@ -437,7 +437,7 @@ void initGame()
         {
             1.0f, 0.7f, 0.7f, 0.7f
         };
-        ball->radius = 4;
+        ball->radius = 7;
         ball->x = (WIDTH - ball->radius * 2) / 2;
         ball->y = game.player.y + game.player.height;
         ball->velX = 5;
