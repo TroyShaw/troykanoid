@@ -1,4 +1,4 @@
-#include <windows.h>
+#include <Windows.h>
 #include <GL/glut.h>
 #include <stdbool.h>
 #include <stdio.h>
@@ -23,6 +23,8 @@ void drawLine(float x1, float y1, float x2, float y2);
 void drawCircle(float cx, float cy, float r, int num_segments);
 //fills a circle in the last color that was set
 void fillCircle(float cx, float cy, float r, int num_segments);
+//draws text centered on x axis at y value
+void centerPrint(float y, char* text, float r, float g, float b, float a);
 
 Game game;
 
@@ -127,14 +129,9 @@ void renderGame()
 
         int offset = 30;
 
-        int x = (WIDTH - glutBitmapLength(GLUT_BITMAP_TIMES_ROMAN_24, pause)) / 2;
-        glutPrint(x, HEIGHT / 2 + offset, pause, 1.0f, 1.0f, 1.0f, 1.0f);
-
-        x = (WIDTH - glutBitmapLength(GLUT_BITMAP_TIMES_ROMAN_24, unpause)) / 2;
-        glutPrint(x, HEIGHT / 2 - offset, unpause, 1.0f, 1.0f, 1.0f, 1.0f);
-
-        x = (WIDTH - glutBitmapLength(GLUT_BITMAP_TIMES_ROMAN_24, quit)) / 2;
-        glutPrint(x, HEIGHT / 2 - offset * 2, quit, 1.0f, 1.0f, 1.0f, 1.0f);
+        centerPrint(HEIGHT / 2 + offset, pause, 1.0f, 1.0f, 1.0f, 1.0f);
+        centerPrint(HEIGHT / 2 - offset, unpause, 1.0f, 1.0f, 1.0f, 1.0f);
+        centerPrint(HEIGHT / 2 - offset * 2, quit, 1.0f, 1.0f, 1.0f, 1.0f);
     }
 //end draw pause information
 
@@ -168,16 +165,12 @@ void renderMenu()
 
 //info strings
     char* title = "Troykanoid!";
-    sx = (WIDTH - glutBitmapLength(GLUT_BITMAP_TIMES_ROMAN_24, title)) / 2;
-    glutPrint(sx, HEIGHT - 50, title, 1, 1, 1, 1);
-
     char* keys = "wasd to move, spacebar to fire ball";
-    sx = (WIDTH - glutBitmapLength(GLUT_BITMAP_TIMES_ROMAN_24, keys)) / 2;
-    glutPrint(sx, 70, keys, 1, 1, 1, 1);
-
     char* start = "Push spacebar to start!";
-    sx = (WIDTH - glutBitmapLength(GLUT_BITMAP_TIMES_ROMAN_24, start)) / 2;
-    glutPrint(sx, 30, start, 1, 1, 1, 1);
+
+    centerPrint(HEIGHT - 50, title, 1, 1, 1, 1);
+    centerPrint(70, keys, 1, 1, 1, 1);
+    centerPrint(30, start, 1, 1, 1, 1);
 //end info strings
 
 //highscore table
@@ -192,8 +185,6 @@ void renderMenu()
     for (i = 0; i < 10; i++)
     {
         drawLine(x, y + i * rowHeight, x + w, y + i * rowHeight);
-        //glVertex3f(x, y + i * rowHeight, 0);
-        //glVertex3f(x + w, y + i * rowHeight, 0);
     }
 //end horozontal lines
 
@@ -208,8 +199,8 @@ void renderMenu()
 
 //vertical numbers (1-9), names, scores
     char* header = "Highscores";
-    sx = (WIDTH - glutBitmapLength(GLUT_BITMAP_TIMES_ROMAN_24, header)) / 2;
-    glutPrint(sx, y + 9 * rowHeight + o, header, 1, 1, 1, 1);
+
+    centerPrint(y + 9 * rowHeight + o, header, 1, 1, 1, 1);
 
 //numbers from 1-9
     char str[2];
@@ -255,13 +246,11 @@ void renderPostGame()
 
     if (game.currentLevel == NUM_LEVELS)
     {
-        x = (WIDTH - glutBitmapLength(GLUT_BITMAP_TIMES_ROMAN_24, won)) / 2;
-        glutPrint(x, HEIGHT - 50, won, 1, 1, 1, 1);
+        centerPrint(HEIGHT - 50, won, 1, 1, 1, 1);
     }
     else
     {
-        x = (WIDTH - glutBitmapLength(GLUT_BITMAP_TIMES_ROMAN_24, lost)) / 2;
-        glutPrint(x, HEIGHT - 50, lost, 1, 1, 1, 1);
+        centerPrint(HEIGHT - 50, lost, 1, 1, 1, 1);
     }
 
     if (i != -1)
@@ -297,12 +286,11 @@ void renderPostGame()
             break;
         }
 
-        x = (WIDTH - glutBitmapLength(GLUT_BITMAP_TIMES_ROMAN_24, highscore)) / 2;
-        glutPrint(x, HEIGHT - 250, highscore, 1, 1, 1, 1);
+        centerPrint(HEIGHT - 250, highscore, 1, 1, 1, 1);
 
         char *nb = game.highscoreManager.nameBuffer;
-        x = (WIDTH - glutBitmapLength(GLUT_BITMAP_TIMES_ROMAN_24, nb)) / 2;
-        glutPrint(x, HEIGHT - 280, nb, 1, 1, 1, 1);
+
+        centerPrint(HEIGHT - 280, nb, 1, 1, 1, 1);
 
         //print a flashing curser
         struct timeval tv;
@@ -317,8 +305,7 @@ void renderPostGame()
     }
     else
     {
-        x = (WIDTH - glutBitmapLength(GLUT_BITMAP_TIMES_ROMAN_24, noHS)) / 2;
-        glutPrint(x, HEIGHT - 250, noHS, 1, 1, 1, 1);
+        centerPrint(HEIGHT - 250, noHS, 1, 1, 1, 1);
     }
 
     glutSwapBuffers();
@@ -407,6 +394,12 @@ void fillCircle(float cx, float cy, float r, int num_segments)
 		y = s * t + c * y;
 	}
 	glEnd();
+}
+
+void centerPrint(float y, char* text, float r, float g, float b, float a)
+{
+    float x = (WIDTH - glutBitmapLength(GLUT_BITMAP_TIMES_ROMAN_24, text)) / 2;
+    glutPrint(x, y, text, r, g, b, a);
 }
 
 void glutPrint(float x, float y, char* text, float r, float g, float b, float a)

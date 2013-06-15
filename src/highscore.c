@@ -2,7 +2,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <ctype.h>
-#include <windows.h>
+#include <Windows.h>
 #include "pong.h"
 #include "highscore.h"
 

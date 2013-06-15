@@ -1,4 +1,5 @@
 #include <Windows.h>
+#include <stdio.h>
 #include <sys/time.h>
 #include <GL/glut.h>
 #include <stdbool.h>
