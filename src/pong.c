@@ -2,8 +2,8 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <math.h>
-#include <windows.h>
 #include <GL/glut.h>
+
 #include "pong.h"
 #include "main.h"
 #include "highscore.h"
@@ -39,6 +39,7 @@ Game game;
 
 void tick()
 {
+    printf("gamemode %d\n", game.mode);
     switch (game.mode)
     {
     case MAIN_MENU:
@@ -55,22 +56,22 @@ void tick()
 
 void tickMenu()
 {
-    if (game.Keymanager.space)
+    if (game.keymanager.space)
     {
         game.mode = GAME;
         initGame();
 
         //do this so that the user needs to push space again to fire the ball
-        game.Keymanager.space = false;
+        game.keymanager.space = false;
     }
 }
 
 void tickGame()
 {
-    if (game.Keymanager.pause)
+    if (game.keymanager.pause)
     {
         //set to false so we don't redo this next tick
-        game.Keymanager.pause = false;
+        game.keymanager.pause = false;
         //invert pause mode
         game.paused ^= true;
     }
@@ -78,7 +79,7 @@ void tickGame()
     if (game.paused) return;
 
     //do this here so if they pushed space this tick, they get processed immediately
-    if (game.attached) game.attached = !game.Keymanager.space;
+    if (game.attached) game.attached = !game.keymanager.space;
 
     if (game.attached)
     {
@@ -106,7 +107,7 @@ void tickPostGame()
 void movePlayer()
 {
     Player *player = &game.player;
-    Keymanager *kManager = &game.Keymanager;
+    Keymanager *kManager = &game.keymanager;
 
     //will be -1 if left, 0 if left + right, 1 if right, 0 if neither
     int x = kManager->right - kManager->left;
@@ -461,7 +462,7 @@ void initGame()
     game.powerupManager.forceFieldCount = 0;
 
     //controller stuff
-    game.Keymanager.pause = false;
+    game.keymanager.pause = false;
 
     //load level 1
     populateLevel(1);

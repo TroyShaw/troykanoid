@@ -5,7 +5,8 @@
 #include "levels.h"
 #include "powerups.h"
 
-#include <windows.h>
+#define max(a, b) ((a) > (b) ? (a) : (b))
+#define min(a, b) ((a) > (b) ? (b) : (a))
 
 typedef enum
 {
@@ -115,7 +116,7 @@ typedef struct
     bool attached;                      //if the ball is attached to paddle (i.e at start of games and after death)
     PowerupManager powerupManager;      //the manager for powerups
     HighscoreManager highscoreManager;  //the highscore manager
-    Keymanager Keymanager;              //the key manager, holds keystate
+    Keymanager keymanager;              //the key manager, holds keystate
     Block blocks[BLOCKS_ACROSS][BLOCKS_DOWN];//all the blocks
 } Game;
 

@@ -2,13 +2,13 @@
 #include <stdlib.h>
 #include <string.h>
 #include <ctype.h>
-#include <Windows.h>
+#include <sys/time.h>
 #include "pong.h"
 #include "highscore.h"
 
 static const char *FILE_NAME = "hs.dat";
 
-Game game;
+// Game game;
 unsigned long long lastPress;
 
 void loadHighscoresFromDisc()

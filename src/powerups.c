@@ -8,7 +8,7 @@ void doubleBalls();
 //for the width of the powerup too
 void generatePowerup(int x, int y);
 
-Game game;
+// Game game;
 
 void moveAndProcessPowerups()
 {

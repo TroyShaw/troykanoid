@@ -24,7 +24,7 @@ int points[9];
 
 static char LEVEL_FILE[] = "levels/lxx.dat";
 
-Game game;
+// Game game;
 
 void populateLevel(int level)
 {

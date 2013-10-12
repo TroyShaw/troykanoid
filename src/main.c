@@ -1,7 +1,12 @@
-#include <Windows.h>
+
+
 #include <stdio.h>
 #include <sys/time.h>
 #include <GL/glut.h>
+#include <time.h>
+#include <unistd.h>
+
+
 #include <stdbool.h>
 #include "highscore.h"
 #include "main.h"
@@ -21,22 +26,21 @@ void callback();
 long long timeT = 0;
 struct timeval tv;
 
+// Game game;
+
 int main(int argc, char **argv)
 {
     //initialize the random number generator with new value
     srand(time(NULL));
     //load scores
     loadHighscoresFromDisc();
+    initGame();
+    printf("first mode %d\n", game.mode);
     //init stuff
     glutInit(&argc, argv);
     initGlutWindow();
     initGL();
 
-    //PlaySound(TEXT("sounds/tongue_toad.wav"), NULL, SND_ASYNC);
-    //open "foo.wav" type mpegvideo alias bgmusic
-    //mciSendString("open sounds/tongue_toad.wav type mpegvideo alias bgmusic", NULL, 0, NULL);
-    //mciSendString("play bgmusic repeat", NULL, 0, NULL);
-    //main game happens here
     glutMainLoop();
 
     return EXIT_SUCCESS;
@@ -49,10 +53,10 @@ void statusFunc(int status)
 void initGlutWindow()
 {
     //center the screen
-    RECT rc;
-    GetWindowRect(GetDesktopWindow(), &rc);
+    // RECT rc;
+    // GetWindowRect(GetDesktopWindow(), &rc);
     glutInitWindowSize(WIDTH,HEIGHT);
-    glutInitWindowPosition((rc.right - WIDTH) / 2, (rc.bottom - HEIGHT) / 2);
+    // glutInitWindowPosition((rc.right - WIDTH) / 2, (rc.bottom - HEIGHT) / 2);
 
     glutInitDisplayMode(GLUT_RGB | GLUT_DOUBLE | GLUT_DEPTH);
     glutCreateWindow("Troykanoid");
@@ -111,20 +115,19 @@ void key(unsigned char key, int x, int y)
     switch (key)
     {
     case 32:
-        PlaySound(TEXT("sounds/Coins.wav"), NULL, SND_ASYNC);
-        game.Keymanager.space = true;
+        game.keymanager.space = true;
         break;
     case 'a':
     case 'A':
-        game.Keymanager.left = true;
+        game.keymanager.left = true;
         break;
     case 'd':
     case 'D':
-        game.Keymanager.right = true;
+        game.keymanager.right = true;
         break;
     case 'p':
     case 'P':
-        game.Keymanager.pause = true;
+        game.keymanager.pause = true;
     }
 
     process();
@@ -136,19 +139,19 @@ void keyUp(unsigned char key, int x, int y)
     switch (key)
     {
     case 32:
-        game.Keymanager.space = false;
+        game.keymanager.space = false;
         break;
     case 'a':
     case 'A':
-        game.Keymanager.left = false;
+        game.keymanager.left = false;
         break;
     case 'd':
     case 'D':
-        game.Keymanager.right = false;
+        game.keymanager.right = false;
         break;
     case 'p':
     case 'P':
-        game.Keymanager.pause = false;
+        game.keymanager.pause = false;
     }
 
     process();
@@ -175,7 +178,7 @@ void process()
 
     unsigned long long milli = (unsigned long long)(tv.tv_sec) * 1000 + (unsigned long long)(tv.tv_usec) / 1000;
 
-    Sleep(1);
+    usleep(1);
 
     if (milli - timeT >= TICK_TIME)
     {

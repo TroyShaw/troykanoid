@@ -1,8 +1,10 @@
-#include <Windows.h>
 #include <GL/glut.h>
 #include <stdbool.h>
 #include <stdio.h>
 #include <math.h>
+#include <string.h>
+#include <sys/time.h>
+
 #include "main.h"
 #include "pong.h"
 #include "renderer.h"
@@ -26,7 +28,7 @@ void fillCircle(float cx, float cy, float r, int num_segments);
 //draws text centered on x axis at y value
 void centerPrint(float y, char* text, float r, float g, float b, float a);
 
-Game game;
+// Game game;
 
 void render()
 {
@@ -221,7 +223,7 @@ void renderMenu()
 
         sprintf(score, "\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0");
         sprintf(score, "%d", game.highscoreManager.scores[i]);
-        sx = x + w - glutBitmapLength(GLUT_BITMAP_TIMES_ROMAN_24, score) - o;
+        sx = x + w - glutBitmapLength(GLUT_BITMAP_TIMES_ROMAN_24, (const unsigned char*)score) - o;
         glutPrint(sx, y + (8 - i) * rowHeight + o, score, 1, 1, 1, 1);
     }
 //end name and score
@@ -295,12 +297,13 @@ void renderPostGame()
         //print a flashing curser
         struct timeval tv;
         gettimeofday(&tv, NULL);
+
         unsigned long long milli = (unsigned long long)(tv.tv_sec) * 1000 + (unsigned long long)(tv.tv_usec) / 1000;
         unsigned long long dif = milli - getLastPress();
         if (dif < CURSER_BLINK_RATE || (dif / CURSER_BLINK_RATE) % 2 == 0)
         {
             glColor4f(1.0, 1.0, 1.0, 1.0);
-            drawRect(x + glutBitmapLength(GLUT_BITMAP_TIMES_ROMAN_24, nb), HEIGHT - 283, 1, 23);
+            drawRect(x + glutBitmapLength(GLUT_BITMAP_TIMES_ROMAN_24, (const unsigned char*)nb), HEIGHT - 283, 1, 23);
         }
     }
     else
@@ -398,7 +401,7 @@ void fillCircle(float cx, float cy, float r, int num_segments)
 
 void centerPrint(float y, char* text, float r, float g, float b, float a)
 {
-    float x = (WIDTH - glutBitmapLength(GLUT_BITMAP_TIMES_ROMAN_24, text)) / 2;
+    float x = (WIDTH - glutBitmapLength(GLUT_BITMAP_TIMES_ROMAN_24, (const unsigned char*)text)) / 2;
     glutPrint(x, y, text, r, g, b, a);
 }
 

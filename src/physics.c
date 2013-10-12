@@ -1,8 +1,6 @@
 
 #include <stdbool.h>
 #include <math.h>
-#include <windows.h>
-#include <MMSystem.h>
 #include "physics.h"
 
 #define clamp(value, min, max) ((value < min) ? min : (value > max) ? max : value)

@@ -1,3 +1,5 @@
+#pragma once
+
 #define POWERUP_DROP_SPEED 4            //the drop speed in pixels per game tick
 #define POWERUP_PROB 0.2                //the probability of a powerup appearing on block destruction
 #define POWERUP_POINTS 50               //amount of points you get for picking up a powerup
