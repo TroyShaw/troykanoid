@@ -116,7 +116,6 @@ typedef struct
     bool attached;                      //if the ball is attached to paddle (i.e at start of games and after death)
     PowerupManager powerupManager;      //the manager for powerups
     HighscoreManager highscoreManager;  //the highscore manager
-    Keymanager keymanager;              //the key manager, holds keystate
     Block blocks[BLOCKS_ACROSS][BLOCKS_DOWN];//all the blocks
 } Game;
 

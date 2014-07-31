@@ -23,9 +23,6 @@ static void internal_render(void);
 
 static void process_events(void);
 
-void key(unsigned char key);
-void key_up(unsigned char key);
-
 Game game;
 static bool gameRunning;
 
@@ -44,6 +41,8 @@ int main(void)
 void resource_init(void)
 {
     init_window(SCREEN_TITLE, SCREEN_WIDTH, SCREEN_HEIGHT);
+    init_renderer();
+
     loadHighscoresFromDisc();
 }
 
@@ -86,6 +85,7 @@ void internal_tick(void)
 void internal_render(void)
 {
     render();
+    flip_screen();
 }
 
 void key(unsigned char key)
@@ -117,47 +117,8 @@ void key(unsigned char key)
         return;
     }
 
-    if (key > 'z') key = key - ('A' - 'a');
-    switch (key)
-    {
-    case 32:
-        game.keymanager.space = true;
-        break;
-    case 'a':
-    case 'A':
-        game.keymanager.left = true;
-        break;
-    case 'd':
-    case 'D':
-        game.keymanager.right = true;
-        break;
-    case 'p':
-    case 'P':
-        game.keymanager.pause = true;
-    }
 }
 
-void key_up(unsigned char key)
-{
-    if (key > 'z') key = key - ('A' - 'a');
-    switch (key)
-    {
-    case 32:
-        game.keymanager.space = false;
-        break;
-    case 'a':
-    case 'A':
-        game.keymanager.left = false;
-        break;
-    case 'd':
-    case 'D':
-        game.keymanager.right = false;
-        break;
-    case 'p':
-    case 'P':
-        game.keymanager.pause = false;
-    }
-}
 
 static void process_events(void)
 {
@@ -173,6 +134,7 @@ static void process_events(void)
                 break;
             case SDL_KEYDOWN:
                 handle_keydown(event.key.keysym.sym);
+                key(event.key.keysym.sym);
                 break;
             case SDL_KEYUP:
                 handle_keyup(event.key.keysym.sym);

@@ -2,11 +2,12 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <math.h>
-#include <GL/glut.h>
+
 
 #include "pong.h"
 #include "main.h"
 #include "highscore.h"
+#include "input.h"
 #include "powerups.h"
 #include "physics.h"
 
@@ -39,7 +40,6 @@ Game game;
 
 void tick()
 {
-    printf("gamemode %d\n", game.mode);
     switch (game.mode)
     {
     case MAIN_MENU:
@@ -56,22 +56,17 @@ void tick()
 
 void tickMenu()
 {
-    if (game.keymanager.space)
+    if (space_pressed())
     {
         game.mode = GAME;
         initGame();
-
-        //do this so that the user needs to push space again to fire the ball
-        game.keymanager.space = false;
     }
 }
 
 void tickGame()
 {
-    if (game.keymanager.pause)
+    if (pause_pressed())
     {
-        //set to false so we don't redo this next tick
-        game.keymanager.pause = false;
         //invert pause mode
         game.paused ^= true;
     }
@@ -79,7 +74,7 @@ void tickGame()
     if (game.paused) return;
 
     //do this here so if they pushed space this tick, they get processed immediately
-    if (game.attached) game.attached = !game.keymanager.space;
+    if (game.attached) game.attached = !space_pressed();
 
     if (game.attached)
     {
@@ -107,10 +102,12 @@ void tickPostGame()
 void movePlayer()
 {
     Player *player = &game.player;
-    Keymanager *kManager = &game.keymanager;
 
     //will be -1 if left, 0 if left + right, 1 if right, 0 if neither
-    int x = kManager->right - kManager->left;
+    int x = 0;
+
+    if (dir_key_held(Left))  x -= 1;
+    if (dir_key_held(Right)) x += 1;
 
     //move player
     player->x += x * PLAYER_MOVE_SPEED;
@@ -408,17 +405,13 @@ void playerBallCollision()
     }
 }
 
-//Initialises the game variables
 void initGame()
 {
     int i;
 
     game.paused = false;
 
-    game.player.color = (Color)
-    {
-        0.5f, 0.5f, 0.5f, 0.5f
-    };
+    game.player.color = (Color) {0.5f, 0.5f, 0.5f, 0.5f};
     game.player.width = PADDLE_DEFAULT_WIDTH;
     game.player.realWidth = game.player.width;
     game.player.x = (WIDTH - game.player.width) / 2;
@@ -433,10 +426,7 @@ void initGame()
     {
         ball = &game.balls[i];
 
-        ball->color = (Color)
-        {
-            1.0f, 0.7f, 0.7f, 0.7f
-        };
+        ball->color = (Color) {1.0f, 0.7f, 0.7f, 0.7f};
         ball->radius = 7;
         ball->x = (WIDTH - ball->radius * 2) / 2;
         ball->y = game.player.y + game.player.height;
@@ -459,9 +449,6 @@ void initGame()
     }
     game.powerupManager.forceField = false;
     game.powerupManager.forceFieldCount = 0;
-
-    //controller stuff
-    game.keymanager.pause = false;
 
     //load level 1
     populateLevel(1);

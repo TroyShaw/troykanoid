@@ -5,6 +5,7 @@
 #include <sys/time.h>
 
 #include <SDL/SDL_gfxPrimitives.h>
+#include <SDL/SDL_ttf.h>
 
 #include "main.h"
 #include "pong.h"
@@ -14,39 +15,64 @@
 
 #include "ui/window.h"
 
+//Returns y which considers coordinate system
+static float get_y(float y);
+static int str_width(char* str);
+
 void renderPostGame();
 
 //fills a rectangle with the given dimensions in the last color that was set
 void fillRect(float x, float y, float w, float h);
 //draws the outline of a rectangle with the given dimensions in the last color that was set
 void drawRect(float x, float y, float w, float h);
-//draws a rectangle with given dimensions and GL mode
-void rect(float x, float y, float w, float h, int mode);
 //draws a single solid line in the last color that was set
 void drawLine(float x1, float y1, float x2, float y2);
 //draws a circle in the last color that was set
-void drawCircle(float cx, float cy, float r, int num_segments);
+void drawCircle(float cx, float cy, float r);
 //fills a circle in the last color that was set
-void fillCircle(float cx, float cy, float r, int num_segments);
+void fillCircle(float cx, float cy, float r);
+
 //draws text centered on x axis at y value
 void centerPrint(float y, char* text, float r, float g, float b, float a);
 
 void set_color3f(float r, float g, float b);
 void set_color4f(float r, float g, float b, float a);
 
-// Game game;
-
 static int col_r, col_g, col_b, col_a;
+static TTF_Font *font;
+
+void init_renderer(void)
+{
+    //first init the font library
+    if (TTF_Init() != 0)
+    {
+        printf("failed to init SDL_ttf: %s\n", TTF_GetError());
+        SDL_Quit();
+        exit(1);
+    }
+
+    //then get our font
+    font = TTF_OpenFont("FreeSans.ttf", 24);
+
+    if (font == NULL)
+    {
+        printf("failed to open font: %s\n", TTF_GetError());
+        SDL_Quit();
+        exit(1);
+    }
+}
 
 void render()
 {
+    clear_screen(0, 0, 0, 0);
+
     switch (game.mode)
     {
-    case GAME:
-        renderGame();
-        break;
     case MAIN_MENU:
         renderMenu();
+        break;
+    case GAME:
+        renderGame();
         break;
     case POST_GAME:
         renderPostGame();
@@ -61,8 +87,6 @@ void renderGame()
     
     int i, j;
 
-    //TODO
-    //glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     set_color3f(1,0,0);
 
 //draw ball
@@ -73,8 +97,7 @@ void renderGame()
         if (manager.meteor) set_color3f(1, 0.1, 0.1);
         else set_color3f(ball.color.r, ball.color.g, ball.color.b);
 
-        //fillRect(ball.x, ball.y, ball.radius * 2, ball.radius * 2);
-        fillCircle(ball.x + ball.radius, ball.y + ball.radius, ball.radius, 10);
+        fillCircle(ball.x + ball.radius, ball.y + ball.radius, ball.radius);
     }
 
 //draw powerups
@@ -123,8 +146,8 @@ void renderGame()
     sprintf(lives, "%s %d", "lives: ", player.lives);
     sprintf(score, "%s %d", "score: ", player.score);
     
-    glutPrint(0, HEIGHT - 24, lives, 1.0f, 1.0f, 1.0f, 1.0f);
-    glutPrint(0, HEIGHT - 48, score, 1.0f, 1.0f, 1.0f, 1.0f);
+    draw_string(0, HEIGHT - 24, lives, 1.0f, 1.0f, 1.0f, 1.0f);
+    draw_string(0, HEIGHT - 48, score, 1.0f, 1.0f, 1.0f, 1.0f);
 //end draw info strings
 
 //if we are paused, we draw a slightly transparent overly across the whole screen, then the "paused" string
@@ -221,7 +244,7 @@ void renderMenu()
     {
         str[0] = (char) (i + '1');
         str[1] = '\0';
-        //glutPrint(x + o, y + (8 - i) * rowHeight + o, str, 1, 1, 1, 1);
+        draw_string(x + o, y + (8 - i) * rowHeight + o, str, 1, 1, 1, 1);
     }
 //end numbers
 
@@ -230,20 +253,16 @@ void renderMenu()
     char score[15];
     for (i = 0; i < MAX_SCORES; i++)
     {
-        glutPrint(nameX + o, y + (8 - i) * rowHeight + o, game.highscoreManager.names[i], 1, 1, 1, 1);
+        draw_string(nameX + o, y + (8 - i) * rowHeight + o, game.highscoreManager.names[i], 1, 1, 1, 1);
 
         sprintf(score, "               ");
         sprintf(score, "%d", game.highscoreManager.scores[i]);
         
-        //TODO: make sx initialized properly
-        //sx = x + w - glutBitmapLength(GLUT_BITMAP_TIMES_ROMAN_24, (const unsigned char*)score) - o;
-        sx = 0;
-        glutPrint(sx, y + (8 - i) * rowHeight + o, score, 1, 1, 1, 1);
+        sx = x + w - str_width(score) - 5;
+        draw_string(sx, y + (8 - i) * rowHeight + o, score, 1, 1, 1, 1);
     }
 //end name and score
 //end numbers, names and scores
-
-    //glutSwapBuffers();
 }
 
 void renderPostGame()
@@ -344,78 +363,61 @@ void set_color4f(float r, float g, float b, float a)
 
 void fillRect(float x, float y, float w, float h)
 {
-    boxRGBA(get_screen(), x, y, x + w, y + h, col_r, col_g, col_b, col_a);
+    boxRGBA(get_screen(), x, get_y(y), x + w, get_y(y + h), col_r, col_g, col_b, col_a);
 }
 
 void drawRect(float x, float y, float w, float h)
 {
-    rectangleRGBA(get_screen(), x, y, x + w, y + h, col_r, col_g, col_b, col_a);
+    rectangleRGBA(get_screen(), x, get_y(y), x + w, get_y(y + h), col_r, col_g, col_b, col_a);
 }
 
 void drawLine(float x1, float y1, float x2, float y2)
 {
-    lineRGBA(get_screen(), x1, y1, x2, y2, col_r, col_g, col_b, col_a);
+    lineRGBA(get_screen(), x1, get_y(y1), x2, get_y(y2), col_r, col_g, col_b, col_a);
 }
 
-
-//courtesy of http://slabode.exofire.net/circle_draw.shtml
-void drawCircle(float cx, float cy, float r, int num_segments)
+void drawCircle(float cx, float cy, float r)
 {
-    if (cx || cy || r || num_segments)
-        ;
-
-	float theta = 2 * 3.1415926 / (float)(num_segments);
-	float c = cosf(theta);//precalculate the sine and cosine
-	float s = sinf(theta);
-	float t;
-
-	float x = r;//we start at angle = 0
-	float y = 0;
-
-	int i;
-
-	//glBegin(GL_LINE_LOOP);
-	for(i = 0; i < num_segments; i++)
-	{
-		//glVertex2f(x + cx, y + cy);//output vertex
-
-		//apply the rotation matrix
-		t = x;
-		x = c * x - s * y;
-		y = s * t + c * y;
-	}
-	//glEnd();
+    circleRGBA(get_screen(), cx, get_y(cy), r, col_r, col_g, col_b, col_a);
 }
 
-//courtesy of http://slabode.exofire.net/circle_draw.shtml
-void fillCircle(float cx, float cy, float r, int num_segments)
+void fillCircle(float cx, float cy, float r)
 {
-    if (cx || cy || r || num_segments)
-        ;
-
+    filledCircleRGBA(get_screen(), cx, get_y(cy), r, col_r, col_g, col_b, col_a);
 }
 
 void centerPrint(float y, char* text, float r, float g, float b, float a)
 {
-    if (y || text || r || g || b || a) 
-        ;
+    int size_w;
+    int size_h;
 
-    //float x = (WIDTH - glutBitmapLength(GLUT_BITMAP_TIMES_ROMAN_24, (const unsigned char*)text)) / 2;
-    
+    TTF_SizeText(font, text, &size_w, &size_h);
+
+    float x = (WIDTH - size_w) / 2;
+    draw_string(x, y, text, r, g, b, a);
 }
 
-void glutPrint(float x, float y, char* text, float r, float g, float b, float a)
+void draw_string(float x, float y, char* text, float r, float g, float b, float a)
 {
-    if (x || y || text || r || g || b || a)
-        ;
+    SDL_Surface *text_surface;
+    SDL_Color text_color = {r * 255, g * 255, b * 255, a * 255};
+    text_surface = TTF_RenderText_Blended(font, text, text_color);
 
-    if(!text || !strlen(text)) return;
+    //TODO: the - 30 is a hack because changing to SDL caused a weird offset.
+    apply_surface(x, get_y(y) - 27, text_surface);
+}
 
-    set_color4f(r,g,b,a);
-    //glRasterPos2f(x,y);
-    while (*text)
-    {
-        //glutBitmapCharacter(GLUT_BITMAP_TIMES_ROMAN_24, *text);
-        text++;
-    }
+static float get_y(float y)
+{
+    return HEIGHT - y;
+}
+
+static int str_width(char* str)
+{
+    int size_w;
+    int size_h;
+
+    TTF_SizeText(font, str, &size_w, &size_h);
+
+    return size_w;
 }

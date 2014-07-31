@@ -95,6 +95,18 @@ bool key_released(int keycode)
 	return keysReleasedFrame[keycode] == (curKeyFrame - 1);
 }
 
+//Tests if space is pressed
+bool space_pressed(void)
+{
+    return key_pressed(SDLK_SPACE);
+}
+
+//Tests if pause is pressed
+bool pause_pressed(void)
+{
+    return key_pressed(SDLK_PAUSE);
+}
+
 #define max(a, b) (a) > (b) ? (a) : (b)
 #define min(a, b) max((b), (a))
 

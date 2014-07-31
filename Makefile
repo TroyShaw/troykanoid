@@ -63,6 +63,7 @@ clean:
 	rm -rf $(TargetDir)
 	mkdir bin
 	cp -R levels bin/
+	cp FreeSans.ttf bin/
 
 test:	Release
 	$(call TargetFilename,Release)

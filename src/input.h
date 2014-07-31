@@ -34,3 +34,9 @@ bool key_pressed(int key);
 
 //Tests if the key was released this frame.
 bool key_released(int key);
+
+//Tests if space is pressed this frame.
+bool space_pressed(void);
+
+//Tests if pause is pressed this frame.
+bool pause_pressed(void);
