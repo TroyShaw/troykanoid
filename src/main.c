@@ -4,6 +4,7 @@
 
 #include <SDL/SDL.h>
 
+#include "defines.h"
 #include "fps.h"
 #include "highscore.h"
 #include "main.h"
@@ -23,7 +24,7 @@ static void internal_render(void);
 
 static void process_events(void);
 
-Game game;
+static struct Game game;
 static bool gameRunning;
 
 int main(void)
@@ -40,10 +41,10 @@ int main(void)
 
 void resource_init(void)
 {
-    init_window(SCREEN_TITLE, SCREEN_WIDTH, SCREEN_HEIGHT);
+    init_window(SCREEN_TITLE, WIDTH, HEIGHT);
     init_renderer();
 
-    loadHighscoresFromDisc();
+    loadHighscoresFromDisc(&game.highscoreManager);
 }
 
 void startup_init(void)
@@ -56,7 +57,7 @@ void startup_init(void)
     //initialize the fps timer at 60 hz
     fps_init(60);
 
-    initGame();
+    initGame(&game);
 }
 
 void main_loop(void)
@@ -79,12 +80,12 @@ void clean_up(void)
 
 void internal_tick(void)
 {
-    tick();
+    tick(&game);
 }
 
 void internal_render(void)
 {
-    render();
+    render(&game);
     flip_screen();
 }
 
@@ -106,12 +107,12 @@ void key(unsigned char key)
         case 13:
             if (verifyHighscoreName())
             {
-                enterScore(game.player.score);
-                saveHighscoresToDisc();
+                enterScore(&game.highscoreManager, game.player.score);
+                saveHighscoresToDisc(&game.highscoreManager);
                 game.mode = MAIN_MENU;
             }
         default:
-            enterChar(key);
+            enterChar(&game.highscoreManager, key);
         }
 
         return;

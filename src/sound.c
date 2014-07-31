@@ -1,6 +1,6 @@
 
-void lol()
-{
 
+void foo()
+{
 
 }

@@ -35,8 +35,8 @@ void fillCircle(float cx, float cy, float r);
 //draws text centered on x axis at y value
 void centerPrint(float y, char* text, float r, float g, float b, float a);
 
-void set_color3f(float r, float g, float b);
-void set_color4f(float r, float g, float b, float a);
+void set_color3f(int r, int g, int b);
+void set_color4f(int r, int g, int b, int a);
 
 static int col_r, col_g, col_b, col_a;
 static TTF_Font *font;
@@ -62,39 +62,39 @@ void init_renderer(void)
     }
 }
 
-void render()
+void render(struct Game *game)
 {
     clear_screen(0, 0, 0, 0);
 
-    switch (game.mode)
+    switch (game->mode)
     {
     case MAIN_MENU:
-        renderMenu();
+        renderMenu(game);
         break;
     case GAME:
-        renderGame();
+        renderGame(game);
         break;
     case POST_GAME:
-        renderPostGame();
+        renderPostGame(game);
         break;
     }
 }
 
-void renderGame()
+void renderGame(struct Game *game)
 {
-    PowerupManager manager = game.powerupManager;
-    Player player = game.player;
+    struct PowerupManager manager = game->powerupManager;
+    Player player = game->player;
     
     int i, j;
 
-    set_color3f(1,0,0);
+    set_color3f(255, 0, 0);
 
 //draw ball
-    for (i = 0; i < game.numBalls; i++)
+    for (i = 0; i < game->numBalls; i++)
     {
-        Ball ball = game.balls[i];
+        Ball ball = game->balls[i];
 
-        if (manager.meteor) set_color3f(1, 0.1, 0.1);
+        if (manager.meteor) set_color3f(255, 25, 25);
         else set_color3f(ball.color.r, ball.color.g, ball.color.b);
 
         fillCircle(ball.x + ball.radius, ball.y + ball.radius, ball.radius);
@@ -117,10 +117,10 @@ void renderGame()
         for (j = 0; j < BLOCKS_DOWN; j++)
         {
 
-            Block* block = &game.blocks[i][j];
+            struct Block* block = &game->level.blocks[i][j];
             if (!block->inUse) continue;
 
-            set_color3f(0.5, 0.5, 0.5);
+            set_color3f(127, 127, 127);
             drawRect(block->x, block->y, block->width, block->height);
             set_color3f(block->color.r, block->color.g, block->color.b);
             fillRect(block->x, block->y, block->width, block->height);
@@ -151,11 +151,11 @@ void renderGame()
 //end draw info strings
 
 //if we are paused, we draw a slightly transparent overly across the whole screen, then the "paused" string
-    if (game.paused)
+    if (game->paused)
     {
         //TODO
         //glPushMatrix();
-        set_color4f(0, 0, 0, 0.75);
+        set_color4f(0, 0, 0, 190);
 
         fillRect(0, 0, WIDTH, HEIGHT);
 
@@ -174,7 +174,7 @@ void renderGame()
     //glutSwapBuffers();
 }
 
-void renderMenu()
+void renderMenu(struct Game *game)
 {
     //coordinates of main table
     int x = 75;
@@ -197,7 +197,7 @@ void renderMenu()
     int sx, i;
 
     //glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-    set_color3f(1,0,0);
+    set_color3f(255, 0, 0);
 
 //info strings
     char title[] = "Troykanoid!";
@@ -210,7 +210,7 @@ void renderMenu()
 //end info strings
 
 //highscore table
-    set_color4f(1, 1, 1, 1);
+    set_color4f(255, 255, 255, 255);
 
 //main table
 //outline
@@ -253,10 +253,10 @@ void renderMenu()
     char score[15];
     for (i = 0; i < MAX_SCORES; i++)
     {
-        draw_string(nameX + o, y + (8 - i) * rowHeight + o, game.highscoreManager.names[i], 1, 1, 1, 1);
+        draw_string(nameX + o, y + (8 - i) * rowHeight + o, game->highscoreManager.names[i], 1, 1, 1, 1);
 
         sprintf(score, "               ");
-        sprintf(score, "%d", game.highscoreManager.scores[i]);
+        sprintf(score, "%d", game->highscoreManager.scores[i]);
         
         sx = x + w - str_width(score) - 5;
         draw_string(sx, y + (8 - i) * rowHeight + o, score, 1, 1, 1, 1);
@@ -265,10 +265,9 @@ void renderMenu()
 //end numbers, names and scores
 }
 
-void renderPostGame()
+void renderPostGame(struct Game *game)
 {
-    //glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-    set_color3f(1,0,0);
+    set_color3f(255, 0, 0);
 
     char won[] = "Congratulations, you completed Troykanoid!";
     char lost[] = "Oh no! You died!";
@@ -276,9 +275,9 @@ void renderPostGame()
     char noHS[] = "You didn't make it onto the highscores... Press enter to continue";
     char highscore[] = "You came xxx! Enter your name and press enter!";
 
-    int i = game.highscoreManager.position;
+    int i = game->highscoreManager.position;
 
-    if (game.currentLevel == NUM_LEVELS)
+    if (game->currentLevel == NUM_LEVELS)
     {
         centerPrint(HEIGHT - 50, won, 1, 1, 1, 1);
     }
@@ -322,7 +321,7 @@ void renderPostGame()
 
         centerPrint(HEIGHT - 250, highscore, 1, 1, 1, 1);
 
-        char *nb = game.highscoreManager.nameBuffer;
+        char *nb = game->highscoreManager.nameBuffer;
 
         centerPrint(HEIGHT - 280, nb, 1, 1, 1, 1);
 
@@ -334,7 +333,7 @@ void renderPostGame()
         unsigned long long dif = milli - getLastPress();
         if (dif < CURSER_BLINK_RATE || (dif / CURSER_BLINK_RATE) % 2 == 0)
         {
-            set_color4f(1.0, 1.0, 1.0, 1.0);
+            set_color4f(255, 255, 255, 255);
             //drawRect(x + glutBitmapLength(GLUT_BITMAP_TIMES_ROMAN_24, (const unsigned char*)nb), HEIGHT - 283, 1, 23);
         }
     }
@@ -346,19 +345,19 @@ void renderPostGame()
     //glutSwapBuffers();
 }
 
-void set_color3f(float r, float g, float b)
+void set_color3f(int r, int g, int b)
 {
-    col_r = 255 * r;
-    col_g = 255 * g;
-    col_b = 255 * b;
+    col_r = r;
+    col_g = g;
+    col_b = b;
 }
 
-void set_color4f(float r, float g, float b, float a)
+void set_color4f(int r, int g, int b, int a)
 {
-    col_r = 255 * r;
-    col_g = 255 * g;
-    col_b = 255 * b;
-    col_a = 255 * a;
+    col_r = r;
+    col_g = g;
+    col_b = b;
+    col_a = a;
 }
 
 void fillRect(float x, float y, float w, float h)

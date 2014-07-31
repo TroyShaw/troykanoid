@@ -1,17 +1,21 @@
+#include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <ctype.h>
 #include <sys/time.h>
-#include "pong.h"
+
 #include "highscore.h"
+
+#define max(a, b) ((a) > (b) ? (a) : (b))
+#define min(a, b) ((a) > (b) ? (b) : (a))
 
 static const char *FILE_NAME = "hs.dat";
 
 // Game game;
 unsigned long long lastPress;
 
-void loadHighscoresFromDisc()
+void loadHighscoresFromDisc(struct HighscoreManager *highscoreManager)
 {
     printf("loading highscore data...\n");
 
@@ -24,12 +28,12 @@ void loadHighscoresFromDisc()
         int i;
         for (i = 0; i < MAX_SCORES; i++)
         {
-            strcpy(game.highscoreManager.names[i], "-");
-            game.highscoreManager.scores[i] = 0;
+            strcpy(highscoreManager->names[i], "-");
+            highscoreManager->scores[i] = 0;
         }
 
         //then try save it
-        saveHighscoresToDisc();
+        saveHighscoresToDisc(highscoreManager);
         return;
     }
 
@@ -41,11 +45,11 @@ void loadHighscoresFromDisc()
     for (i = 0; i < MAX_SCORES; i++)
     {
         //first load the name
-        fgets(game.highscoreManager.names[i], MAX_CHAR_IN_NAME, fp);
+        fgets(highscoreManager->names[i], MAX_CHAR_IN_NAME, fp);
 
 
         //then the score
-        fscanf(fp, "%d\n", &game.highscoreManager.scores[i]);
+        fscanf(fp, "%d\n", &highscoreManager->scores[i]);
     }
 
     //now replace \n with \0
@@ -53,9 +57,9 @@ void loadHighscoresFromDisc()
     {
         for (j = 0; j < MAX_CHAR_IN_NAME; j++)
         {
-            if (game.highscoreManager.names[i][j] == '\n')
+            if (highscoreManager->names[i][j] == '\n')
             {
-                game.highscoreManager.names[i][j] = '\0';
+                highscoreManager->names[i][j] = '\0';
                 break;
             }
         }
@@ -72,7 +76,7 @@ void loadHighscoresFromDisc()
     printf("loaded\n");
 }
 
-void saveHighscoresToDisc()
+void saveHighscoresToDisc(struct HighscoreManager *highscoreManager)
 {
     FILE *fp = fopen(FILE_NAME, "w");
 
@@ -86,8 +90,8 @@ void saveHighscoresToDisc()
     int i;
     for (i = 0; i < MAX_SCORES; i++)
     {
-        fprintf(fp, "%s", game.highscoreManager.names[i]);
-        fprintf(fp, "\n%d\n", game.highscoreManager.scores[i]);
+        fprintf(fp, "%s", highscoreManager->names[i]);
+        fprintf(fp, "\n%d\n", highscoreManager->scores[i]);
     }
 
     int status = fclose(fp);
@@ -103,9 +107,8 @@ void saveHighscoresToDisc()
     }
 }
 
-void enterScore(int score)
+void enterScore(struct HighscoreManager *hm, int score)
 {
-    HighscoreManager *hm = &game.highscoreManager;
     char *name = hm->nameBuffer;
     int i;
 
@@ -153,24 +156,24 @@ void enterScore(int score)
     hm->position = -1;
 }
 
-void setScore(int score)
+void setScore(struct HighscoreManager *highscoreManager, int score)
 {
     int i;
-    game.highscoreManager.position = -1;
+    highscoreManager->position = -1;
 
     for (i = 0; i < MAX_SCORES; i++)
     {
-        if (game.highscoreManager.scores[i] == 0 || score > game.highscoreManager.scores[i])
+        if (highscoreManager->scores[i] == 0 || score > highscoreManager->scores[i])
         {
-            game.highscoreManager.position = i + 1;
+            highscoreManager->position = i + 1;
             return;
         }
     }
 }
 
-void enterChar(unsigned char c)
+void enterChar(struct HighscoreManager *highscoreManager, unsigned char c)
 {
-    HighscoreManager *m = &game.highscoreManager;
+    struct HighscoreManager *m = highscoreManager;
     int i = m->bufferIndex;
 
     bool setTime = true;

@@ -1,5 +1,7 @@
 #pragma once
 
+#include <stdbool.h>
+
 //returns true if the circles are intersecting
 bool circleToCircle(float x1, float y1, float r1, float x2, float y2, float r2);
 //returns true if the point intersects with the circle

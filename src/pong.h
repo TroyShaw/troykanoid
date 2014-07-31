@@ -1,6 +1,8 @@
 #pragma once
 
 #include <stdbool.h>
+
+#include "defines.h"
 #include "highscore.h"
 #include "levels.h"
 #include "powerups.h"
@@ -21,29 +23,22 @@ typedef enum
 
 #define BALL_ARRAY_SIZE 64              //the max number, and size of the array, of balls on screen
 #define MAX_BLOCKS 128                  //the max number, and size of the array, of blocks the player can destroy
-#define POWERUP_ARRAY_SIZE 32           //the max number, and size of the array, of the powerups
+
 
 #define MAX_PADDLE_SIZE 350             //the maximum size of the paddle
 #define MIN_PADDLE_SIZE 40              //the minimum size of the paddle
 #define PADDLE_CHANGLE_SPEED 5          //the speed at which the paddle increases
 #define PADDLE_CHANGE 40                //the amount of pixels the paddle increases/ decreases by when picking up that powerup
 
+//TODO: this isn't strictly true anymore (SDL coordinate system)
 //NOTE: coordinate system starts at bottom left (x, y) and goes positive right x, positive up y
-
-typedef struct
-{
-    float r;                            //red component
-    float g;                            //green component
-    float b;                            //blue component
-    float a;                            //alpha component
-} Color;
 
 typedef struct
 {
     float x;                              //x coord
     float y;                              //y coord
     int radius;                         //radius of ball
-    Color color;                        //its color
+    SDL_Color color;                        //its color
     float velX;                         //velocity in x axis
     float velY;                         //velocity in y axis
     bool inUse;                         //true if ball is being displayed/ etc, on screen right now
@@ -58,43 +53,8 @@ typedef struct
     int realWidth;                      //actual width. current width will approach this each tick (to make a smooth transition)
     int height;                         //height of paddle
     int lives;                          //number of lives the player has left. Getting 0 will mean game over
-    Color color;                        //color of paddle
+    SDL_Color color;                    //color of paddle
 } Player;
-
-typedef struct
-{
-    int x;                              //x coord of powerup
-    int y;                              //y coord of powerup
-    int width;                          //width of powerup
-    int height;                         //height of powerup
-    int type;                           //type of powerup. Check above for different types
-    bool inUse;                         //true if we are displaying powerup on screen
-} Powerup;
-
-typedef struct
-{
-    Powerup powerups[POWERUP_ARRAY_SIZE];   //the array of all powerups.
-    bool forceField;                        //true if the user has activated the forcefield
-    int forceFieldCount;                    //ticks left the field has
-    bool meteor;                            //true if the balls are in meteor mode (go straight through destructable blocks)
-    int meteorCount;                        //ticks left the meteor has
-    bool sticky;                            //true if the balls stick to paddle
-    int stickCount;                         //ticks left sticky has
-} PowerupManager;
-
-typedef struct
-{
-    int x;                                  //the absolute x position of this block
-    int y;                                  //the absolute y position of this block
-    int width;                              //the width of this block
-    int height;                             //the height of this block
-    int points;                             //the number of points for destroying this block
-    Color color;                            //the color of this block
-    int type;                               //the type of this block
-    int hitsLeft;                           //the "health" of this block, how many more hits required before it dies
-    bool indestructable;                    //if this block is indestructable; balls just bounce off it
-    bool inUse;                             //true if we are displaying this
-} Block;
 
 typedef struct
 {
@@ -104,39 +64,44 @@ typedef struct
     bool pause;                             //true if the pause button is currently held
 } Keymanager;
 
-typedef struct
+struct Game
 {
     GameMode mode;                      //the mode of the game
     bool paused;                        //true if we are in a game and paused, false we are not paused
     int currentLevel;                   //the current level the player is on
-    int blocksLeft;                     //the amount of breakable blocks left on this level
+    struct Level level;                 //the level struct
     Player player;                      //the player
     Ball balls[BALL_ARRAY_SIZE];        //the balls
     int numBalls;                       //number of balls in use (useful for various reasons)
     bool attached;                      //if the ball is attached to paddle (i.e at start of games and after death)
-    PowerupManager powerupManager;      //the manager for powerups
-    HighscoreManager highscoreManager;  //the highscore manager
-    Block blocks[BLOCKS_ACROSS][BLOCKS_DOWN];//all the blocks
-} Game;
+    struct PowerupManager powerupManager;      //the manager for powerups
+    struct HighscoreManager highscoreManager;  //the highscore manager
+};
 
 
 //ticks the game. Should be done at around 30 times per second
-void tick();
+void tick(struct Game *game);
+
 //moves the player
-void movePlayer();
+void movePlayer(struct Game *game);
+
 //moves all the ball, (to be used when ball isn't attached). Keeps them within bounds of left/right/ceiling
-void moveBalls();
+void moveBalls(struct Game *game);
+
 //moves the first ball to players location, should be used when ball is attached
-void moveBallToPlayer();
+void moveBallToPlayer(struct Game *game);
+
 //test collision of balls and blocks
-void ballBlockCollisions();
+void ballBlockCollisions(struct Game *game);
+
 //test collision of player vs ball
-void playerBallCollision();
+void playerBallCollision(struct Game *game);
+
 // initializes the game
-void initGame();
+void initGame(struct Game *game);
+
 //performs a death
-void initiateDeath();
+void initiateDeath(struct Game *game);
+
 //returns a random float between 0-1
 float randF();
-
-extern Game game;

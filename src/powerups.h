@@ -1,5 +1,7 @@
 #pragma once
 
+#define POWERUP_ARRAY_SIZE 32           //the max number, and size of the array, of the powerups
+
 #define POWERUP_DROP_SPEED 4            //the drop speed in pixels per game tick
 #define POWERUP_PROB 0.2                //the probability of a powerup appearing on block destruction
 #define POWERUP_POINTS 50               //amount of points you get for picking up a powerup
@@ -22,6 +24,27 @@
 
 #define NUM_POWERUPS 9                  //the number of powerups defined
 
-void moveAndProcessPowerups();          //moves the powerups. If there
+typedef struct
+{
+    int x;                              //x coord of powerup
+    int y;                              //y coord of powerup
+    int width;                          //width of powerup
+    int height;                         //height of powerup
+    int type;                           //type of powerup. Check above for different types
+    bool inUse;                         //true if we are displaying powerup on screen
+} Powerup;
+
+struct PowerupManager
+{
+    Powerup powerups[POWERUP_ARRAY_SIZE];   //the array of all powerups.
+    bool forceField;                        //true if the user has activated the forcefield
+    int forceFieldCount;                    //ticks left the field has
+    bool meteor;                            //true if the balls are in meteor mode (go straight through destructable blocks)
+    int meteorCount;                        //ticks left the meteor has
+    bool sticky;                            //true if the balls stick to paddle
+    int stickCount;                         //ticks left sticky has
+};
+
+void moveAndProcessPowerups(struct PowerupManager *manager);          //moves the powerups. If there
 void setPowerupColor(int type);         //sets opengl's color to the balls color
 void generatePowerup(int x, int y);      //generates a random powerup at the given (x,y) coordinates

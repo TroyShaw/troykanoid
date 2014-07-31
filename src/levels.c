@@ -1,8 +1,11 @@
+#include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
+
+#include <SDL/SDL.h>
+
+#include "defines.h"
 #include "levels.h"
-#include "pong.h"
-#include "main.h"
 
 static void initLoad();
 
@@ -19,32 +22,32 @@ static void initLoad();
 // . = empty,           no block
 
 bool hasLoaded = false;
-Color colors[10];
+struct SDL_Color colors[10];
 int points[9];
 
 static char LEVEL_FILE[] = "levels/lxx.dat";
 
 // Game game;
 
-void populateLevel(int level)
+void populateLevel(struct Level *level, int levelNumber)
 {
     if (!hasLoaded) initLoad();
 
-    if (level < 1 || level > NUM_LEVELS)
+    if (levelNumber < 1 || levelNumber > NUM_LEVELS)
     {
-        printf("tried to load invalid level %d\n", level);
+        printf("tried to load invalid level %d\n", levelNumber);
         exit(1);
     }
 
-    if (level < 10)
+    if (levelNumber < 10)
     {
         LEVEL_FILE[8] = '0';
-        LEVEL_FILE[9] = (char) ('0' + level);
+        LEVEL_FILE[9] = (char) ('0' + levelNumber);
     }
     else
     {
-        LEVEL_FILE[8] = (char) ('0' + level / 10);
-        LEVEL_FILE[9] = (char) ('0' + level % 10);
+        LEVEL_FILE[8] = (char) ('0' + levelNumber / 10);
+        LEVEL_FILE[9] = (char) ('0' + levelNumber % 10);
     }
 
 
@@ -69,7 +72,7 @@ void populateLevel(int level)
         y = i / BLOCKS_ACROSS;
         x = i - y * BLOCKS_ACROSS;
 
-        Block* b = &game.blocks[x][y];
+        struct Block* b = &level->blocks[x][y];
 
         b->width = width;
         b->height = height;
@@ -94,7 +97,7 @@ void populateLevel(int level)
                 b->inUse = true;
                 break;
             case '.':
-                b->color = (Color) {0, 0, 0, 0};
+                b->color = (SDL_Color) {0, 0, 0, 0};
                 b->inUse = false;
                 break;
             default:
@@ -105,7 +108,7 @@ void populateLevel(int level)
         i++;
     }
 
-    game.blocksLeft = blocks;
+    level->blocksLeft = blocks;
 }
 
 static void initLoad()
@@ -115,14 +118,14 @@ static void initLoad()
 
     for (i = 0; i < 9; i++) points[i] = 50 + i * 10;
 
-    colors[0] = (Color) {1, 1, 1, 1};           // white
-    colors[1] = (Color) {1, 0.5, 0, 0};         // orange
-    colors[2] = (Color) {0, 0, 0.5, 0};         // light blue
-    colors[3] = (Color) {0, 1, 0, 0};           // green
-    colors[4] = (Color) {1, 0, 0, 0};           // red
-    colors[5] = (Color) {0, 0, 1, 0};           // blue
-    colors[6] = (Color) {0.737, 0.43, 0.78, 0}; // pink
-    colors[7] = (Color) {1, 1, 0, 0};           // yellow
-    colors[8] = (Color) {0.9, 0.91, 0.98, 0};   // silver
-    colors[9] = (Color) {0.85, 0.85, 0.1, 0};   // gold
+    colors[0] = (SDL_Color) {255, 255, 255, 0};           // white
+    colors[1] = (SDL_Color) {255, 127,   0, 0};         // orange
+    colors[2] = (SDL_Color) {  0,   0, 127, 0};         // light blue
+    colors[3] = (SDL_Color) {  0, 255,   0, 0};           // green
+    colors[4] = (SDL_Color) {255,   0,   0, 0};           // red
+    colors[5] = (SDL_Color) {  0,   0, 255, 0};           // blue
+    colors[6] = (SDL_Color) {188, 110, 199, 0}; // pink
+    colors[7] = (SDL_Color) {255, 255,   0, 0};           // yellow
+    colors[8] = (SDL_Color) {230, 232, 250, 0};   // silver
+    colors[9] = (SDL_Color) {217, 217,  26, 0};   // gold
 }
