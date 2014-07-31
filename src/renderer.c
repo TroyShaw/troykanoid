@@ -54,6 +54,10 @@ void init_renderer(void)
         SDL_Quit();
         exit(1);
     }
+
+
+
+
 }
 
 void cleanup_renderer(void)
@@ -64,8 +68,9 @@ void cleanup_renderer(void)
 void renderGame(struct Game *game)
 {
     struct PowerupManager manager = game->powerupManager;
-    Player player = game->player;
-    
+    struct Player player = game->player;
+    struct Paddle paddle = game->paddle;
+
     int i, j;
 
     set_color3f(255, 0, 0);
@@ -73,7 +78,7 @@ void renderGame(struct Game *game)
 //draw ball
     for (i = 0; i < game->numBalls; i++)
     {
-        Ball ball = game->balls[i];
+        struct Ball ball = game->balls[i];
 
         if (manager.meteor) set_color3f(255, 25, 25);
         else set_color3f(ball.color.r, ball.color.g, ball.color.b);
@@ -114,14 +119,14 @@ void renderGame(struct Game *game)
 //draw forcefield
     if (manager.forceField)
     {
-        set_color3f(player.color.r, player.color.g, player.color.b);
+        set_color3f(paddle.color.r, paddle.color.g, paddle.color.b);
         fill_rect(0, 3, WIDTH, 7);
     }
 //end draw forcefield
 
 //draw player
-    set_color3f(player.color.r, player.color.g, player.color.b);
-    fill_rect(player.x, player.y, player.width, player.height);
+    set_color3f(paddle.color.r, paddle.color.g, paddle.color.b);
+    fill_rect(paddle.x, paddle.y, paddle.width, paddle.height);
 //end draw player
 
 //info strings

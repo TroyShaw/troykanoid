@@ -11,10 +11,27 @@
 #include "powerups.h"
 #include "physics.h"
 
-void tickMenu();
-void tickGame();
-void tickPostGame();
-void gotoNextLevel();
+
+//moves the player
+static void movePlayer(struct Game *game);
+
+//moves all the ball, (to be used when ball isn't attached). Keeps them within bounds of left/right/ceiling
+static void moveBalls(struct Game *game);
+
+//moves the first ball to players location, should be used when ball is attached
+static void moveBallToPlayer(struct Game *game);
+
+//test collision of balls and blocks
+static void ballBlockCollisions(struct Game *game);
+
+//test collision of player vs ball
+static void playerBallCollision(struct Game *game);
+
+//goes to the next level
+static void gotoNextLevel();
+
+//performs a death
+static void initiateDeath(struct Game *game);
 
 //general algorithm
 //two modes, attached, not attached
@@ -35,31 +52,6 @@ void gotoNextLevel();
 //          make all powerups inactive
 //          set first ball to active
 //          set attached mode
-
-void tick(struct Game *game)
-{
-    switch (game->mode)
-    {
-    case MAIN_MENU:
-        tickMenu(game);
-        break;
-    case GAME:
-        tickGame(game);
-        break;
-    case POST_GAME:
-        tickPostGame(game);
-        break;
-    }
-}
-
-void tickMenu(struct Game *game)
-{
-    if (space_pressed())
-    {
-        game->mode = GAME;
-        initGame(game);
-    }
-}
 
 void tickGame(struct Game *game)
 {
@@ -92,15 +84,9 @@ void tickGame(struct Game *game)
     }
 }
 
-void tickPostGame()
+static void movePlayer(struct Game *game)
 {
-    //don't think I need to do anything here yet
-
-}
-
-void movePlayer(struct Game *game)
-{
-    Player *player = &game->player;
+    struct Paddle *paddle = &game->paddle;
 
     //will be -1 if left, 0 if left + right, 1 if right, 0 if neither
     int x = 0;
@@ -108,17 +94,17 @@ void movePlayer(struct Game *game)
     if (dir_key_held(Left))  x -= 1;
     if (dir_key_held(Right)) x += 1;
 
-    //move player
-    player->x += x * PLAYER_MOVE_SPEED;
+    //move paddle
+    paddle->x += x * PLAYER_MOVE_SPEED;
 
-    //if player out of bounds of screen, move them within
-    player->x = min(max(player->x, 0), WIDTH - player->width);
+    //if paddle out of bounds of screen, move them within
+    paddle->x = min(max(paddle->x, 0), WIDTH - paddle->width);
 }
 
-void moveBalls(struct Game *game)
+static void moveBalls(struct Game *game)
 {
     int i;
-    Ball *ball = NULL;
+    struct Ball *ball = NULL;
 
     for (i = 0; i < game->numBalls; i++)
     {
@@ -173,16 +159,16 @@ redo:
     }
 }
 
-void moveBallToPlayer(struct Game *game)
+static void moveBallToPlayer(struct Game *game)
 {
-    Ball *ball = &game->balls[0];
-    Player *player = &game->player;
+    struct Ball *ball = &game->balls[0];
+    struct Paddle *paddle = &game->paddle;
 
-    ball->y = player->y + player->height;
-    ball->x = player->x + player->width / 2 - ball->radius;
+    ball->y = paddle->y + paddle->height;
+    ball->x = paddle->x + paddle->width / 2 - ball->radius;
 }
 
-void initiateDeath(struct Game *game)
+static void initiateDeath(struct Game *game)
 {
     //subtract a life
     game->player.lives--;
@@ -194,9 +180,9 @@ void initiateDeath(struct Game *game)
     }
 
     //reset paddle size and position
-    game->player.realWidth = PADDLE_DEFAULT_WIDTH;
-    game->player.width = PADDLE_DEFAULT_WIDTH;
-    game->player.x = (WIDTH - game->player.width) / 2;
+    game->paddle.realWidth = PADDLE_DEFAULT_WIDTH;
+    game->paddle.width = PADDLE_DEFAULT_WIDTH;
+    game->paddle.x = (WIDTH - game->paddle.width) / 2;
 
     //set num balls back to 1
     game->numBalls = 1;
@@ -214,7 +200,7 @@ void initiateDeath(struct Game *game)
     }
 }
 
-void gotoNextLevel(struct Game *game)
+static void gotoNextLevel(struct Game *game)
 {
     if (game->currentLevel == NUM_LEVELS)
     {
@@ -227,14 +213,14 @@ void gotoNextLevel(struct Game *game)
     populateLevel(&game->level, game->currentLevel);
 }
 
-void ballBlockCollisions(struct Game *game)
+static void ballBlockCollisions(struct Game *game)
 {
     //algorithm:
     //  we have a 3x3 2d array of bools that represent collisions with adjacent squares
     //  imagine the ball is in the center of the array (1, 1) and each
     int i, j, k, x, y, xV, yV;
     struct Block *bl = NULL;
-    Ball *b = NULL;
+    struct Ball *b = NULL;
     //true if the ball collided in either direction this tick
     //invert that directions velocity after iterating over all balls to change direction only once
     bool collided[3][3];
@@ -377,25 +363,25 @@ void ballBlockCollisions(struct Game *game)
     }
 }
 
-void playerBallCollision(struct Game *game)
+static void playerBallCollision(struct Game *game)
 {
     int i;
-    Ball *ball;
-    Player *player = &game->player;
+    struct Ball *ball;
+    struct Paddle *paddle = &game->paddle;
 
     for (i = 0; i < game->numBalls; i++)
     {
         ball = &game->balls[i];
 
-        if (rectToRect(player->x, player->y, player->width, player->height, ball->x, ball->y, ball->radius * 2, ball->radius * 2))
+        if (rectToRect(paddle->x, paddle->y, paddle->width, paddle->height, ball->x, ball->y, ball->radius * 2, ball->radius * 2))
         {
-            float pos = (ball->x + ball->radius - player->x) / (float) player->width;
+            float pos = (ball->x + ball->radius - paddle->x) / (float) paddle->width;
             if (pos < 0) pos = 0;
             if (pos > 1) pos = 1;
 
             ball->velY *= -1;
             ball->velX = 5.0f * (2.0f * pos - 1.0f);
-            ball->y = player->y + player->height;
+            ball->y = paddle->y + paddle->height;
         }
     }
 }
@@ -406,17 +392,17 @@ void initGame(struct Game *game)
 
     game->paused = false;
 
-    game->player.color = (SDL_Color) {128, 128, 128, 128};
-    game->player.width = PADDLE_DEFAULT_WIDTH;
-    game->player.realWidth = game->player.width;
-    game->player.x = (WIDTH - game->player.width) / 2;
-    game->player.y = 10;
-    game->player.height = 15;
+    game->paddle.color = (SDL_Color) {128, 128, 128, 128};
+    game->paddle.width = PADDLE_DEFAULT_WIDTH;
+    game->paddle.realWidth = game->paddle.width;
+    game->paddle.x = (WIDTH - game->paddle.width) / 2;
+    game->paddle.y = 10;
+    game->paddle.height = 15;
     game->player.lives = DEFAULT_LIVES;
     game->player.score = 0;
     game->currentLevel = 1;
 
-    Ball* ball;
+    struct Ball* ball;
     for (i = 0; i < BALL_ARRAY_SIZE; i++)
     {
         ball = &game->balls[i];
@@ -424,7 +410,7 @@ void initGame(struct Game *game)
         ball->color = (SDL_Color) {255, 179, 179, 179};
         ball->radius = 7;
         ball->x = (WIDTH - ball->radius * 2) / 2;
-        ball->y = game->player.y + game->player.height;
+        ball->y = game->paddle.y + game->paddle.height;
         ball->velX = 5;
         ball->velY = 5;
         ball->inUse = false;
@@ -457,10 +443,4 @@ bool isGameOver(struct Game *game)
 bool hasBeatenGame(struct Game *game)
 {
     return game->currentLevel == NUM_LEVELS;
-}
-
-float randF()
-{
-    float r = (float) rand() / RAND_MAX;
-    return r;
 }

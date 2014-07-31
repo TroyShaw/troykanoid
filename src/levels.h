@@ -16,7 +16,7 @@ struct Block
     struct SDL_Color color;                 //the color of this block
     int type;                               //the type of this block
     int hitsLeft;                           //the "health" of this block, how many more hits required before it dies
-    bool indestructable;                    //if this block is indestructable; balls just bounce off it
+    bool indestructable;                    //if this block is indestructible; balls just bounce off it
     bool inUse;                             //true if we are displaying this
 };
 
@@ -26,8 +26,6 @@ struct Level
 	struct Block blocks[BLOCKS_ACROSS][BLOCKS_DOWN];	//all the blocks
 };
 
-//populates the level array
-//if the level is out of bounds, the program aborts
+//Populates the level array.
+//If the level is out of bounds, the program aborts.
 void populateLevel(struct Level *level, int levelNumber);
-
-

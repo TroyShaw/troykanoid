@@ -8,6 +8,7 @@
 #include "fps.h"
 #include "highscore.h"
 #include "input.h"
+#include "main.h"
 #include "pong.h"
 #include "renderer.h"
 #include "ui/window.h"
@@ -22,6 +23,7 @@ static void internal_render(void);
 
 static void process_events(void);
 
+static enum Mode mode;
 static struct Game game;
 static struct HighscoreManager hsManager;
 static bool gameRunning;
@@ -48,6 +50,7 @@ static void resource_init(void)
 
 static void startup_init(void)
 {
+    mode = MAIN_MENU;
     gameRunning = true;
 
     //initialize the random number generator with new value
@@ -79,10 +82,15 @@ static void clean_up(void)
 
 static void internal_tick(void)
 {
-    switch (game.mode)
+    switch (mode)
     {
     case MAIN_MENU:
-        tickMenu(&game);
+        if (space_pressed())
+        {
+            mode = GAME;
+            initGame(&game);
+        }
+        
         break;
     case GAME:
         tickGame(&game);
@@ -91,12 +99,12 @@ static void internal_tick(void)
         if (isGameOver(&game) || hasBeatenGame(&game))
         {
             set_score(&hsManager, game.player.score);
-            game.mode = POST_GAME;
+            mode = POST_GAME;
         }
 
         break;
     case POST_GAME:
-        tickPostGame(&game);
+        //nothing to do here, is handled in key-press function
         break;
     }
 }
@@ -105,7 +113,7 @@ static void internal_render(void)
 {
     clear_screen(0, 0, 0, 0);
 
-    switch (game.mode)
+    switch (mode)
     {
         case MAIN_MENU: renderMenu(&hsManager); break;
         case GAME:      renderGame(&game); break;
@@ -120,12 +128,12 @@ static void key(unsigned char key)
     if (key == 27) exit(0);
 
     //if it's game-mode, game is paused and they hit 'q', quit the game
-    if (game.mode == GAME && game.paused && key == 'q')
+    if (mode == GAME && game.paused && key == 'q')
     {
-        game.mode = MAIN_MENU;
+        mode = MAIN_MENU;
     }
 
-    if (game.mode == POST_GAME)
+    if (mode == POST_GAME)
     {
         switch (key)
         {
@@ -135,7 +143,7 @@ static void key(unsigned char key)
             {
                 enter_score(&hsManager, game.player.score);
                 save_highscores(&hsManager);
-                game.mode = MAIN_MENU;
+                mode = MAIN_MENU;
             }
         default:
             enter_char(&hsManager, key);
