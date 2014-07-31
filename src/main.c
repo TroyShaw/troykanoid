@@ -90,7 +90,7 @@ static void internal_tick(void)
         //check if they've lost or beaten the game
         if (isGameOver(&game) || hasBeatenGame(&game))
         {
-            setScore(&hsManager, game.player.score);
+            set_score(&hsManager, game.player.score);
             game.mode = POST_GAME;
         }
 
@@ -131,14 +131,14 @@ static void key(unsigned char key)
         {
         //enter
         case 13:
-            if (verifyHighscoreName())
+            if (verify_highscore_name(&hsManager))
             {
-                enterScore(&hsManager, game.player.score);
-                saveHighscoresToDisc(&hsManager);
+                enter_score(&hsManager, game.player.score);
+                save_highscores(&hsManager);
                 game.mode = MAIN_MENU;
             }
         default:
-            enterChar(&hsManager, key);
+            enter_char(&hsManager, key);
         }
 
         return;

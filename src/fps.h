@@ -22,3 +22,6 @@ unsigned int frames_game(void);
 
 //Returns the number of frames that have happened since the program starting.
 unsigned int frames_startup(void);
+
+//Converts number of fps frames to milliseconds. This depends on the sleep frequency.
+unsigned int frames_to_millis(unsigned int frames);

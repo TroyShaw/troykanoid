@@ -3,16 +3,19 @@
 #include <SDL/SDL_framerate.h>
 
 static FPSmanager fpsManager;
+static int fpsHz;
 static int numTicks;
 
 void fps_init(int hz)
 {
+	fpsHz = hz;
 	SDL_initFramerate(&fpsManager);
 	fps_sethz(hz);
 }
 
 void fps_sethz(int hz)
 {
+	fpsHz = hz;
 	SDL_setFramerate(&fpsManager, hz);
 }
 
@@ -40,4 +43,9 @@ unsigned int frames_game(void)
 unsigned int frames_startup(void)
 {
 	return numTicks;
+}
+
+unsigned int frames_to_millis(unsigned int frames)
+{
+	return 1000.0f / fpsHz * frames;
 }

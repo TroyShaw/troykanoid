@@ -6,9 +6,7 @@
 #include "highscore.h"
 #include "levels.h"
 #include "powerups.h"
-
-#define max(a, b) ((a) > (b) ? (a) : (b))
-#define min(a, b) ((a) > (b) ? (b) : (a))
+#include "util.h"
 
 typedef enum
 {
@@ -23,7 +21,6 @@ typedef enum
 
 #define BALL_ARRAY_SIZE 64              //the max number, and size of the array, of balls on screen
 #define MAX_BLOCKS 128                  //the max number, and size of the array, of blocks the player can destroy
-
 
 #define MAX_PADDLE_SIZE 350             //the maximum size of the paddle
 #define MIN_PADDLE_SIZE 40              //the minimum size of the paddle

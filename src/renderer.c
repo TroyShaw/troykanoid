@@ -78,6 +78,9 @@ void renderGame(struct Game *game)
         if (manager.meteor) set_color3f(255, 25, 25);
         else set_color3f(ball.color.r, ball.color.g, ball.color.b);
 
+        //TODO: calling draw_circle to get rid of unused function warning
+        //remove it if it really isn't used by the end of the game...
+        draw_circle(ball.x + ball.radius, ball.y + ball.radius, ball.radius);
         fill_circle(ball.x + ball.radius, ball.y + ball.radius, ball.radius);
     }
 
@@ -310,12 +313,11 @@ void renderPostGame(struct Game *game, struct HighscoreManager *hsManager)
         struct timeval tv;
         gettimeofday(&tv, NULL);
 
-        unsigned long long milli = (unsigned long long)(tv.tv_sec) * 1000 + (unsigned long long)(tv.tv_usec) / 1000;
-        unsigned long long dif = milli - getLastPress();
+        unsigned long long dif = get_last_press();
         if (dif < CURSER_BLINK_RATE || (dif / CURSER_BLINK_RATE) % 2 == 0)
         {
             set_color4f(255, 255, 255, 255);
-            //draw_rect(x + glutBitmapLength(GLUT_BITMAP_TIMES_ROMAN_24, (const unsigned char*)nb), HEIGHT - 283, 1, 23);
+            draw_rect((WIDTH + str_width(nb)) / 2, HEIGHT - 283, 1, 23);
         }
     }
     else

@@ -5,15 +5,13 @@
 #include <ctype.h>
 #include <sys/time.h>
 
+#include "fps.h"
 #include "highscore.h"
-
-#define max(a, b) ((a) > (b) ? (a) : (b))
-#define min(a, b) ((a) > (b) ? (b) : (a))
+#include "util.h"
 
 static const char *FILE_NAME = "hs.dat";
 
-// Game game;
-unsigned long long lastPress;
+static unsigned int lastPress;
 
 void init_highscore_manager(struct HighscoreManager *highscoreManager)
 {
@@ -25,15 +23,15 @@ void init_highscore_manager(struct HighscoreManager *highscoreManager)
     {
         printf("file didn't exist...\ncreating...\n");
         //file didn't exist, so load in some default data
-        int i;
-        for (i = 0; i < MAX_SCORES; i++)
+
+        for (int i = 0; i < MAX_SCORES; i++)
         {
             strcpy(highscoreManager->names[i], "-");
             highscoreManager->scores[i] = 0;
         }
 
         //then try save it
-        saveHighscoresToDisc(highscoreManager);
+        save_highscores(highscoreManager);
         return;
     }
 
@@ -42,7 +40,6 @@ void init_highscore_manager(struct HighscoreManager *highscoreManager)
     {
         //first load the name
         fgets(highscoreManager->names[i], MAX_CHAR_IN_NAME, fp);
-
 
         //then the score
         fscanf(fp, "%d\n", &highscoreManager->scores[i]);
@@ -68,7 +65,7 @@ void init_highscore_manager(struct HighscoreManager *highscoreManager)
     }
 }
 
-void saveHighscoresToDisc(struct HighscoreManager *highscoreManager)
+void save_highscores(struct HighscoreManager *highscoreManager)
 {
     FILE *fp = fopen(FILE_NAME, "w");
 
@@ -78,7 +75,6 @@ void saveHighscoresToDisc(struct HighscoreManager *highscoreManager)
         printf("highscores will persist in this game, but will be lost if the program is closed.\n");
         return;
     }
-
     
     for (int i = 0; i < MAX_SCORES; i++)
     {
@@ -88,16 +84,16 @@ void saveHighscoresToDisc(struct HighscoreManager *highscoreManager)
 
     if (fclose(fp) != 0)
     {
-        printf("failed to close file when saving highscore data\n");
+        printf("failed to close file when saving highscore data.\n");
         exit(EXIT_FAILURE);
     }
     else
     {
-        printf("save succesfull\n");
+        printf("save successful\n");
     }
 }
 
-void enterScore(struct HighscoreManager *hm, int score)
+void enter_score(struct HighscoreManager *hm, int score)
 {
     char *name = hm->nameBuffer;
 
@@ -106,6 +102,7 @@ void enterScore(struct HighscoreManager *hm, int score)
         printf("supplied name was null or empty\n");
         exit(EXIT_FAILURE);
     }
+
     if (score < 0)
     {
         printf("supplied score was negative\n");
@@ -113,14 +110,13 @@ void enterScore(struct HighscoreManager *hm, int score)
     }
 
     //we iterate from highest to lowest score
-    //if we find a score we are bigger than,
-    //we iterate from MAX_SCORE back to the score we
+    //if we find a score we are bigger than, we iterate from MAX_SCORE back to the score
     for (int i = 0; i < MAX_SCORES; i++)
     {
         //if the score is greater than the current score...
         if (hm->scores[i] == 0 || score > hm->scores[i])
         {
-            //we want to move all old scores down, then overwrite new position
+            //we want to move all old scores down, then overwrite the new position
             for (int j = MAX_SCORES - 1; j > i; j--)
             {
                 //move everything up 1 level
@@ -142,12 +138,11 @@ void enterScore(struct HighscoreManager *hm, int score)
         hm->nameBuffer[i] = '\0';
     }
         
-
     hm->bufferIndex = 0;
     hm->position = -1;
 }
 
-void setScore(struct HighscoreManager *highscoreManager, int score)
+void set_score(struct HighscoreManager *highscoreManager, int score)
 {
     highscoreManager->position = -1;
 
@@ -161,9 +156,8 @@ void setScore(struct HighscoreManager *highscoreManager, int score)
     }
 }
 
-void enterChar(struct HighscoreManager *highscoreManager, unsigned char c)
+void enter_char(struct HighscoreManager *m, unsigned char c)
 {
-    struct HighscoreManager *m = highscoreManager;
     int i = m->bufferIndex;
 
     bool setTime = true;
@@ -190,24 +184,25 @@ void enterChar(struct HighscoreManager *highscoreManager, unsigned char c)
         m->nameBuffer[i + 1] = '\0';
         //restrict index from going past the last null terminator
         m->bufferIndex = min(i + 1, MAX_CHAR_IN_NAME - 1);
-    } else setTime = false; //no valid character pressed, so don't set time
+    } 
+    else 
+    {
+        //no valid character pressed, so don't set last-pressed time
+        setTime = false; 
+    }
 
     if (setTime)
     {
-        struct timeval tv;
-        gettimeofday(&tv, NULL);
-        lastPress = (unsigned long long)(tv.tv_sec) * 1000 + (unsigned long long)(tv.tv_usec) / 1000;
+        lastPress = frames_startup();
     }
 }
 
-//verifies the highscore name
-//this checks it is of valid length, has no invalid charas, etc
-bool verifyHighscoreName()
+bool verify_highscore_name(struct HighscoreManager *highscoreManager)
 {
-    return true;
+    return strlen(highscoreManager->nameBuffer) > 0;
 }
 
-unsigned long long getLastPress()
+unsigned int get_last_press()
 {
-    return lastPress;
+    return frames_to_millis(frames_startup() - lastPress);
 }
