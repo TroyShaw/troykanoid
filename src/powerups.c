@@ -1,6 +1,7 @@
-#include <GL/glut.h>
 #include "pong.h"
 #include "physics.h"
+
+#include <stdlib.h>
 
 void doubleBalls();
 //generates a new powerup (assumes a block has been destroyed and probability determined to generate one)
@@ -144,6 +145,9 @@ void generatePowerup(int x, int y)
 
 void setPowerupColor(int type)
 {
-    glColor3f(0.2f, 0.9f, 0.2f);
+    //TODO
+    if (type)
+        ;
+    //glColor3f(0.2f, 0.9f, 0.2f);
     //glColor3f(randF(), randF(), randF());
 }

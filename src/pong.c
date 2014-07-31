@@ -245,7 +245,6 @@ void ballBlockCollisions()
     Ball *b = NULL;
     //true if the ball collided in either direction this tick
     //invert that directions velocity after iterating over all balls to change direction only once
-    bool collidedX = false, collidedY = false;
     bool collided[3][3];
 
     for (i = 0; i < game.numBalls; i++)

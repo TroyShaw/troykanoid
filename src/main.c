@@ -1,87 +1,94 @@
-
-
-#include <stdio.h>
-#include <sys/time.h>
-#include <GL/glut.h>
-#include <time.h>
-#include <unistd.h>
-
-
 #include <stdbool.h>
+#include <stdio.h>
+#include <time.h>
+
+#include <SDL/SDL.h>
+
+#include "fps.h"
 #include "highscore.h"
 #include "main.h"
 #include "pong.h"
 #include "renderer.h"
 
-void initGlutWindow();
-void initGL();
-void display();
-void checkGLError();
-void key(unsigned char key, int x, int y);
-void keyUp(unsigned char key, int x, int y);
-void idle();
-void process();
-void callback();
+#include "input.h"
+#include "ui/window.h"
 
-long long timeT = 0;
-struct timeval tv;
+void resource_init(void);
+void startup_init(void);
+void main_loop(void);
+void clean_up(void);
 
-// Game game;
+static void internal_tick(void);
+static void internal_render(void);
 
-int main(int argc, char **argv)
+static void process_events(void);
+
+void key(unsigned char key);
+void key_up(unsigned char key);
+
+Game game;
+static bool gameRunning;
+
+int main(void)
 {
+    resource_init();
+    startup_init();
+
+    main_loop();
+
+    clean_up();
+
+    return 0;
+}
+
+void resource_init(void)
+{
+    init_window(SCREEN_TITLE, SCREEN_WIDTH, SCREEN_HEIGHT);
+    loadHighscoresFromDisc();
+}
+
+void startup_init(void)
+{
+    gameRunning = true;
+
     //initialize the random number generator with new value
     srand(time(NULL));
-    //load scores
-    loadHighscoresFromDisc();
+    
+    //initialize the fps timer at 60 hz
+    fps_init(60);
+
     initGame();
-    printf("first mode %d\n", game.mode);
-    //init stuff
-    glutInit(&argc, argv);
-    initGlutWindow();
-    initGL();
-
-    glutMainLoop();
-
-    return EXIT_SUCCESS;
 }
 
-void statusFunc(int status)
+void main_loop(void)
 {
-    //printf("status: %d", status);
+    while (gameRunning && !key_held(SDLK_ESCAPE))
+    {
+        process_events();
+
+        internal_tick();
+        internal_render();
+
+        fps_sleep();
+    }
 }
-void initGlutWindow()
+
+void clean_up(void)
 {
-    //center the screen
-    // RECT rc;
-    // GetWindowRect(GetDesktopWindow(), &rc);
-    glutInitWindowSize(WIDTH,HEIGHT);
-    // glutInitWindowPosition((rc.right - WIDTH) / 2, (rc.bottom - HEIGHT) / 2);
 
-    glutInitDisplayMode(GLUT_RGB | GLUT_DOUBLE | GLUT_DEPTH);
-    glutCreateWindow("Troykanoid");
-
-    glutWindowStatusFunc(statusFunc);
-
-
-    glutDisplayFunc(display);
-    glutKeyboardFunc(key);
-    glutKeyboardUpFunc(keyUp);
-    glutIdleFunc(idle);
 }
 
-void initGL()
+void internal_tick(void)
 {
-    glEnable(GL_LINE_SMOOTH);
-    glHint(GL_LINE_SMOOTH, GL_NICEST);
-    glEnable(GL_BLEND);
-    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-    glMatrixMode(GL_PROJECTION);
-    glLoadIdentity();
-    glOrtho(0.0, WIDTH, 0.0, HEIGHT, -1.0, 1.0);
+    tick();
 }
 
-void key(unsigned char key, int x, int y)
+void internal_render(void)
+{
+    render();
+}
+
+void key(unsigned char key)
 {
     if (key == 27) exit(0);
 
@@ -107,7 +114,6 @@ void key(unsigned char key, int x, int y)
             enterChar(key);
         }
 
-        process();
         return;
     }
 
@@ -129,11 +135,9 @@ void key(unsigned char key, int x, int y)
     case 'P':
         game.keymanager.pause = true;
     }
-
-    process();
 }
 
-void keyUp(unsigned char key, int x, int y)
+void key_up(unsigned char key)
 {
     if (key > 'z') key = key - ('A' - 'a');
     switch (key)
@@ -153,50 +157,29 @@ void keyUp(unsigned char key, int x, int y)
     case 'P':
         game.keymanager.pause = false;
     }
-
-    process();
 }
 
-void specialFunc()
+static void process_events(void)
 {
+    static SDL_Event event;
 
-}
-
-void idle()
-{
-    process();
-}
-
-void display()
-{
-    render();
-}
-
-void process()
-{
-    gettimeofday(&tv, NULL);
-
-    unsigned long long milli = (unsigned long long)(tv.tv_sec) * 1000 + (unsigned long long)(tv.tv_usec) / 1000;
-
-    usleep(1);
-
-    if (milli - timeT >= TICK_TIME)
+    while (SDL_PollEvent(&event))
     {
-        tick();
-        timeT = milli;
-        checkGLError();
-        //only need to redraw if we have changed state
-        glutPostRedisplay();
-    }
-}
+        switch (event.type)
+        {
+            case SDL_QUIT:
+                gameRunning = false;
 
-void checkGLError()
-{
-    int val = glGetError();
-    printf("status: %d\n", val);
-    if (val == 1282)
-    {
-        //window has been closed, so close the process
-        exit(0);
+                break;
+            case SDL_KEYDOWN:
+                handle_keydown(event.key.keysym.sym);
+                break;
+            case SDL_KEYUP:
+                handle_keyup(event.key.keysym.sym);
+
+                break;
+        }
     }
+
+    keyevents_finished();
 }

@@ -21,7 +21,7 @@ Defines           :=
 Defines_Debug     := DEBUG
 Defines_Release   := RELEASE
 # List of Library Names (Libs is included before mode specific Libs_MODE)
-Libs              := SDL SDL_image SDL_ttf SDL_mixer SDL_gfx GL glut m
+Libs              := SDL SDL_image SDL_ttf SDL_mixer SDL_gfx m
 Libs_Debug        :=
 Libs_Release      :=
 # Search Paths for Libraries (LibPaths is included before mode specific LibPaths_MODE)
@@ -40,6 +40,7 @@ LFlags_Release    := -O2
 # Add Your Source file here
 # Use $(wildcard dir/*.c) if you want to include files from directory 'dir'
 Src := $(wildcard src/*.c)
+Src += $(wildcard src/ui/*.c)
 
 ##########################
 # Compiler Specific Part #
@@ -49,8 +50,8 @@ DefineFlag  := -D
 LibraryFlag := -l
 LibPathFlag := -L
 # -MMD flag let gcc generate a dependency file "objectfilename.d" in addition to the object file "objectfilename.o"
-CC          := gcc -MMD
-LD          := gcc
+CC          := clang -MMD
+LD          := clang
 
 #########################
 # Generic Template Part #
@@ -59,7 +60,9 @@ all: $(Modes)
 
 clean:
 	@echo clean: $(Project)
-	@echo rm -rf $(TargetDir)
+	rm -rf $(TargetDir)
+	mkdir bin
+	cp -R levels bin/
 
 test:	Release
 	$(call TargetFilename,Release)

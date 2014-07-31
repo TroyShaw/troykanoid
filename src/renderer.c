@@ -1,15 +1,18 @@
-#include <GL/glut.h>
 #include <stdbool.h>
 #include <stdio.h>
 #include <math.h>
 #include <string.h>
 #include <sys/time.h>
 
+#include <SDL/SDL_gfxPrimitives.h>
+
 #include "main.h"
 #include "pong.h"
 #include "renderer.h"
 #include "highscore.h"
 #include "powerups.h"
+
+#include "ui/window.h"
 
 void renderPostGame();
 
@@ -28,7 +31,12 @@ void fillCircle(float cx, float cy, float r, int num_segments);
 //draws text centered on x axis at y value
 void centerPrint(float y, char* text, float r, float g, float b, float a);
 
+void set_color3f(float r, float g, float b);
+void set_color4f(float r, float g, float b, float a);
+
 // Game game;
+
+static int col_r, col_g, col_b, col_a;
 
 void render()
 {
@@ -50,19 +58,20 @@ void renderGame()
 {
     PowerupManager manager = game.powerupManager;
     Player player = game.player;
-    //const double t = glutGet(GLUT_ELAPSED_TIME) / 1000.0;
+    
     int i, j;
 
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-    glColor3d(1,0,0);
+    //TODO
+    //glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    set_color3f(1,0,0);
 
 //draw ball
     for (i = 0; i < game.numBalls; i++)
     {
         Ball ball = game.balls[i];
 
-        if (manager.meteor) glColor3f(1, 0.1, 0.1);
-        else glColor3f(ball.color.r, ball.color.g, ball.color.b);
+        if (manager.meteor) set_color3f(1, 0.1, 0.1);
+        else set_color3f(ball.color.r, ball.color.g, ball.color.b);
 
         //fillRect(ball.x, ball.y, ball.radius * 2, ball.radius * 2);
         fillCircle(ball.x + ball.radius, ball.y + ball.radius, ball.radius, 10);
@@ -88,9 +97,9 @@ void renderGame()
             Block* block = &game.blocks[i][j];
             if (!block->inUse) continue;
 
-            glColor3f(0.5, 0.5, 0.5);
+            set_color3f(0.5, 0.5, 0.5);
             drawRect(block->x, block->y, block->width, block->height);
-            glColor3f(block->color.r, block->color.g, block->color.b);
+            set_color3f(block->color.r, block->color.g, block->color.b);
             fillRect(block->x, block->y, block->width, block->height);
         }
     }
@@ -98,13 +107,13 @@ void renderGame()
 //draw forcefield
     if (manager.forceField)
     {
-        glColor3f(player.color.r, player.color.g, player.color.b);
+        set_color3f(player.color.r, player.color.g, player.color.b);
         fillRect(0, 3, WIDTH, 7);
     }
 //end draw forcefield
 
 //draw player
-    glColor3f(player.color.r, player.color.g, player.color.b);
+    set_color3f(player.color.r, player.color.g, player.color.b);
     fillRect(player.x, player.y, player.width, player.height);
 //end draw player
 
@@ -113,6 +122,7 @@ void renderGame()
     char score[100];
     sprintf(lives, "%s %d", "lives: ", player.lives);
     sprintf(score, "%s %d", "score: ", player.score);
+    
     glutPrint(0, HEIGHT - 24, lives, 1.0f, 1.0f, 1.0f, 1.0f);
     glutPrint(0, HEIGHT - 48, score, 1.0f, 1.0f, 1.0f, 1.0f);
 //end draw info strings
@@ -120,14 +130,15 @@ void renderGame()
 //if we are paused, we draw a slightly transparent overly across the whole screen, then the "paused" string
     if (game.paused)
     {
-        glPushMatrix();
-        glColor4f(0, 0, 0, 0.75);
+        //TODO
+        //glPushMatrix();
+        set_color4f(0, 0, 0, 0.75);
 
         fillRect(0, 0, WIDTH, HEIGHT);
 
-        char* pause = "paused";
-        char* unpause = "press P to upause";
-        char* quit = "press Q to quit";
+        char pause[] = "paused";
+        char unpause[] = "press P to upause";
+        char quit[] = "press Q to quit";
 
         int offset = 30;
 
@@ -137,7 +148,7 @@ void renderGame()
     }
 //end draw pause information
 
-    glutSwapBuffers();
+    //glutSwapBuffers();
 }
 
 void renderMenu()
@@ -162,13 +173,13 @@ void renderMenu()
     //string x var (strength length) and temp var for transient use
     int sx, i;
 
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-    glColor3d(1,0,0);
+    //glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    set_color3f(1,0,0);
 
 //info strings
-    char* title = "Troykanoid!";
-    char* keys = "wasd to move, spacebar to fire ball";
-    char* start = "Push spacebar to start!";
+    char title[] = "Troykanoid!";
+    char keys[] = "wasd to move, spacebar to fire ball";
+    char start[] = "Push spacebar to start!";
 
     centerPrint(HEIGHT - 50, title, 1, 1, 1, 1);
     centerPrint(70, keys, 1, 1, 1, 1);
@@ -176,7 +187,7 @@ void renderMenu()
 //end info strings
 
 //highscore table
-    glColor4f(1, 1, 1, 1);
+    set_color4f(1, 1, 1, 1);
 
 //main table
 //outline
@@ -200,7 +211,7 @@ void renderMenu()
 //end table
 
 //vertical numbers (1-9), names, scores
-    char* header = "Highscores";
+    char header[] = "Highscores";
 
     centerPrint(y + 9 * rowHeight + o, header, 1, 1, 1, 1);
 
@@ -210,7 +221,7 @@ void renderMenu()
     {
         str[0] = (char) (i + '1');
         str[1] = '\0';
-        glutPrint(x + o, y + (8 - i) * rowHeight + o, str, 1, 1, 1, 1);
+        //glutPrint(x + o, y + (8 - i) * rowHeight + o, str, 1, 1, 1, 1);
     }
 //end numbers
 
@@ -221,30 +232,32 @@ void renderMenu()
     {
         glutPrint(nameX + o, y + (8 - i) * rowHeight + o, game.highscoreManager.names[i], 1, 1, 1, 1);
 
-        sprintf(score, "\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0");
+        sprintf(score, "               ");
         sprintf(score, "%d", game.highscoreManager.scores[i]);
-        sx = x + w - glutBitmapLength(GLUT_BITMAP_TIMES_ROMAN_24, (const unsigned char*)score) - o;
+        
+        //TODO: make sx initialized properly
+        //sx = x + w - glutBitmapLength(GLUT_BITMAP_TIMES_ROMAN_24, (const unsigned char*)score) - o;
+        sx = 0;
         glutPrint(sx, y + (8 - i) * rowHeight + o, score, 1, 1, 1, 1);
     }
 //end name and score
 //end numbers, names and scores
 
-    glutSwapBuffers();
+    //glutSwapBuffers();
 }
 
 void renderPostGame()
 {
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-    glColor3d(1,0,0);
+    //glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    set_color3f(1,0,0);
 
-    char *won = "Congratulations, you completed Troykanoid!";
-    char *lost = "Oh no! You died!";
+    char won[] = "Congratulations, you completed Troykanoid!";
+    char lost[] = "Oh no! You died!";
 
-    char *noHS = "You didn't make it onto the highscores... Press enter to continue";
+    char noHS[] = "You didn't make it onto the highscores... Press enter to continue";
     char highscore[] = "You came xxx! Enter your name and press enter!";
 
     int i = game.highscoreManager.position;
-    int x, y;
 
     if (game.currentLevel == NUM_LEVELS)
     {
@@ -302,8 +315,8 @@ void renderPostGame()
         unsigned long long dif = milli - getLastPress();
         if (dif < CURSER_BLINK_RATE || (dif / CURSER_BLINK_RATE) % 2 == 0)
         {
-            glColor4f(1.0, 1.0, 1.0, 1.0);
-            drawRect(x + glutBitmapLength(GLUT_BITMAP_TIMES_ROMAN_24, (const unsigned char*)nb), HEIGHT - 283, 1, 23);
+            set_color4f(1.0, 1.0, 1.0, 1.0);
+            //drawRect(x + glutBitmapLength(GLUT_BITMAP_TIMES_ROMAN_24, (const unsigned char*)nb), HEIGHT - 283, 1, 23);
         }
     }
     else
@@ -311,45 +324,46 @@ void renderPostGame()
         centerPrint(HEIGHT - 250, noHS, 1, 1, 1, 1);
     }
 
-    glutSwapBuffers();
+    //glutSwapBuffers();
+}
+
+void set_color3f(float r, float g, float b)
+{
+    col_r = 255 * r;
+    col_g = 255 * g;
+    col_b = 255 * b;
+}
+
+void set_color4f(float r, float g, float b, float a)
+{
+    col_r = 255 * r;
+    col_g = 255 * g;
+    col_b = 255 * b;
+    col_a = 255 * a;
 }
 
 void fillRect(float x, float y, float w, float h)
 {
-    rect(x, y, w, h, GL_POLYGON);
+    boxRGBA(get_screen(), x, y, x + w, y + h, col_r, col_g, col_b, col_a);
 }
 
 void drawRect(float x, float y, float w, float h)
 {
-    rect(x, y, w, h, GL_LINE_LOOP);
-}
-
-void rect(float x, float y, float w, float h, int mode)
-{
-    glBegin(mode);
-    {
-        glVertex3f(x, y, 0);
-        glVertex3f(x + w, y, 0);
-        glVertex3f(x + w, y + h, 0);
-        glVertex3f(x, y + h, 0);
-    }
-    glEnd();
+    rectangleRGBA(get_screen(), x, y, x + w, y + h, col_r, col_g, col_b, col_a);
 }
 
 void drawLine(float x1, float y1, float x2, float y2)
 {
-    glBegin(GL_LINES);
-    {
-        glVertex2f(x1, y1);
-        glVertex2f(x2, y2);
-    }
-    glEnd();
+    lineRGBA(get_screen(), x1, y1, x2, y2, col_r, col_g, col_b, col_a);
 }
 
 
 //courtesy of http://slabode.exofire.net/circle_draw.shtml
 void drawCircle(float cx, float cy, float r, int num_segments)
 {
+    if (cx || cy || r || num_segments)
+        ;
+
 	float theta = 2 * 3.1415926 / (float)(num_segments);
 	float c = cosf(theta);//precalculate the sine and cosine
 	float s = sinf(theta);
@@ -360,60 +374,48 @@ void drawCircle(float cx, float cy, float r, int num_segments)
 
 	int i;
 
-	glBegin(GL_LINE_LOOP);
+	//glBegin(GL_LINE_LOOP);
 	for(i = 0; i < num_segments; i++)
 	{
-		glVertex2f(x + cx, y + cy);//output vertex
+		//glVertex2f(x + cx, y + cy);//output vertex
 
 		//apply the rotation matrix
 		t = x;
 		x = c * x - s * y;
 		y = s * t + c * y;
 	}
-	glEnd();
+	//glEnd();
 }
 
 //courtesy of http://slabode.exofire.net/circle_draw.shtml
 void fillCircle(float cx, float cy, float r, int num_segments)
 {
-	float theta = 2 * 3.1415926 / (float)(num_segments);
-	float c = cosf(theta);//precalculate the sine and cosine
-	float s = sinf(theta);
-	float t;
+    if (cx || cy || r || num_segments)
+        ;
 
-	float x = r;//we start at angle = 0
-	float y = 0;
-
-	int i;
-
-	glBegin(GL_POLYGON);
-	for(i = 0; i < num_segments; i++)
-	{
-		glVertex2f(x + cx, y + cy);//output vertex
-
-		//apply the rotation matrix
-		t = x;
-		x = c * x - s * y;
-		y = s * t + c * y;
-	}
-	glEnd();
 }
 
 void centerPrint(float y, char* text, float r, float g, float b, float a)
 {
-    float x = (WIDTH - glutBitmapLength(GLUT_BITMAP_TIMES_ROMAN_24, (const unsigned char*)text)) / 2;
-    glutPrint(x, y, text, r, g, b, a);
+    if (y || text || r || g || b || a) 
+        ;
+
+    //float x = (WIDTH - glutBitmapLength(GLUT_BITMAP_TIMES_ROMAN_24, (const unsigned char*)text)) / 2;
+    
 }
 
 void glutPrint(float x, float y, char* text, float r, float g, float b, float a)
 {
+    if (x || y || text || r || g || b || a)
+        ;
+
     if(!text || !strlen(text)) return;
 
-    glColor4f(r,g,b,a);
-    glRasterPos2f(x,y);
+    set_color4f(r,g,b,a);
+    //glRasterPos2f(x,y);
     while (*text)
     {
-        glutBitmapCharacter(GLUT_BITMAP_TIMES_ROMAN_24, *text);
+        //glutBitmapCharacter(GLUT_BITMAP_TIMES_ROMAN_24, *text);
         text++;
     }
 }

@@ -86,7 +86,7 @@ void saveHighscoresToDisc()
     int i;
     for (i = 0; i < MAX_SCORES; i++)
     {
-        fprintf(fp, game.highscoreManager.names[i]);
+        fprintf(fp, "%s", game.highscoreManager.names[i]);
         fprintf(fp, "\n%d\n", game.highscoreManager.scores[i]);
     }
 
