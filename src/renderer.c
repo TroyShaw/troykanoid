@@ -1,42 +1,36 @@
 #include <stdbool.h>
 #include <stdio.h>
-#include <math.h>
-#include <string.h>
 #include <sys/time.h>
 
 #include <SDL/SDL_gfxPrimitives.h>
 #include <SDL/SDL_ttf.h>
 
-#include "main.h"
-#include "pong.h"
-#include "renderer.h"
-#include "highscore.h"
 #include "powerups.h"
-
+#include "renderer.h"
 #include "ui/window.h"
+
+//fills a rectangle with the given dimensions in the last color that was set
+static void fill_rect(float x, float y, float w, float h);
+//draws the outline of a rectangle with the given dimensions in the last color that was set
+static void draw_rect(float x, float y, float w, float h);
+//draws a single solid line in the last color that was set
+static void draw_line(float x1, float y1, float x2, float y2);
+//draws a circle in the last color that was set
+static void draw_circle(float cx, float cy, float r);
+//fills a circle in the last color that was set
+static void fill_circle(float cx, float cy, float r);
+
+//draws text centered on x axis at y value
+static void center_print(float y, char* text, float r, float g, float b, float a);
+//draws text at given coordinates
+static void draw_string(float x, float y, char* text, float r, float g, float b, float a);
+
+static void set_color3f(int r, int g, int b);
+static void set_color4f(int r, int g, int b, int a);
 
 //Returns y which considers coordinate system
 static float get_y(float y);
 static int str_width(char* str);
-
-void renderPostGame();
-
-//fills a rectangle with the given dimensions in the last color that was set
-void fillRect(float x, float y, float w, float h);
-//draws the outline of a rectangle with the given dimensions in the last color that was set
-void drawRect(float x, float y, float w, float h);
-//draws a single solid line in the last color that was set
-void drawLine(float x1, float y1, float x2, float y2);
-//draws a circle in the last color that was set
-void drawCircle(float cx, float cy, float r);
-//fills a circle in the last color that was set
-void fillCircle(float cx, float cy, float r);
-
-//draws text centered on x axis at y value
-void centerPrint(float y, char* text, float r, float g, float b, float a);
-
-void set_color3f(int r, int g, int b);
-void set_color4f(int r, int g, int b, int a);
 
 static int col_r, col_g, col_b, col_a;
 static TTF_Font *font;
@@ -62,22 +56,9 @@ void init_renderer(void)
     }
 }
 
-void render(struct Game *game)
+void cleanup_renderer(void)
 {
-    clear_screen(0, 0, 0, 0);
 
-    switch (game->mode)
-    {
-    case MAIN_MENU:
-        renderMenu(game);
-        break;
-    case GAME:
-        renderGame(game);
-        break;
-    case POST_GAME:
-        renderPostGame(game);
-        break;
-    }
 }
 
 void renderGame(struct Game *game)
@@ -97,7 +78,7 @@ void renderGame(struct Game *game)
         if (manager.meteor) set_color3f(255, 25, 25);
         else set_color3f(ball.color.r, ball.color.g, ball.color.b);
 
-        fillCircle(ball.x + ball.radius, ball.y + ball.radius, ball.radius);
+        fill_circle(ball.x + ball.radius, ball.y + ball.radius, ball.radius);
     }
 
 //draw powerups
@@ -107,7 +88,7 @@ void renderGame(struct Game *game)
         if (!p.inUse) continue;
 
         setPowerupColor(p.type);
-        fillRect(p.x, p.y, p.width, p.height);
+        fill_rect(p.x, p.y, p.width, p.height);
     }
 //end draw powerups
 
@@ -121,9 +102,9 @@ void renderGame(struct Game *game)
             if (!block->inUse) continue;
 
             set_color3f(127, 127, 127);
-            drawRect(block->x, block->y, block->width, block->height);
+            draw_rect(block->x, block->y, block->width, block->height);
             set_color3f(block->color.r, block->color.g, block->color.b);
-            fillRect(block->x, block->y, block->width, block->height);
+            fill_rect(block->x, block->y, block->width, block->height);
         }
     }
 
@@ -131,13 +112,13 @@ void renderGame(struct Game *game)
     if (manager.forceField)
     {
         set_color3f(player.color.r, player.color.g, player.color.b);
-        fillRect(0, 3, WIDTH, 7);
+        fill_rect(0, 3, WIDTH, 7);
     }
 //end draw forcefield
 
 //draw player
     set_color3f(player.color.r, player.color.g, player.color.b);
-    fillRect(player.x, player.y, player.width, player.height);
+    fill_rect(player.x, player.y, player.width, player.height);
 //end draw player
 
 //info strings
@@ -157,7 +138,7 @@ void renderGame(struct Game *game)
         //glPushMatrix();
         set_color4f(0, 0, 0, 190);
 
-        fillRect(0, 0, WIDTH, HEIGHT);
+        fill_rect(0, 0, WIDTH, HEIGHT);
 
         char pause[] = "paused";
         char unpause[] = "press P to upause";
@@ -165,16 +146,16 @@ void renderGame(struct Game *game)
 
         int offset = 30;
 
-        centerPrint(HEIGHT / 2 + offset, pause, 1.0f, 1.0f, 1.0f, 1.0f);
-        centerPrint(HEIGHT / 2 - offset, unpause, 1.0f, 1.0f, 1.0f, 1.0f);
-        centerPrint(HEIGHT / 2 - offset * 2, quit, 1.0f, 1.0f, 1.0f, 1.0f);
+        center_print(HEIGHT / 2 + offset, pause, 1.0f, 1.0f, 1.0f, 1.0f);
+        center_print(HEIGHT / 2 - offset, unpause, 1.0f, 1.0f, 1.0f, 1.0f);
+        center_print(HEIGHT / 2 - offset * 2, quit, 1.0f, 1.0f, 1.0f, 1.0f);
     }
 //end draw pause information
 
     //glutSwapBuffers();
 }
 
-void renderMenu(struct Game *game)
+void renderMenu(struct HighscoreManager *hsManager)
 {
     //coordinates of main table
     int x = 75;
@@ -204,9 +185,9 @@ void renderMenu(struct Game *game)
     char keys[] = "wasd to move, spacebar to fire ball";
     char start[] = "Push spacebar to start!";
 
-    centerPrint(HEIGHT - 50, title, 1, 1, 1, 1);
-    centerPrint(70, keys, 1, 1, 1, 1);
-    centerPrint(30, start, 1, 1, 1, 1);
+    center_print(HEIGHT - 50, title, 1, 1, 1, 1);
+    center_print(70, keys, 1, 1, 1, 1);
+    center_print(30, start, 1, 1, 1, 1);
 //end info strings
 
 //highscore table
@@ -214,29 +195,29 @@ void renderMenu(struct Game *game)
 
 //main table
 //outline
-    drawRect(x, y, w, h);
+    draw_rect(x, y, w, h);
 //end outline
 
 //horozontal lines
     for (i = 0; i < 10; i++)
     {
-        drawLine(x, y + i * rowHeight, x + w, y + i * rowHeight);
+        draw_line(x, y + i * rowHeight, x + w, y + i * rowHeight);
     }
 //end horozontal lines
 
 //two vertical lines
     //vertical line after numbers
-    drawLine(nameX, y, nameX, y + 9 * rowHeight);
+    draw_line(nameX, y, nameX, y + 9 * rowHeight);
 
     //vertical line after name
-    drawLine(scoreX, y, scoreX, y + 9 * rowHeight);
+    draw_line(scoreX, y, scoreX, y + 9 * rowHeight);
 //end vertical lines
 //end table
 
 //vertical numbers (1-9), names, scores
     char header[] = "Highscores";
 
-    centerPrint(y + 9 * rowHeight + o, header, 1, 1, 1, 1);
+    center_print(y + 9 * rowHeight + o, header, 1, 1, 1, 1);
 
 //numbers from 1-9
     char str[2];
@@ -253,10 +234,10 @@ void renderMenu(struct Game *game)
     char score[15];
     for (i = 0; i < MAX_SCORES; i++)
     {
-        draw_string(nameX + o, y + (8 - i) * rowHeight + o, game->highscoreManager.names[i], 1, 1, 1, 1);
+        draw_string(nameX + o, y + (8 - i) * rowHeight + o, hsManager->names[i], 1, 1, 1, 1);
 
         sprintf(score, "               ");
-        sprintf(score, "%d", game->highscoreManager.scores[i]);
+        sprintf(score, "%d", hsManager->scores[i]);
         
         sx = x + w - str_width(score) - 5;
         draw_string(sx, y + (8 - i) * rowHeight + o, score, 1, 1, 1, 1);
@@ -265,7 +246,7 @@ void renderMenu(struct Game *game)
 //end numbers, names and scores
 }
 
-void renderPostGame(struct Game *game)
+void renderPostGame(struct Game *game, struct HighscoreManager *hsManager)
 {
     set_color3f(255, 0, 0);
 
@@ -275,15 +256,15 @@ void renderPostGame(struct Game *game)
     char noHS[] = "You didn't make it onto the highscores... Press enter to continue";
     char highscore[] = "You came xxx! Enter your name and press enter!";
 
-    int i = game->highscoreManager.position;
+    int i = hsManager->position;
 
     if (game->currentLevel == NUM_LEVELS)
     {
-        centerPrint(HEIGHT - 50, won, 1, 1, 1, 1);
+        center_print(HEIGHT - 50, won, 1, 1, 1, 1);
     }
     else
     {
-        centerPrint(HEIGHT - 50, lost, 1, 1, 1, 1);
+        center_print(HEIGHT - 50, lost, 1, 1, 1, 1);
     }
 
     if (i != -1)
@@ -319,11 +300,11 @@ void renderPostGame(struct Game *game)
             break;
         }
 
-        centerPrint(HEIGHT - 250, highscore, 1, 1, 1, 1);
+        center_print(HEIGHT - 250, highscore, 1, 1, 1, 1);
 
-        char *nb = game->highscoreManager.nameBuffer;
+        char *nb = hsManager->nameBuffer;
 
-        centerPrint(HEIGHT - 280, nb, 1, 1, 1, 1);
+        center_print(HEIGHT - 280, nb, 1, 1, 1, 1);
 
         //print a flashing curser
         struct timeval tv;
@@ -334,25 +315,25 @@ void renderPostGame(struct Game *game)
         if (dif < CURSER_BLINK_RATE || (dif / CURSER_BLINK_RATE) % 2 == 0)
         {
             set_color4f(255, 255, 255, 255);
-            //drawRect(x + glutBitmapLength(GLUT_BITMAP_TIMES_ROMAN_24, (const unsigned char*)nb), HEIGHT - 283, 1, 23);
+            //draw_rect(x + glutBitmapLength(GLUT_BITMAP_TIMES_ROMAN_24, (const unsigned char*)nb), HEIGHT - 283, 1, 23);
         }
     }
     else
     {
-        centerPrint(HEIGHT - 250, noHS, 1, 1, 1, 1);
+        center_print(HEIGHT - 250, noHS, 1, 1, 1, 1);
     }
 
     //glutSwapBuffers();
 }
 
-void set_color3f(int r, int g, int b)
+static void set_color3f(int r, int g, int b)
 {
     col_r = r;
     col_g = g;
     col_b = b;
 }
 
-void set_color4f(int r, int g, int b, int a)
+static void set_color4f(int r, int g, int b, int a)
 {
     col_r = r;
     col_g = g;
@@ -360,32 +341,32 @@ void set_color4f(int r, int g, int b, int a)
     col_a = a;
 }
 
-void fillRect(float x, float y, float w, float h)
+static void fill_rect(float x, float y, float w, float h)
 {
     boxRGBA(get_screen(), x, get_y(y), x + w, get_y(y + h), col_r, col_g, col_b, col_a);
 }
 
-void drawRect(float x, float y, float w, float h)
+static void draw_rect(float x, float y, float w, float h)
 {
     rectangleRGBA(get_screen(), x, get_y(y), x + w, get_y(y + h), col_r, col_g, col_b, col_a);
 }
 
-void drawLine(float x1, float y1, float x2, float y2)
+static void draw_line(float x1, float y1, float x2, float y2)
 {
     lineRGBA(get_screen(), x1, get_y(y1), x2, get_y(y2), col_r, col_g, col_b, col_a);
 }
 
-void drawCircle(float cx, float cy, float r)
+static void draw_circle(float cx, float cy, float r)
 {
     circleRGBA(get_screen(), cx, get_y(cy), r, col_r, col_g, col_b, col_a);
 }
 
-void fillCircle(float cx, float cy, float r)
+static void fill_circle(float cx, float cy, float r)
 {
     filledCircleRGBA(get_screen(), cx, get_y(cy), r, col_r, col_g, col_b, col_a);
 }
 
-void centerPrint(float y, char* text, float r, float g, float b, float a)
+static void center_print(float y, char* text, float r, float g, float b, float a)
 {
     int size_w;
     int size_h;
@@ -396,7 +377,7 @@ void centerPrint(float y, char* text, float r, float g, float b, float a)
     draw_string(x, y, text, r, g, b, a);
 }
 
-void draw_string(float x, float y, char* text, float r, float g, float b, float a)
+static void draw_string(float x, float y, char* text, float r, float g, float b, float a)
 {
     SDL_Surface *text_surface;
     SDL_Color text_color = {r * 255, g * 255, b * 255, a * 255};

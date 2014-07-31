@@ -19,5 +19,6 @@ unsigned int ticks_startup(void);
 
 //Returns the number of frames that have happened of actual game-time.
 unsigned int frames_game(void);
+
 //Returns the number of frames that have happened since the program starting.
 unsigned int frames_startup(void);

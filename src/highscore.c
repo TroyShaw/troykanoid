@@ -15,7 +15,7 @@ static const char *FILE_NAME = "hs.dat";
 // Game game;
 unsigned long long lastPress;
 
-void loadHighscoresFromDisc(struct HighscoreManager *highscoreManager)
+void init_highscore_manager(struct HighscoreManager *highscoreManager)
 {
     printf("loading highscore data...\n");
 
@@ -38,11 +38,7 @@ void loadHighscoresFromDisc(struct HighscoreManager *highscoreManager)
     }
 
     //now we have to load in our saved data
-    printf("file opened... loading data...\n");
-
-    int i, j;
-
-    for (i = 0; i < MAX_SCORES; i++)
+    for (int i = 0; i < MAX_SCORES; i++)
     {
         //first load the name
         fgets(highscoreManager->names[i], MAX_CHAR_IN_NAME, fp);
@@ -53,9 +49,9 @@ void loadHighscoresFromDisc(struct HighscoreManager *highscoreManager)
     }
 
     //now replace \n with \0
-    for (i = 0; i < MAX_SCORES; i++)
+    for (int i = 0; i < MAX_SCORES; i++)
     {
-        for (j = 0; j < MAX_CHAR_IN_NAME; j++)
+        for (int j = 0; j < MAX_CHAR_IN_NAME; j++)
         {
             if (highscoreManager->names[i][j] == '\n')
             {
@@ -65,15 +61,11 @@ void loadHighscoresFromDisc(struct HighscoreManager *highscoreManager)
         }
     }
 
-    int status = fclose(fp);
-
-    if (status != 0)
+    if (fclose(fp) != 0)
     {
         printf("failed to close file when loading highscore data\n");
         exit(EXIT_FAILURE);
     }
-
-    printf("loaded\n");
 }
 
 void saveHighscoresToDisc(struct HighscoreManager *highscoreManager)
@@ -87,16 +79,14 @@ void saveHighscoresToDisc(struct HighscoreManager *highscoreManager)
         return;
     }
 
-    int i;
-    for (i = 0; i < MAX_SCORES; i++)
+    
+    for (int i = 0; i < MAX_SCORES; i++)
     {
         fprintf(fp, "%s", highscoreManager->names[i]);
         fprintf(fp, "\n%d\n", highscoreManager->scores[i]);
     }
 
-    int status = fclose(fp);
-
-    if (status != 0)
+    if (fclose(fp) != 0)
     {
         printf("failed to close file when saving highscore data\n");
         exit(EXIT_FAILURE);
@@ -110,7 +100,6 @@ void saveHighscoresToDisc(struct HighscoreManager *highscoreManager)
 void enterScore(struct HighscoreManager *hm, int score)
 {
     char *name = hm->nameBuffer;
-    int i;
 
     if(!name || !strlen(name))
     {
@@ -126,14 +115,13 @@ void enterScore(struct HighscoreManager *hm, int score)
     //we iterate from highest to lowest score
     //if we find a score we are bigger than,
     //we iterate from MAX_SCORE back to the score we
-    for (i = 0; i < MAX_SCORES; i++)
+    for (int i = 0; i < MAX_SCORES; i++)
     {
         //if the score is greater than the current score...
         if (hm->scores[i] == 0 || score > hm->scores[i])
         {
             //we want to move all old scores down, then overwrite new position
-            int j;
-            for (j = MAX_SCORES - 1; j > i; j--)
+            for (int j = MAX_SCORES - 1; j > i; j--)
             {
                 //move everything up 1 level
                 hm->scores[j] = hm->scores[j - 1];
@@ -149,8 +137,11 @@ void enterScore(struct HighscoreManager *hm, int score)
     }
 
     //finally we reset the variables for the next game
-    for (i = 0; i < MAX_CHAR_IN_NAME; i++)
+    for (int i = 0; i < MAX_CHAR_IN_NAME; i++)
+    {
         hm->nameBuffer[i] = '\0';
+    }
+        
 
     hm->bufferIndex = 0;
     hm->position = -1;
@@ -158,10 +149,9 @@ void enterScore(struct HighscoreManager *hm, int score)
 
 void setScore(struct HighscoreManager *highscoreManager, int score)
 {
-    int i;
     highscoreManager->position = -1;
 
-    for (i = 0; i < MAX_SCORES; i++)
+    for (int i = 0; i < MAX_SCORES; i++)
     {
         if (highscoreManager->scores[i] == 0 || score > highscoreManager->scores[i])
         {

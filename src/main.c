@@ -7,17 +7,15 @@
 #include "defines.h"
 #include "fps.h"
 #include "highscore.h"
-#include "main.h"
+#include "input.h"
 #include "pong.h"
 #include "renderer.h"
-
-#include "input.h"
 #include "ui/window.h"
 
-void resource_init(void);
-void startup_init(void);
-void main_loop(void);
-void clean_up(void);
+static void resource_init(void);
+static void startup_init(void);
+static void main_loop(void);
+static void clean_up(void);
 
 static void internal_tick(void);
 static void internal_render(void);
@@ -25,6 +23,7 @@ static void internal_render(void);
 static void process_events(void);
 
 static struct Game game;
+static struct HighscoreManager hsManager;
 static bool gameRunning;
 
 int main(void)
@@ -39,15 +38,15 @@ int main(void)
     return 0;
 }
 
-void resource_init(void)
+static void resource_init(void)
 {
     init_window(SCREEN_TITLE, WIDTH, HEIGHT);
     init_renderer();
 
-    loadHighscoresFromDisc(&game.highscoreManager);
+    init_highscore_manager(&hsManager);
 }
 
-void startup_init(void)
+static void startup_init(void)
 {
     gameRunning = true;
 
@@ -60,7 +59,7 @@ void startup_init(void)
     initGame(&game);
 }
 
-void main_loop(void)
+static void main_loop(void)
 {
     while (gameRunning && !key_held(SDLK_ESCAPE))
     {
@@ -73,23 +72,50 @@ void main_loop(void)
     }
 }
 
-void clean_up(void)
+static void clean_up(void)
 {
 
 }
 
-void internal_tick(void)
+static void internal_tick(void)
 {
-    tick(&game);
+    switch (game.mode)
+    {
+    case MAIN_MENU:
+        tickMenu(&game);
+        break;
+    case GAME:
+        tickGame(&game);
+
+        //check if they've lost or beaten the game
+        if (isGameOver(&game) || hasBeatenGame(&game))
+        {
+            setScore(&hsManager, game.player.score);
+            game.mode = POST_GAME;
+        }
+
+        break;
+    case POST_GAME:
+        tickPostGame(&game);
+        break;
+    }
 }
 
-void internal_render(void)
+static void internal_render(void)
 {
-    render(&game);
+    clear_screen(0, 0, 0, 0);
+
+    switch (game.mode)
+    {
+        case MAIN_MENU: renderMenu(&hsManager); break;
+        case GAME:      renderGame(&game); break;
+        case POST_GAME: renderPostGame(&game, &hsManager); break;
+    }
+
     flip_screen();
 }
 
-void key(unsigned char key)
+static void key(unsigned char key)
 {
     if (key == 27) exit(0);
 
@@ -107,12 +133,12 @@ void key(unsigned char key)
         case 13:
             if (verifyHighscoreName())
             {
-                enterScore(&game.highscoreManager, game.player.score);
-                saveHighscoresToDisc(&game.highscoreManager);
+                enterScore(&hsManager, game.player.score);
+                saveHighscoresToDisc(&hsManager);
                 game.mode = MAIN_MENU;
             }
         default:
-            enterChar(&game.highscoreManager, key);
+            enterChar(&hsManager, key);
         }
 
         return;

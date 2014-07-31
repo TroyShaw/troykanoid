@@ -11,8 +11,10 @@ struct HighscoreManager {
     int bufferIndex;
 };
 
+//initializes the highscore manager
 //loads the highscores from the disc to the manager struct
-void loadHighscoresFromDisc(struct HighscoreManager *highscoreManager);
+//or if the highscore file doesn't exist, it creates it with all values as 0
+void init_highscore_manager(struct HighscoreManager *highscoreManager);
 
 //saves the highscores in the current struct to disc
 void saveHighscoresToDisc(struct HighscoreManager *highscoreManager);

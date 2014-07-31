@@ -56,6 +56,16 @@ typedef struct
     SDL_Color color;                    //color of paddle
 } Player;
 
+struct Paddle
+{
+    float x;
+    float y;
+    int width;
+    int realWidth;
+    int height;
+    SDL_Color color;
+};
+
 typedef struct
 {
     bool left;                              //true if left is currently held
@@ -75,12 +85,15 @@ struct Game
     int numBalls;                       //number of balls in use (useful for various reasons)
     bool attached;                      //if the ball is attached to paddle (i.e at start of games and after death)
     struct PowerupManager powerupManager;      //the manager for powerups
-    struct HighscoreManager highscoreManager;  //the highscore manager
 };
 
 
 //ticks the game. Should be done at around 30 times per second
 void tick(struct Game *game);
+void tickMenu(struct Game *game);
+void tickGame(struct Game *game);
+void tickPostGame();
+
 
 //moves the player
 void movePlayer(struct Game *game);
@@ -102,6 +115,12 @@ void initGame(struct Game *game);
 
 //performs a death
 void initiateDeath(struct Game *game);
+
+//Returns true if the player has run out of lives
+bool isGameOver(struct Game *game);
+
+//Returns true if the player has finished the last level and beat the game
+bool hasBeatenGame(struct Game *game);
 
 //returns a random float between 0-1
 float randF();

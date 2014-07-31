@@ -92,7 +92,7 @@ void tickGame(struct Game *game)
     }
 }
 
-void tickPostGame(struct Game *game)
+void tickPostGame()
 {
     //don't think I need to do anything here yet
 
@@ -186,12 +186,10 @@ void initiateDeath(struct Game *game)
 {
     //subtract a life
     game->player.lives--;
+    
     //if we have -1 lives, means it's gameover
     if (game->player.lives == -1)
     {
-        setScore(&game->highscoreManager, game->player.score);
-        game->mode = POST_GAME;
-
         return;
     }
 
@@ -221,8 +219,6 @@ void gotoNextLevel(struct Game *game)
     if (game->currentLevel == NUM_LEVELS)
     {
         //we just beat the final level, so gameover
-        setScore(&game->highscoreManager, game->player.score);
-        game->mode = POST_GAME;
         return;
     }
 
@@ -451,6 +447,16 @@ void initGame(struct Game *game)
 
     //load level 1
     populateLevel(&game->level, 1);
+}
+
+bool isGameOver(struct Game *game)
+{
+    return game->player.lives == -1;
+}
+
+bool hasBeatenGame(struct Game *game)
+{
+    return game->currentLevel == NUM_LEVELS;
 }
 
 float randF()
