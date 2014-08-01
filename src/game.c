@@ -4,11 +4,10 @@
 #include <math.h>
 
 
-#include "pong.h"
+#include "game.h"
 #include "main.h"
 #include "highscore.h"
 #include "input.h"
-#include "powerups.h"
 #include "physics.h"
 
 
@@ -28,7 +27,7 @@ static void ballBlockCollisions(struct Game *game);
 static void playerBallCollision(struct Game *game);
 
 //goes to the next level
-static void gotoNextLevel();
+static void gotoNextLevel(struct Game *game);
 
 //performs a death
 static void initiateDeath(struct Game *game);
@@ -55,14 +54,6 @@ static void initiateDeath(struct Game *game);
 
 void tickGame(struct Game *game)
 {
-    if (pause_pressed())
-    {
-        //invert pause mode
-        game->paused ^= true;
-    }
-
-    if (game->paused) return;
-
     //do this here so if they pushed space this tick, they get processed immediately
     if (game->attached) game->attached = !space_pressed();
 
@@ -75,12 +66,12 @@ void tickGame(struct Game *game)
     {
         movePlayer(game);
         moveBalls(game);
-        moveAndProcessPowerups(&game->powerupManager);
+        moveAndProcessPowerups(&game->powerupManager, game);
         ballBlockCollisions(game);
         playerBallCollision(game);
 
         if (game->numBalls == 0) initiateDeath(game);
-        if (game->level.blocksLeft == 0) gotoNextLevel();
+        if (game->level.blocksLeft == 0) gotoNextLevel(game);
     }
 }
 
@@ -356,7 +347,7 @@ static void ballBlockCollisions(struct Game *game)
                     bl->inUse = false;
                     game->level.blocksLeft--;
                     game->player.score += bl->points;
-                    if (randF() < POWERUP_PROB) generatePowerup(bl->x + bl->width / 2, bl->y + bl->height);
+                    if (randF() < POWERUP_PROB) generatePowerup(game, bl->x + bl->width / 2, bl->y + bl->height);
                 }
             }
         }
@@ -423,7 +414,7 @@ void initGame(struct Game *game)
 
     for (i = 0; i < POWERUP_ARRAY_SIZE; i++)
     {
-        Powerup* p = &game->powerupManager.powerups[i];
+        struct Powerup* p = &game->powerupManager.powerups[i];
         p->height = 5;
         p->inUse = false;
         p->width = 5;

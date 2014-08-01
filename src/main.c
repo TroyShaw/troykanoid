@@ -6,10 +6,10 @@
 
 #include "defines.h"
 #include "fps.h"
+#include "game.h"
 #include "highscore.h"
 #include "input.h"
 #include "main.h"
-#include "pong.h"
 #include "renderer.h"
 #include "ui/window.h"
 
@@ -22,6 +22,7 @@ static void internal_tick(void);
 static void internal_render(void);
 
 static void process_events(void);
+static void internal_keydown(unsigned char key);
 
 static enum Mode mode;
 static struct Game game;
@@ -93,6 +94,16 @@ static void internal_tick(void)
         
         break;
     case GAME:
+
+        //handle pausing
+        if (pause_pressed())
+        {
+            game.paused = !game.paused;
+        }
+
+        if (game.paused) return;
+
+        //if game isn't paused, do a tick
         tickGame(&game);
 
         //check if they've lost or beaten the game
@@ -104,6 +115,7 @@ static void internal_tick(void)
 
         break;
     case POST_GAME:
+
         //nothing to do here, is handled in key-press function
         break;
     }
@@ -123,7 +135,7 @@ static void internal_render(void)
     flip_screen();
 }
 
-static void key(unsigned char key)
+static void internal_keydown(unsigned char key)
 {
     if (key == 27) exit(0);
 
@@ -169,7 +181,7 @@ static void process_events(void)
                 break;
             case SDL_KEYDOWN:
                 handle_keydown(event.key.keysym.sym);
-                key(event.key.keysym.sym);
+                internal_keydown(event.key.keysym.sym);
                 break;
             case SDL_KEYUP:
                 handle_keyup(event.key.keysym.sym);

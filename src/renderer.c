@@ -54,10 +54,6 @@ void init_renderer(void)
         SDL_Quit();
         exit(1);
     }
-
-
-
-
 }
 
 void cleanup_renderer(void)
@@ -92,10 +88,10 @@ void renderGame(struct Game *game)
 //draw powerups
     for (i = 0; i < POWERUP_ARRAY_SIZE; i++)
     {
-        Powerup p = manager.powerups[i];
+        struct Powerup p = manager.powerups[i];
         if (!p.inUse) continue;
 
-        setPowerupColor(p.type);
+        setPowerupColor(game, p.type);
         fill_rect(p.x, p.y, p.width, p.height);
     }
 //end draw powerups
@@ -109,10 +105,10 @@ void renderGame(struct Game *game)
             struct Block* block = &game->level.blocks[i][j];
             if (!block->inUse) continue;
 
-            set_color3f(127, 127, 127);
-            draw_rect(block->x, block->y, block->width, block->height);
             set_color3f(block->color.r, block->color.g, block->color.b);
             fill_rect(block->x, block->y, block->width, block->height);
+            set_color3f(127, 127, 127);
+            //draw_rect(block->x, block->y, block->width, block->height);
         }
     }
 

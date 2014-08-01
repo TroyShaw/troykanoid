@@ -104,7 +104,8 @@ bool space_pressed(void)
 //Tests if pause is pressed
 bool pause_pressed(void)
 {
-    return key_pressed(SDLK_PAUSE);
+	//printf("print pressed: %d\n", key_pressed(SDLK_p));
+    return key_pressed(SDLK_p);
 }
 
 #define max(a, b) (a) > (b) ? (a) : (b)

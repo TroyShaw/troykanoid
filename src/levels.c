@@ -50,7 +50,6 @@ void populateLevel(struct Level *level, int levelNumber)
         LEVEL_FILE[9] = (char) ('0' + levelNumber % 10);
     }
 
-
     FILE *fp = fopen(LEVEL_FILE, "r");
 
     if (fp == NULL)
@@ -74,8 +73,9 @@ void populateLevel(struct Level *level, int levelNumber)
 
         struct Block* b = &level->blocks[x][y];
 
-        b->width = width;
-        b->height = height;
+        //subtract 1 from width and height so that the blocks don't overlap at edges 1 pixel
+        b->width = width - 1;
+        b->height = height - 1;
         b->x = x * width;
         b->y = HEIGHT - (y + 1) * height;
         b->type = c - '0';
@@ -118,14 +118,14 @@ static void initLoad()
 
     for (i = 0; i < 9; i++) points[i] = 50 + i * 10;
 
-    colors[0] = (SDL_Color) {255, 255, 255, 0};           // white
-    colors[1] = (SDL_Color) {255, 127,   0, 0};         // orange
-    colors[2] = (SDL_Color) {  0,   0, 127, 0};         // light blue
-    colors[3] = (SDL_Color) {  0, 255,   0, 0};           // green
-    colors[4] = (SDL_Color) {255,   0,   0, 0};           // red
-    colors[5] = (SDL_Color) {  0,   0, 255, 0};           // blue
-    colors[6] = (SDL_Color) {188, 110, 199, 0}; // pink
-    colors[7] = (SDL_Color) {255, 255,   0, 0};           // yellow
-    colors[8] = (SDL_Color) {230, 232, 250, 0};   // silver
-    colors[9] = (SDL_Color) {217, 217,  26, 0};   // gold
+    colors[0] = (SDL_Color) {255, 255, 255, 0};     // white
+    colors[1] = (SDL_Color) {255, 127,   0, 0};     // orange
+    colors[2] = (SDL_Color) {  0,   0, 127, 0};     // light blue
+    colors[3] = (SDL_Color) {  0, 255,   0, 0};     // green
+    colors[4] = (SDL_Color) {255,   0,   0, 0};     // red
+    colors[5] = (SDL_Color) {  0,   0, 255, 0};     // blue
+    colors[6] = (SDL_Color) {188, 110, 199, 0};     // pink
+    colors[7] = (SDL_Color) {255, 255,   0, 0};     // yellow
+    colors[8] = (SDL_Color) {230, 232, 250, 0};     // silver
+    colors[9] = (SDL_Color) {217, 217,  26, 0};     // gold
 }

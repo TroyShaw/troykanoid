@@ -1,5 +1,6 @@
 #pragma once
 
+#include <stdbool.h>
 #include <SDL/SDL.h>
 
 #define NUM_LEVELS 35
@@ -22,8 +23,8 @@ struct Block
 
 struct Level
 {
-	int blocksLeft;                     		//the amount of breakable blocks left on this level
-	struct Block blocks[BLOCKS_ACROSS][BLOCKS_DOWN];	//all the blocks
+    int blocksLeft;                                         //the amount of breakable blocks left on this level
+    struct Block blocks[BLOCKS_ACROSS][BLOCKS_DOWN];        //all the blocks
 };
 
 //Populates the level array.
