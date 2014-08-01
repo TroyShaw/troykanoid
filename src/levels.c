@@ -1,13 +1,11 @@
-#include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
-
-#include <SDL/SDL.h>
 
 #include "defines.h"
 #include "levels.h"
 
-static void initLoad();
+//colored bricks take 1 hit each
+//silver bricks take 2 + level / 8
 
 // 0 = white,           50 points
 // 1 = orange,          60 points
@@ -18,39 +16,28 @@ static void initLoad();
 // 6 = pink,            110 points
 // 7 = yellow,          120 points
 // 8 = silver,          50 pts x round number
-// 9 = gold,            (indestructable)
+// 9 = gold,            (indestructible)
 // . = empty,           no block
 
-bool hasLoaded = false;
-struct SDL_Color colors[10];
-int points[9];
+static struct SDL_Color colors[10];
+static int points[8];
 
-static char LEVEL_FILE[] = "levels/lxx.dat";
+//we make a full level file name with LEVEL_FILE_PREFIX + levelNum + LEVEL_FILE_SUFFIX
+static char LEVEL_FILE_PREFIX[] = "levels/l";
+static char LEVEL_FILE_SUFFIX[] = ".dat";
 
-// Game game;
-
-void populateLevel(struct Level *level, int levelNumber)
+void populate_level(struct Level *level, int levelNumber)
 {
-    if (!hasLoaded) initLoad();
-
     if (levelNumber < 1 || levelNumber > NUM_LEVELS)
     {
         printf("tried to load invalid level %d\n", levelNumber);
         exit(1);
     }
 
-    if (levelNumber < 10)
-    {
-        LEVEL_FILE[8] = '0';
-        LEVEL_FILE[9] = (char) ('0' + levelNumber);
-    }
-    else
-    {
-        LEVEL_FILE[8] = (char) ('0' + levelNumber / 10);
-        LEVEL_FILE[9] = (char) ('0' + levelNumber % 10);
-    }
+    char filename[255];
+    snprintf(filename, 255, "%s%d%s", LEVEL_FILE_PREFIX, levelNumber, LEVEL_FILE_SUFFIX);
 
-    FILE *fp = fopen(LEVEL_FILE, "r");
+    FILE *fp = fopen(filename, "r");
 
     if (fp == NULL)
     {
@@ -58,7 +45,7 @@ void populateLevel(struct Level *level, int levelNumber)
         exit(1);
     }
 
-    printf("loading level file...\n");
+    printf("loading level file: %s\n", filename);
 
     char c;
     int i = 0, x, y, blocks = 0;
@@ -68,6 +55,7 @@ void populateLevel(struct Level *level, int levelNumber)
     while ((c = fgetc(fp)) != EOF)
     {
         if (c == '\n' || c == 13) continue; //ignore newlines and carriage returns
+        
         y = i / BLOCKS_ACROSS;
         x = i - y * BLOCKS_ACROSS;
 
@@ -85,11 +73,23 @@ void populateLevel(struct Level *level, int levelNumber)
             case '0': case '1': case '2': case '3': case '4':
             case '5': case '6': case '7': case '8':
                 b->color = colors[c - '0'];
-                b->hitsLeft = 1;
                 b->indestructable = false;
                 b->inUse = true;
-                b->points = points[c - '0'];
                 blocks++;
+                
+                if (c == '8')
+                {
+                    //silver block
+                    b->hitsLeft = 2 + levelNumber / 8;
+                    b->points = levelNumber * 50;
+                }
+                else
+                {
+                    //colored block
+                    b->hitsLeft = 1;
+                    b->points = points[c - '0'];
+                }
+
                 break;
             case '9':
                 b->color = colors[c - '0'];
@@ -111,12 +111,12 @@ void populateLevel(struct Level *level, int levelNumber)
     level->blocksLeft = blocks;
 }
 
-static void initLoad()
+void init_levels()
 {
-    hasLoaded = true;
-    int i;
-
-    for (i = 0; i < 9; i++) points[i] = 50 + i * 10;
+    for (int i = 0; i < 8; i++)
+    {
+        points[i] = 50 + i * 10;
+    }
 
     colors[0] = (SDL_Color) {255, 255, 255, 0};     // white
     colors[1] = (SDL_Color) {255, 127,   0, 0};     // orange

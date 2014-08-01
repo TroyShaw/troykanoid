@@ -2,64 +2,11 @@
 #include <stdio.h>
 #include <sys/time.h>
 
-#include <SDL/SDL_gfxPrimitives.h>
-#include <SDL/SDL_ttf.h>
-
+#include "fps.h"
 #include "powerups.h"
 #include "renderer.h"
+#include "ui/graphics.h"
 #include "ui/window.h"
-
-//fills a rectangle with the given dimensions in the last color that was set
-static void fill_rect(float x, float y, float w, float h);
-//draws the outline of a rectangle with the given dimensions in the last color that was set
-static void draw_rect(float x, float y, float w, float h);
-//draws a single solid line in the last color that was set
-static void draw_line(float x1, float y1, float x2, float y2);
-//draws a circle in the last color that was set
-static void draw_circle(float cx, float cy, float r);
-//fills a circle in the last color that was set
-static void fill_circle(float cx, float cy, float r);
-
-//draws text centered on x axis at y value
-static void center_print(float y, char* text, float r, float g, float b, float a);
-//draws text at given coordinates
-static void draw_string(float x, float y, char* text, float r, float g, float b, float a);
-
-static void set_color3f(int r, int g, int b);
-static void set_color4f(int r, int g, int b, int a);
-
-//Returns y which considers coordinate system
-static float get_y(float y);
-static int str_width(char* str);
-
-static int col_r, col_g, col_b, col_a;
-static TTF_Font *font;
-
-void init_renderer(void)
-{
-    //first init the font library
-    if (TTF_Init() != 0)
-    {
-        printf("failed to init SDL_ttf: %s\n", TTF_GetError());
-        SDL_Quit();
-        exit(1);
-    }
-
-    //then get our font
-    font = TTF_OpenFont("FreeSans.ttf", 24);
-
-    if (font == NULL)
-    {
-        printf("failed to open font: %s\n", TTF_GetError());
-        SDL_Quit();
-        exit(1);
-    }
-}
-
-void cleanup_renderer(void)
-{
-
-}
 
 void renderGame(struct Game *game)
 {
@@ -67,12 +14,10 @@ void renderGame(struct Game *game)
     struct Player player = game->player;
     struct Paddle paddle = game->paddle;
 
-    int i, j;
-
     set_color3f(255, 0, 0);
 
 //draw ball
-    for (i = 0; i < game->numBalls; i++)
+    for (int i = 0; i < game->numBalls; i++)
     {
         struct Ball ball = game->balls[i];
 
@@ -81,25 +26,40 @@ void renderGame(struct Game *game)
 
         //TODO: calling draw_circle to get rid of unused function warning
         //remove it if it really isn't used by the end of the game...
-        draw_circle(ball.x + ball.radius, ball.y + ball.radius, ball.radius);
         fill_circle(ball.x + ball.radius, ball.y + ball.radius, ball.radius);
+        set_color3f(255, 0, 0);
+        draw_circle(ball.x + ball.radius, ball.y + ball.radius, ball.radius);
     }
 
 //draw powerups
-    for (i = 0; i < POWERUP_ARRAY_SIZE; i++)
+    for (int i = 0; i < POWERUP_ARRAY_SIZE; i++)
     {
         struct Powerup p = manager.powerups[i];
-        if (!p.inUse) continue;
 
-        setPowerupColor(game, p.type);
-        fill_rect(p.x, p.y, p.width, p.height);
+        if (!p.inUse)
+        {
+            //draw the powerup string as well. Fade upwards for about a second
+            int millis = frames_to_millis(frames_game() - p.tick_pickedup);
+
+            if (millis < 1000)
+            {
+                float dt = millis / 1000.0f;
+
+                draw_string(p.x, p.y + 10 + dt * 50, (char *) powerup_name(p.type), 1, 1, 1, 1 - 1 * dt);
+            }
+        }
+        else
+        {            
+            fill_rect(p.x, p.y, p.width, p.height);
+            setPowerupColor(game, p.type);
+        }
     }
 //end draw powerups
 
 //draw blocks
-    for (i = 0; i < BLOCKS_ACROSS; i++)
+    for (int i = 0; i < BLOCKS_ACROSS; i++)
     {
-        for (j = 0; j < BLOCKS_DOWN; j++)
+        for (int j = 0; j < BLOCKS_DOWN; j++)
         {
 
             struct Block* block = &game->level.blocks[i][j];
@@ -108,7 +68,7 @@ void renderGame(struct Game *game)
             set_color3f(block->color.r, block->color.g, block->color.b);
             fill_rect(block->x, block->y, block->width, block->height);
             set_color3f(127, 127, 127);
-            //draw_rect(block->x, block->y, block->width, block->height);
+            draw_rect(block->x, block->y, block->width, block->height);
         }
     }
 
@@ -314,7 +274,8 @@ void renderPostGame(struct Game *game, struct HighscoreManager *hsManager)
         struct timeval tv;
         gettimeofday(&tv, NULL);
 
-        unsigned long long dif = get_last_press();
+        unsigned int dif = get_last_press();
+
         if (dif < CURSER_BLINK_RATE || (dif / CURSER_BLINK_RATE) % 2 == 0)
         {
             set_color4f(255, 255, 255, 255);
@@ -325,82 +286,4 @@ void renderPostGame(struct Game *game, struct HighscoreManager *hsManager)
     {
         center_print(HEIGHT - 250, noHS, 1, 1, 1, 1);
     }
-
-    //glutSwapBuffers();
-}
-
-static void set_color3f(int r, int g, int b)
-{
-    col_r = r;
-    col_g = g;
-    col_b = b;
-}
-
-static void set_color4f(int r, int g, int b, int a)
-{
-    col_r = r;
-    col_g = g;
-    col_b = b;
-    col_a = a;
-}
-
-static void fill_rect(float x, float y, float w, float h)
-{
-    boxRGBA(get_screen(), x, get_y(y), x + w, get_y(y + h), col_r, col_g, col_b, col_a);
-}
-
-static void draw_rect(float x, float y, float w, float h)
-{
-    rectangleRGBA(get_screen(), x, get_y(y), x + w, get_y(y + h), col_r, col_g, col_b, col_a);
-}
-
-static void draw_line(float x1, float y1, float x2, float y2)
-{
-    lineRGBA(get_screen(), x1, get_y(y1), x2, get_y(y2), col_r, col_g, col_b, col_a);
-}
-
-static void draw_circle(float cx, float cy, float r)
-{
-    circleRGBA(get_screen(), cx, get_y(cy), r, col_r, col_g, col_b, col_a);
-}
-
-static void fill_circle(float cx, float cy, float r)
-{
-    filledCircleRGBA(get_screen(), cx, get_y(cy), r, col_r, col_g, col_b, col_a);
-}
-
-static void center_print(float y, char* text, float r, float g, float b, float a)
-{
-    int size_w;
-    int size_h;
-
-    TTF_SizeText(font, text, &size_w, &size_h);
-
-    float x = (WIDTH - size_w) / 2;
-    draw_string(x, y, text, r, g, b, a);
-}
-
-static void draw_string(float x, float y, char* text, float r, float g, float b, float a)
-{
-    SDL_Surface *text_surface;
-    SDL_Color text_color = {r * 255, g * 255, b * 255, a * 255};
-    text_surface = TTF_RenderText_Blended(font, text, text_color);
-
-    //TODO: the - 30 is a hack because changing to SDL caused a weird offset.
-    apply_surface(x, get_y(y) - 27, text_surface);
-}
-
-static float get_y(float y)
-{
-    return HEIGHT - y;
-}
-
-static int str_width(char* str)
-{
-    int size_w;
-    int size_h;
-
-    TTF_SizeText(font, str, &size_w, &size_h);
-
-    return size_w;
 }

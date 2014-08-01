@@ -29,4 +29,5 @@ struct Level
 
 //Populates the level array.
 //If the level is out of bounds, the program aborts.
-void populateLevel(struct Level *level, int levelNumber);
+void populate_level(struct Level *level, int levelNumber);
+void init_levels();

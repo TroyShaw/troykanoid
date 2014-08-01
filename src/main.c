@@ -9,8 +9,10 @@
 #include "game.h"
 #include "highscore.h"
 #include "input.h"
+#include "levels.h"
 #include "main.h"
 #include "renderer.h"
+#include "ui/graphics.h"
 #include "ui/window.h"
 
 static void resource_init(void);
@@ -44,7 +46,7 @@ int main(void)
 static void resource_init(void)
 {
     init_window(SCREEN_TITLE, WIDTH, HEIGHT);
-    init_renderer();
+    init_graphics();
 
     init_highscore_manager(&hsManager);
 }
@@ -56,15 +58,18 @@ static void startup_init(void)
 
     //initialize the random number generator with new value
     srand(time(NULL));
-    
+
     //initialize the fps timer at 60 hz
     fps_init(60);
+
+    init_levels();
 
     initGame(&game);
 }
 
 static void main_loop(void)
 {
+
     while (gameRunning && !key_held(SDLK_ESCAPE))
     {
         process_events();
@@ -78,7 +83,7 @@ static void main_loop(void)
 
 static void clean_up(void)
 {
-
+    cleanup_graphics();
 }
 
 static void internal_tick(void)
@@ -127,9 +132,9 @@ static void internal_render(void)
 
     switch (mode)
     {
-        case MAIN_MENU: renderMenu(&hsManager); break;
-        case GAME:      renderGame(&game); break;
-        case POST_GAME: renderPostGame(&game, &hsManager); break;
+    case MAIN_MENU: renderMenu(&hsManager); break;
+    case GAME:      renderGame(&game); break;
+    case POST_GAME: renderPostGame(&game, &hsManager); break;
     }
 
     flip_screen();

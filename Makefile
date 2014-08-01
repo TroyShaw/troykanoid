@@ -13,7 +13,7 @@ Modes   := Debug #Release# - uncomment for release build too`
 # Directory where target binary is created and object files
 TargetDir         := bin
 # Search Path For Include Files (InclPaths is included before mode specific InclPaths_MODE)
-InclPaths         := .
+InclPaths         := ./src
 InclPaths_Debug   :=
 InclPaths_Release :=
 # Defined values used by C preprocessor (Defines is included before mode specific Defines_MODE)

@@ -201,7 +201,7 @@ static void gotoNextLevel(struct Game *game)
 
     //reset balls/ powerups/ paddle/ load new level
     game->currentLevel++;
-    populateLevel(&game->level, game->currentLevel);
+    populate_level(&game->level, game->currentLevel);
 }
 
 static void ballBlockCollisions(struct Game *game)
@@ -412,18 +412,10 @@ void initGame(struct Game *game)
 
     game->attached = true;
 
-    for (i = 0; i < POWERUP_ARRAY_SIZE; i++)
-    {
-        struct Powerup* p = &game->powerupManager.powerups[i];
-        p->height = 5;
-        p->inUse = false;
-        p->width = 5;
-    }
-    game->powerupManager.forceField = false;
-    game->powerupManager.forceFieldCount = 0;
+    reset_powerup_manager(&game->powerupManager);
 
     //load level 1
-    populateLevel(&game->level, 1);
+    populate_level(&game->level, 1);
 }
 
 bool isGameOver(struct Game *game)

@@ -3,7 +3,7 @@
 #include "levels.h"
 #include "powerups.h"
 
-#define BALL_ARRAY_SIZE 64              //the max number, and size of the array, of balls on screen
+#define BALL_ARRAY_SIZE 256              //the max number, and size of the array, of balls on screen
 
 #define MAX_PADDLE_SIZE 350             //the maximum size of the paddle
 #define MIN_PADDLE_SIZE 40              //the minimum size of the paddle
