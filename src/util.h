@@ -6,5 +6,5 @@
 #define clamp(value, min, max) (((value) < (min)) ? (min) : ((value) > (max)) ? (max) : (value))
 
 //returns a random float between 0-1
-float randF();
+float randF(void);
 

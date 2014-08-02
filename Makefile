@@ -29,7 +29,7 @@ LibPaths          :=
 LibPaths_Debug    :=
 LibPaths_Release  :=
 # Compiler specific flags (CFlags is included before mode specific CFlags_MODE)
-CFlags            := -pedantic -Wall -Wextra -Wshadow -Wcast-qual -Wwrite-strings -Wstrict-prototypes -Wformat-nonliteral -Wformat-y2k
+CFlags            := -std=c99 -pedantic -Wall -Wextra -Wshadow -Wcast-qual -Wwrite-strings -Wstrict-prototypes -Wformat-nonliteral -Wformat-y2k
 CFlags_Debug      := -g
 CFlags_Release    := -O2
 # Linker specific flags (LFlags is included before mode specific LFlags_MODE)
@@ -50,8 +50,8 @@ DefineFlag  := -D
 LibraryFlag := -l
 LibPathFlag := -L
 # -MMD flag let gcc generate a dependency file "objectfilename.d" in addition to the object file "objectfilename.o"
-CC          := clang -MMD
-LD          := clang
+CC          := gcc -MMD
+LD          := gcc
 
 #########################
 # Generic Template Part #

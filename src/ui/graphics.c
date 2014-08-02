@@ -77,7 +77,7 @@ void fill_circle(float cx, float cy, float r)
     filledCircleRGBA(get_screen(), cx, get_y(cy), r, col_r, col_g, col_b, col_a);
 }
 
-void center_print(float y, char* text, float r, float g, float b, float a)
+void center_print(float y, const char* text, float r, float g, float b, float a)
 {
     int size_w;
     int size_h;
@@ -88,7 +88,7 @@ void center_print(float y, char* text, float r, float g, float b, float a)
     draw_string(x, y, text, r, g, b, a);
 }
 
-void draw_string(float x, float y, char* text, float r, float g, float b, float a)
+void draw_string(float x, float y, const char* text, float r, float g, float b, float a)
 {
     SDL_Surface *text_surface;
     SDL_Color text_color = {r * 255, g * 255, b * 255, 0};

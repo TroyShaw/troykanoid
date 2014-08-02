@@ -40,4 +40,4 @@ void enter_char(struct HighscoreManager *highscoreManager, unsigned char c);
 bool verify_highscore_name(struct HighscoreManager *highscoreManager);
 
 //Returns the time in milliseconds since the last valid key press (backspace included).
-unsigned int get_last_press();
+unsigned int get_last_press(void);

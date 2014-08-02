@@ -45,7 +45,7 @@ void renderGame(struct Game *game)
             {
                 float dt = millis / 1000.0f;
 
-                draw_string(p.x, p.y + 10 + dt * 50, (char *) powerup_name(p.type), 1, 1, 1, 1 - 1 * dt);
+                draw_string(p.x, p.y + 10 + dt * 50, powerup_name(p.type), 1, 1, 1, 1 - 1 * dt);
             }
         }
         else

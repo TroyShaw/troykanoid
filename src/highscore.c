@@ -202,7 +202,7 @@ bool verify_highscore_name(struct HighscoreManager *highscoreManager)
     return strlen(highscoreManager->nameBuffer) > 0;
 }
 
-unsigned int get_last_press()
+unsigned int get_last_press(void)
 {
     return frames_to_millis(frames_startup() - lastPress);
 }

@@ -192,7 +192,9 @@ void setPowerupColor(struct Game *game, int type)
 {
     //TODO
     if (type || game)
+    {
         ;
+    }
     //glColor3f(0.2f, 0.9f, 0.2f);
     //glColor3f(randF(), randF(), randF());
 }
@@ -211,4 +213,7 @@ const char* powerup_name(enum Powerups powerup)
         case ExtraLife:      return "Extra Life!";
         case StickyPaddle:   return "Sticky Paddle!";
     }
+
+    printf("unknown powerup reached\n");
+    exit(1);
 }

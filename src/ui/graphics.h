@@ -17,9 +17,9 @@ void draw_circle(float cx, float cy, float r);
 void fill_circle(float cx, float cy, float r);
 
 //draws text centered on x axis at y value
-void center_print(float y, char* text, float r, float g, float b, float a);
+void center_print(float y, const char* text, float r, float g, float b, float a);
 //draws text at given coordinates
-void draw_string(float x, float y, char* text, float r, float g, float b, float a);
+void draw_string(float x, float y, const char* text, float r, float g, float b, float a);
 
 void set_color3f(int r, int g, int b);
 void set_color4f(int r, int g, int b, int a);

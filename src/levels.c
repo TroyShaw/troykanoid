@@ -111,7 +111,7 @@ void populate_level(struct Level *level, int levelNumber)
     level->blocksLeft = blocks;
 }
 
-void init_levels()
+void init_levels(void)
 {
     for (int i = 0; i < 8; i++)
     {
