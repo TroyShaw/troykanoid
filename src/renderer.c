@@ -1,3 +1,4 @@
+#include <chipmunk/chipmunk.h>
 #include <stdbool.h>
 #include <stdio.h>
 #include <sys/time.h>
@@ -7,6 +8,7 @@
 #include "renderer.h"
 #include "ui/graphics.h"
 #include "ui/window.h"
+
 
 void renderGame(struct Game *game)
 {
@@ -24,11 +26,11 @@ void renderGame(struct Game *game)
         if (manager.meteor) set_color3f(255, 25, 25);
         else set_color3f(ball.color.r, ball.color.g, ball.color.b);
 
-        //TODO: calling draw_circle to get rid of unused function warning
-        //remove it if it really isn't used by the end of the game...
-        fill_circle(ball.x + ball.radius, ball.y + ball.radius, ball.radius);
+        cpVect pos = cpBodyGetPos(ball.ballBody);
+
+        fill_circle(pos.x, pos.y, BALL_RADIUS);
         set_color3f(255, 0, 0);
-        draw_circle(ball.x + ball.radius, ball.y + ball.radius, ball.radius);
+        draw_circle(pos.x, pos.y, BALL_RADIUS);
     }
 
 //draw powerups
@@ -81,9 +83,30 @@ void renderGame(struct Game *game)
 //end draw forcefield
 
 //draw player
+    cpVect paddlePos = cpBodyGetPos(game->paddle.paddleBody);
+
+    //coords we display at
+    float paddleX = paddlePos.x - game->paddle.width / 2.0;
+    float paddleY = paddlePos.y - game->paddle.height / 2.0;
+
     set_color3f(paddle.color.r, paddle.color.g, paddle.color.b);
-    fill_rect(paddle.x, paddle.y, paddle.width, paddle.height);
+    fill_rect(paddleX, paddleY, paddle.width, paddle.height);
+
+    float bumperR = paddle.height / 2.0f;
+
+    fill_circle(paddleX, paddleY + bumperR, bumperR);
+    draw_circle(paddleX, paddleY + bumperR, bumperR);
+    
+    fill_circle(paddleX + paddle.width, paddleY + bumperR, bumperR);
+    draw_circle(paddleX + paddle.width, paddleY + bumperR, bumperR);
 //end draw player
+
+//draw paddle damper
+    cpVect paddleDampPos = cpBodyGetPos(game->paddleDamper->body);
+
+    set_color3f(paddle.color.r, paddle.color.g, paddle.color.b);
+    //fill_rect(paddleDampPos.x, paddleDampPos.y, WIDTH, 1);
+//end draw paddle maper
 
 //info strings
     char lives[25];

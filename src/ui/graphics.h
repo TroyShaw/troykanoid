@@ -11,9 +11,9 @@ void fill_rect(float x, float y, float w, float h);
 void draw_rect(float x, float y, float w, float h);
 //draws a single solid line in the last color that was set
 void draw_line(float x1, float y1, float x2, float y2);
-//draws a circle in the last color that was set
+//draws a circle centered at (cx, cy) of radius r, in the last color that was set
 void draw_circle(float cx, float cy, float r);
-//fills a circle in the last color that was set
+//fills a circle centered at (cx, cy) of radius r, in the last color that was set
 void fill_circle(float cx, float cy, float r);
 
 //draws text centered on x axis at y value

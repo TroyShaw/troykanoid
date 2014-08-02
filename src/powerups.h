@@ -40,7 +40,7 @@ struct Powerup
     int y;                              //y coord of powerup
     int width;                          //width of powerup
     int height;                         //height of powerup
-    int type;                           //type of powerup. Check above for different types
+    enum Powerups type;                 //type of powerup. Check above for different types
     bool inUse;                         //true if we are displaying powerup on screen
     long int tick_pickedup;             //the frames_game() we picked this powerup at
 };

@@ -69,7 +69,7 @@ void draw_line(float x1, float y1, float x2, float y2)
 
 void draw_circle(float cx, float cy, float r)
 {
-    circleRGBA(get_screen(), cx, get_y(cy), r, col_r, col_g, col_b, col_a);
+    aacircleRGBA(get_screen(), cx, get_y(cy), r, col_r, col_g, col_b, col_a);
 }
 
 void fill_circle(float cx, float cy, float r)

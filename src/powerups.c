@@ -46,18 +46,19 @@ void moveAndProcessPowerups(struct PowerupManager *manager, struct Game *game)
         if (!p->inUse) continue;
 
         //if we've collided, do some logic
-        if (rectToRect(paddle->x, paddle->y, paddle->width, paddle->height, p->x, p->y, p->width, p->height))
+        //if (rectToRect(paddle->x, paddle->y, paddle->width, paddle->height, p->x, p->y, p->width, p->height))
+        if (false)
         {
             //printf("powerup: %s\n", powerup_name(p->type));
             p->type = MultiplyBall;
             switch (p->type)
             {
             case PaddleIncrease:
-                paddle->realWidth = min(paddle->realWidth + PADDLE_CHANGE, MAX_PADDLE_SIZE);
+                //paddle->realWidth = min(paddle->realWidth + PADDLE_CHANGE, MAX_PADDLE_SIZE);
                 break;
             
             case PaddleDecrease:
-                paddle->realWidth = max(paddle->realWidth - PADDLE_CHANGE, MIN_PADDLE_SIZE);
+                //paddle->realWidth = max(paddle->realWidth - PADDLE_CHANGE, MIN_PADDLE_SIZE);
                 break;
             
             case BallSpeedup:
@@ -112,13 +113,13 @@ void moveAndProcessPowerups(struct PowerupManager *manager, struct Game *game)
     //grow/shrink the player if they aren't their actual width size
     if (paddle->width < paddle->realWidth)
     {
-        paddle->width++;
-        paddle->x -= 0.5f;
+        //paddle->width++;
+        //paddle->x -= 0.5f;
     }
     else if (paddle->width > paddle->realWidth)
     {
-        paddle->width--;
-        paddle->x += 0.5f;
+        //paddle->width--;
+        //paddle->x += 0.5f;
     }
 
     //decrement the forcefield
@@ -154,10 +155,13 @@ static void doubleBalls(struct Game *game)
     {
 
         game->balls[game->numBalls + i] = game->balls[i];
-        game->balls[game->numBalls + i].velX *= -1;
+        
+        //TODO: basically need to invert the balls velocity/ forces. Need to do this properly though
+        //game->balls[game->numBalls + i].velX *= -1;
         //make ball always shoot upwards otherwise makes it hard to keep ball in play
         //when ball is descending`
-        game->balls[game->numBalls + i].velY = abs(game->balls[game->numBalls + i].velY);
+        //TODO: same here
+        //game->balls[game->numBalls + i].velY = abs(game->balls[game->numBalls + i].velY);
 
     }
 
@@ -180,7 +184,7 @@ void generatePowerup(struct Game *game, int x, int y)
         p->height = h;
         p->x = x - w / 2;
         p->y = y - h / 2;
-        p->type = randF() * NUM_POWERUPS;
+        p->type = (enum Powerups) (randF() * NUM_POWERUPS);
         p->inUse = true;
 
         //return since we only generate 1 powerup

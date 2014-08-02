@@ -15,6 +15,8 @@
 #include "ui/graphics.h"
 #include "ui/window.h"
 
+#include "chiptest.h"
+
 static void resource_init(void);
 static void startup_init(void);
 static void main_loop(void);
@@ -59,11 +61,8 @@ static void startup_init(void)
     //initialize the random number generator with new value
     srand(time(NULL));
 
-    //initialize the fps timer at 60 hz
     fps_init(60);
-
     init_levels();
-
     init_game(&game);
 }
 
@@ -94,7 +93,7 @@ static void internal_tick(void)
         if (space_pressed())
         {
             mode = GAME;
-            init_game(&game);
+            reset_game(&game);
         }
         
         break;
