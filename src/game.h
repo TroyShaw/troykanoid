@@ -18,14 +18,14 @@
 //TODO: this isn't strictly true anymore (SDL coordinate system)
 //NOTE: coordinate system starts at bottom left (x, y) and goes positive right x, positive up y
 
-//ticks the game. Should be done at around 30 times per second
-void tickGame(struct Game *game);
+//Ticks the game. Should be done at around 30 times per second.
+void tick_game(struct Game *game);
 
-// initializes the game
-void initGame(struct Game *game);
+//Initializes the game.
+void init_game(struct Game *game);
 
-//Returns true if the player has run out of lives
-bool isGameOver(struct Game *game);
+//Returns true if the player has run out of lives.
+bool is_game_over(struct Game *game);
 
-//Returns true if the player has finished the last level and beat the game
-bool hasBeatenGame(struct Game *game);
+//Returns true if the player has finished the last level and beat the game.
+bool has_beaten_game(struct Game *game);

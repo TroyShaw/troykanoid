@@ -64,7 +64,7 @@ static void startup_init(void)
 
     init_levels();
 
-    initGame(&game);
+    init_game(&game);
 }
 
 static void main_loop(void)
@@ -94,7 +94,7 @@ static void internal_tick(void)
         if (space_pressed())
         {
             mode = GAME;
-            initGame(&game);
+            init_game(&game);
         }
         
         break;
@@ -109,10 +109,10 @@ static void internal_tick(void)
         if (game.paused) return;
 
         //if game isn't paused, do a tick
-        tickGame(&game);
+        tick_game(&game);
 
         //check if they've lost or beaten the game
-        if (isGameOver(&game) || hasBeatenGame(&game))
+        if (is_game_over(&game) || has_beaten_game(&game))
         {
             set_score(&hsManager, game.player.score);
             mode = POST_GAME;
