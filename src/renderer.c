@@ -4,11 +4,11 @@
 #include <sys/time.h>
 
 #include "fps.h"
+#include "imageloader.h"
 #include "powerups.h"
 #include "renderer.h"
 #include "ui/graphics.h"
 #include "ui/window.h"
-
 
 void renderGame(struct Game *game)
 {
@@ -32,6 +32,7 @@ void renderGame(struct Game *game)
         set_color3f(255, 0, 0);
         draw_circle(pos.x, pos.y, BALL_RADIUS);
     }
+//end draw ball
 
 //draw powerups
     for (int i = 0; i < POWERUP_ARRAY_SIZE; i++)
@@ -63,7 +64,6 @@ void renderGame(struct Game *game)
     {
         for (int j = 0; j < BLOCKS_DOWN; j++)
         {
-
             struct Block* block = &game->level.blocks[i][j];
             if (!block->inUse) continue;
 
@@ -99,6 +99,12 @@ void renderGame(struct Game *game)
     
     fill_circle(paddleX + paddle.width, paddleY + bumperR, bumperR);
     draw_circle(paddleX + paddle.width, paddleY + bumperR, bumperR);
+
+    apply_surface(paddleX, paddleY + paddle.height, paddle_left_bumper_image());
+
+    printf("x %f, y %f\n", paddleX, paddleY);
+
+    fill_rect(0, 10, 10, 10);
 //end draw player
 
 //draw paddle damper
@@ -138,8 +144,6 @@ void renderGame(struct Game *game)
         center_print(HEIGHT / 2 - offset * 2, quit, 1.0f, 1.0f, 1.0f, 1.0f);
     }
 //end draw pause information
-
-    //glutSwapBuffers();
 }
 
 void renderMenu(struct HighscoreManager *hsManager)

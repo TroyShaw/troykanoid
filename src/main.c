@@ -8,14 +8,13 @@
 #include "fps.h"
 #include "game.h"
 #include "highscore.h"
+#include "imageloader.h"
 #include "input.h"
 #include "levels.h"
 #include "main.h"
 #include "renderer.h"
 #include "ui/graphics.h"
 #include "ui/window.h"
-
-#include "chiptest.h"
 
 static void resource_init(void);
 static void startup_init(void);
@@ -50,6 +49,7 @@ static void resource_init(void)
     init_window(SCREEN_TITLE, WIDTH, HEIGHT);
     init_graphics();
 
+    load_images();
     init_highscore_manager(&hsManager);
 }
 
@@ -83,6 +83,7 @@ static void main_loop(void)
 static void clean_up(void)
 {
     cleanup_graphics();
+    dispose_images();
 }
 
 static void internal_tick(void)

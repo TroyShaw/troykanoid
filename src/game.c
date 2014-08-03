@@ -57,7 +57,7 @@ void tick_game(struct Game *game)
 {
     cpVect paddlePos = cpBodyGetPos(game->paddle.paddleBody);
 
-    printf("paddle x: %f, width: %d\n", paddlePos.x, game->paddle.width);
+    //printf("paddle x: %f, width: %d\n", paddlePos.x, game->paddle.width);
 
     //do this here so if they pushed space this tick, they get processed immediately
     if (game->attached && space_pressed())
