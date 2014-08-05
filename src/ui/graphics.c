@@ -110,7 +110,7 @@ float get_y(float y)
     return HEIGHT - y - 1;
 }
 
-int str_width(char* str)
+int str_width(const char* str)
 {
     int size_w;
     int size_h;

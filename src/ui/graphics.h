@@ -32,4 +32,4 @@ void set_color4f(int r, int g, int b, int a);
 //Returns y which considers coordinate system
 float get_y(float y);
 //returns the string width
-int str_width(char* str);
+int str_width(const char* str);

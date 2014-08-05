@@ -1,8 +1,13 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <SDL/SDL_image.h>
 
 #include "defines.h"
+#include "imageloader.h"
 #include "levels.h"
+
+//Returns the correct image for the given brick
+static SDL_Surface *get_image(char brickchar);
 
 //colored bricks take 1 hit each
 //silver bricks take 2 + level / 8
@@ -19,7 +24,7 @@
 // 9 = gold,            (indestructible)
 // . = empty,           no block
 
-static struct SDL_Color colors[10];
+struct SDL_Color colors[10];
 static int points[8];
 
 //we make a full level file name with LEVEL_FILE_PREFIX + levelNum + LEVEL_FILE_SUFFIX
@@ -49,9 +54,9 @@ void populate_level(struct Level *level, int levelNumber)
 
     char c;
     int i = 0, x, y, blocks = 0;
-    int height = (HEIGHT - 100) / BLOCKS_DOWN;
-    int width = WIDTH / BLOCKS_ACROSS;
-
+    int height = BLOCK_HEIGHT;
+    int width = BLOCK_WIDTH;
+    printf("width %d, height %d\n", width, height);
     while ((c = fgetc(fp)) != EOF)
     {
         if (c == '\n' || c == 13) continue; //ignore newlines and carriage returns
@@ -64,14 +69,15 @@ void populate_level(struct Level *level, int levelNumber)
         //subtract 1 from width and height so that the blocks don't overlap at edges 1 pixel
         b->width = width - 1;
         b->height = height - 1;
-        b->x = x * width;
+        b->x = x * width + BLOCK_OFFSET;
         b->y = HEIGHT - (y + 1) * height;
-        b->type = c - '0';
+        //b->type = c - '0';
 
         switch(c)
         {
             case '0': case '1': case '2': case '3': case '4':
             case '5': case '6': case '7': case '8':
+                b->image = get_image(c);
                 b->color = colors[c - '0'];
                 b->indestructable = false;
                 b->inUse = true;
@@ -92,6 +98,7 @@ void populate_level(struct Level *level, int levelNumber)
 
                 break;
             case '9':
+                b->image = get_image(c);
                 b->color = colors[c - '0'];
                 b->indestructable = true;
                 b->inUse = true;
@@ -128,4 +135,24 @@ void init_levels(void)
     colors[7] = (SDL_Color) {255, 255,   0, 0};     // yellow
     colors[8] = (SDL_Color) {230, 232, 250, 0};     // silver
     colors[9] = (SDL_Color) {217, 217,  26, 0};     // gold
+}
+
+static SDL_Surface *get_image(char brickchar)
+{
+    switch (brickchar)
+    {
+        case '0': return brick_white_image();
+        case '1': return brick_orange_image();
+        case '2': return brick_cyan_image();
+        case '3': return brick_green_image();
+        case '4': return brick_red_image();
+        case '5': return brick_blue_image();
+        case '6': return brick_pink_image();
+        case '7': return brick_yellow_image();
+        case '8': return brick_silver_image();
+        case '9': return brick_gold_image();
+    }
+
+    printf("error getting brick image: %c\n", brickchar);
+    exit(1);
 }

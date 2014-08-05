@@ -72,12 +72,14 @@ void renderGame(struct Game *game)
         for (int j = 0; j < BLOCKS_DOWN; j++)
         {
             struct Block* block = &game->level.blocks[i][j];
+            printf("block: %d\n", block->x);
             if (!block->inUse) continue;
 
-            set_color3f(block->color.r, block->color.g, block->color.b);
-            fill_rect(block->x, block->y, block->width, block->height);
-            set_color3f(127, 127, 127);
-            draw_rect(block->x, block->y, block->width, block->height);
+            //set_color3f(block->color.r, block->color.g, block->color.b);
+            //fill_rect(block->x, block->y, block->width, block->height);
+            //set_color3f(127, 127, 127);
+            //draw_rect(block->x, block->y, block->width, block->height);
+            draw_image(block->x, block->y, block->image);
         }
     }
 
@@ -107,8 +109,6 @@ void renderGame(struct Game *game)
     //fill_circle(paddleX + paddle.width, paddleY + bumperR, bumperR);
     //draw_circle(paddleX + paddle.width, paddleY + bumperR, bumperR);
 
-    printf("width %d\n", paddle.height);
-
     draw_image(paddleX - bumperR, paddleY + paddle.height, paddle_left_bumper_image());
     draw_image(paddleX + paddle.width - bumperR, paddleY + paddle.height, paddle_right_bumper_image());
 
@@ -135,13 +135,15 @@ void renderGame(struct Game *game)
 //end draw paddle maper
 
 //info strings
-    char lives[25];
-    char score[100];
-    sprintf(lives, "%s %d", "lives: ", player.lives);
-    sprintf(score, "%s %d", "score: ", player.score);
+    set_color4f(150, 150, 150, 100);
+    fill_rect(0, HEIGHT - 35, WIDTH, 35);
     
-    draw_string(0, HEIGHT - 24, lives, 1.0f, 1.0f, 1.0f, 1.0f);
-    draw_string(0, HEIGHT - 48, score, 1.0f, 1.0f, 1.0f, 1.0f);
+    char scoreString[100];
+    sprintf(scoreString, "%s %d", "score: ", player.score);
+
+    draw_string(10, HEIGHT - 25, scoreString, 1.0f, 1.0f, 1.0f, 1.0f);
+    
+    for (int i = 0; i < player.lives; i++) draw_image(WIDTH - i * 20 - 30, HEIGHT - 10, ball_image());
 //end draw info strings
 
 //if we are paused, we draw a slightly transparent overly across the whole screen, then the "paused" string

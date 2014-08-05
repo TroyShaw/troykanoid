@@ -7,6 +7,12 @@
 #define BLOCKS_ACROSS 11
 #define BLOCKS_DOWN 20
 
+#define BLOCK_WIDTH 58
+#define BLOCK_HEIGHT 20
+
+//because the blocks don't fit perfectly on-screen, there is a 1 pixel offset to center them
+#define BLOCK_OFFSET 1
+
 struct Block
 {
     int x;                                  //the absolute x position of this block
@@ -19,6 +25,7 @@ struct Block
     int hitsLeft;                           //the "health" of this block, how many more hits required before it dies
     bool indestructable;                    //if this block is indestructible; balls just bounce off it
     bool inUse;                             //true if we are displaying this
+    SDL_Surface *image;                     //the image. TODO: create a proper type and then a get_brick_image(type) method?
 };
 
 struct Level
