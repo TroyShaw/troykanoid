@@ -21,6 +21,8 @@ void renderGame(struct Game *game)
 
     draw_circle(5, 5, 5);
 
+    draw_image(0, HEIGHT, background_image());
+
 //draw ball
     for (int i = 0; i < game->numBalls; i++)
     {
@@ -97,7 +99,6 @@ void renderGame(struct Game *game)
     set_color3f(paddle.color.r, paddle.color.g, paddle.color.b);
     //fill_rect(paddleX, paddleY, paddle.width, (int) paddle.height - 1);
 
-    fill_rect(1, 1, 10, 15);
     float bumperR = paddle.height / 2.0f;
 
     //fill_circle(paddleX, paddleY + bumperR, bumperR);
@@ -129,7 +130,7 @@ void renderGame(struct Game *game)
 //draw paddle damper
     cpVect paddleDampPos = cpBodyGetPos(game->paddleDamper->body);
 
-    set_color3f(paddle.color.r, paddle.color.g, paddle.color.b);
+    //set_color3f(paddle.color.r, paddle.color.g, paddle.color.b);
     //fill_rect(paddleDampPos.x, paddleDampPos.y, WIDTH, 1);
 //end draw paddle maper
 
@@ -167,6 +168,7 @@ void renderGame(struct Game *game)
 
 void renderMenu(struct HighscoreManager *hsManager)
 {
+    draw_image(0, HEIGHT, background_image());
     //coordinates of main table
     int x = 75;
     int y = 100;

@@ -21,7 +21,7 @@ void init_graphics(void)
     }
 
     //then get our font
-    font = TTF_OpenFont("FreeSans.ttf", 24);
+    font = TTF_OpenFont("fonts/font.ttf", 24);
 
     if (font == NULL)
     {
@@ -102,7 +102,7 @@ void draw_string(float x, float y, const char* text, float r, float g, float b, 
     SetSurfaceAlpha(text_surface, a * 255);
 
     //TODO: the - 27 is a hack because changing to SDL caused a weird offset.
-    apply_surface(x, get_y(y) - 29, text_surface);
+    apply_surface(x - 5, get_y(y) - 29 + 5, text_surface);
 }
 
 float get_y(float y)

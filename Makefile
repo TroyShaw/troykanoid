@@ -62,9 +62,9 @@ clean:
 	@echo clean: $(Project)
 	rm -rf $(TargetDir)
 	mkdir bin
+	cp -R fonts bin/
 	cp -R levels bin/
 	cp -R images bin/
-	cp FreeSans.ttf bin/
 
 test:	Release
 	$(call TargetFilename,Release)

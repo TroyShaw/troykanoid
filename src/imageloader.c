@@ -19,11 +19,15 @@ SDL_Surface *paddleCenter;
 
 SDL_Surface *ball;
 
+SDL_Surface *background;
+
 void load_images(void)
 {
 	load_paddle_images();
 
 	ball = load_image(DIR "ball.png");
+
+	background = load_image(DIR "backgrounds/galaxy/galaxy-X.tga");
 }
 
 void dispose_images(void)
@@ -63,6 +67,11 @@ SDL_Surface* paddle_center_image()
 SDL_Surface* ball_image(void)
 {
 	return ball;
+}
+
+SDL_Surface* background_image(void)
+{
+	return background;
 }
 
 static SDL_Surface *load_image(const char *filename)
