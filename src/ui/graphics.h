@@ -1,5 +1,7 @@
 #pragma once
 
+#include <SDL/SDL_image.h>
+
 //initializes the graphics engine
 void init_graphics(void);
 //cleans up the graphics engine
@@ -15,6 +17,9 @@ void draw_line(float x1, float y1, float x2, float y2);
 void draw_circle(float cx, float cy, float r);
 //fills a circle centered at (cx, cy) of radius r, in the last color that was set
 void fill_circle(float cx, float cy, float r);
+
+//Draws image
+void draw_image(float x, float y, SDL_Surface *image);
 
 //draws text centered on x axis at y value
 void center_print(float y, const char* text, float r, float g, float b, float a);

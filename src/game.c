@@ -312,7 +312,7 @@ void init_game(struct Game *game)
     cpShapeSetLayers(game->roof, BALL_WALL_LAYER);
 
     //TODO move this elsewhere
-    int paddleHeight = 15;
+    int paddleHeight = PADDLE_DEFAULT_HEIGHT;
     //int paddleY = 10;
     int paddleY = paddleHeight;
 
@@ -351,7 +351,7 @@ static void init_paddle(struct Game *game)
 {
     //Initialise the paddle
 
-    int paddleY = 10;
+    int paddleY = PADDLE_DEFAULT_HEIGHT;
     int paddleX = (WIDTH - PADDLE_DEFAULT_WIDTH) / 2;
 
     cpFloat paddleMass = 1;
@@ -417,7 +417,6 @@ void reset_game(struct Game *game)
     game->paddle.height = PADDLE_DEFAULT_HEIGHT;
     //game->paddle.x = (WIDTH - PADDLE_DEFAULT_WIDTH) / 2;
     //game->paddle.y = 10;
-    game->paddle.height = 15;
     game->player.lives = DEFAULT_LIVES;
     game->player.score = 0;
     game->currentLevel = 1;

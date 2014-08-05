@@ -13,7 +13,7 @@
 #define PADDLE_CHANGLE_SPEED 5          //the speed at which the paddle increases
 
 #define PADDLE_DEFAULT_WIDTH 100        //the default paddle size, and size it's set to on respawn
-#define PADDLE_DEFAULT_HEIGHT 16.0
+#define PADDLE_DEFAULT_HEIGHT 33.0
 
 //These layer values are used by the physics engine to do conditional collisions
 #define BALL_PADDLE_LAYER       0x00000001

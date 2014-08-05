@@ -128,7 +128,7 @@ static void internal_tick(void)
 
 static void internal_render(void)
 {
-    clear_screen(0, 0, 0, 0);
+    clear_screen(0, 50, 50, 0);
 
     switch (mode)
     {
@@ -143,6 +143,9 @@ static void internal_render(void)
 static void internal_keydown(unsigned char key)
 {
     if (key == 27) exit(0);
+
+    if (key == SDLK_k) game.paddle.width += 9;
+    if (key == SDLK_l) game.paddle.width -= 9;
 
     //if it's game-mode, game is paused and they hit 'q', quit the game
     if (mode == GAME && game.paused && key == 'q')

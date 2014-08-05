@@ -17,9 +17,13 @@ SDL_Surface *paddleLeftBumper;
 SDL_Surface *paddleRightBumper;
 SDL_Surface *paddleCenter;
 
+SDL_Surface *ball;
+
 void load_images(void)
 {
 	load_paddle_images();
+
+	ball = load_image(DIR "ball.png");
 }
 
 void dispose_images(void)
@@ -30,8 +34,8 @@ void dispose_images(void)
 static void load_paddle_images()
 {
 	paddleLeftBumper = load_image(DIR PADDLE_DIR "paddle_left_bumper.png");
-	paddleRightBumper = load_image(DIR PADDLE_DIR "paddle_left_bumper.png");
-	paddleCenter = load_image(DIR PADDLE_DIR "paddle_left_bumper.png");
+	paddleRightBumper = load_image(DIR PADDLE_DIR "paddle_right_bumper.png");
+	paddleCenter = load_image(DIR PADDLE_DIR "paddle_center.png");
 }
 
 static void dispose_paddle_images()
@@ -54,6 +58,11 @@ SDL_Surface* paddle_right_bumper_image()
 SDL_Surface* paddle_center_image()
 {
 	return paddleCenter;
+}
+
+SDL_Surface* ball_image(void)
+{
+	return ball;
 }
 
 static SDL_Surface *load_image(const char *filename)

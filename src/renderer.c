@@ -18,6 +18,9 @@ void renderGame(struct Game *game)
 
     set_color3f(255, 0, 0);
 
+
+    draw_circle(5, 5, 5);
+
 //draw ball
     for (int i = 0; i < game->numBalls; i++)
     {
@@ -28,9 +31,11 @@ void renderGame(struct Game *game)
 
         cpVect pos = cpBodyGetPos(ball.ballBody);
 
-        fill_circle(pos.x, pos.y, BALL_RADIUS);
-        set_color3f(255, 0, 0);
-        draw_circle(pos.x, pos.y, BALL_RADIUS);
+        //fill_circle(pos.x, pos.y, BALL_RADIUS);
+        //set_color3f(255, 0, 0);
+        //draw_circle(pos.x, pos.y, BALL_RADIUS);
+
+        draw_image(pos.x - BALL_RADIUS, pos.y + BALL_RADIUS, ball_image());
     }
 //end draw ball
 
@@ -90,21 +95,35 @@ void renderGame(struct Game *game)
     float paddleY = paddlePos.y - game->paddle.height / 2.0;
 
     set_color3f(paddle.color.r, paddle.color.g, paddle.color.b);
-    fill_rect(paddleX, paddleY, paddle.width, paddle.height);
+    //fill_rect(paddleX, paddleY, paddle.width, (int) paddle.height - 1);
 
+    fill_rect(1, 1, 10, 15);
     float bumperR = paddle.height / 2.0f;
 
-    fill_circle(paddleX, paddleY + bumperR, bumperR);
-    draw_circle(paddleX, paddleY + bumperR, bumperR);
+    //fill_circle(paddleX, paddleY + bumperR, bumperR);
+    //draw_circle(paddleX, paddleY + bumperR, bumperR);
     
-    fill_circle(paddleX + paddle.width, paddleY + bumperR, bumperR);
-    draw_circle(paddleX + paddle.width, paddleY + bumperR, bumperR);
+    //fill_circle(paddleX + paddle.width, paddleY + bumperR, bumperR);
+    //draw_circle(paddleX + paddle.width, paddleY + bumperR, bumperR);
 
-    apply_surface(paddleX, paddleY + paddle.height, paddle_left_bumper_image());
+    printf("width %d\n", paddle.height);
 
-    printf("x %f, y %f\n", paddleX, paddleY);
+    draw_image(paddleX - bumperR, paddleY + paddle.height, paddle_left_bumper_image());
+    draw_image(paddleX + paddle.width - bumperR, paddleY + paddle.height, paddle_right_bumper_image());
 
-    fill_rect(0, 10, 10, 10);
+    //to draw the paddle, we draw the first section, the last section, then enough bits in between till the drawn and last overlap
+    int paddleImgLength = 64;
+
+    int startXPos = paddleX + bumperR;
+    int finalXPos = paddleX + paddle.width - paddleImgLength - bumperR;
+
+    draw_image(startXPos, paddleY + paddle.height, paddle_center_image());
+    draw_image(finalXPos, paddleY + paddle.height, paddle_center_image());
+
+    for (int x = startXPos + paddleImgLength; x < finalXPos; x += paddleImgLength)
+    {
+        draw_image(x, paddleY + paddle.height, paddle_center_image());
+    }
 //end draw player
 
 //draw paddle damper

@@ -52,6 +52,7 @@ void set_color4f(int r, int g, int b, int a)
     col_a = a;
 }
 
+//TODO: these functions seem to draw rectangles 1 pixel too high. Investigate
 void fill_rect(float x, float y, float w, float h)
 {
     boxRGBA(get_screen(), x, get_y(y), x + w, get_y(y + h), col_r, col_g, col_b, col_a);
@@ -77,6 +78,11 @@ void fill_circle(float cx, float cy, float r)
     filledCircleRGBA(get_screen(), cx, get_y(cy), r, col_r, col_g, col_b, col_a);
 }
 
+void draw_image(float x, float y, SDL_Surface *image)
+{
+    apply_surface((int) x, (int) get_y(y), image);
+}
+
 void center_print(float y, const char* text, float r, float g, float b, float a)
 {
     int size_w;
@@ -96,12 +102,12 @@ void draw_string(float x, float y, const char* text, float r, float g, float b, 
     SetSurfaceAlpha(text_surface, a * 255);
 
     //TODO: the - 27 is a hack because changing to SDL caused a weird offset.
-    apply_surface(x, get_y(y) - 27, text_surface);
+    apply_surface(x, get_y(y) - 29, text_surface);
 }
 
 float get_y(float y)
 {
-    return HEIGHT - y;
+    return HEIGHT - y - 1;
 }
 
 int str_width(char* str)
