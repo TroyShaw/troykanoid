@@ -416,7 +416,7 @@ void reset_game(struct Game *game)
     game->paddle.realWidth = PADDLE_DEFAULT_WIDTH;
     game->paddle.height = PADDLE_DEFAULT_HEIGHT;
     //game->paddle.x = (WIDTH - PADDLE_DEFAULT_WIDTH) / 2;
-    //game->paddle.y = 10;
+    //game->paddle.y = 10;  
     game->player.lives = DEFAULT_LIVES;
     game->player.score = 0;
     game->currentLevel = 1;
