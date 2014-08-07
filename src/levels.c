@@ -3,6 +3,7 @@
 #include <SDL/SDL_image.h>
 
 #include "defines.h"
+#include "game_entities.h"
 #include "imageloader.h"
 #include "levels.h"
 
@@ -57,6 +58,7 @@ void populate_level(struct Level *level, int levelNumber)
     int height = BLOCK_HEIGHT;
     int width = BLOCK_WIDTH;
     printf("width %d, height %d\n", width, height);
+    
     while ((c = fgetc(fp)) != EOF)
     {
         if (c == '\n' || c == 13) continue; //ignore newlines and carriage returns
@@ -67,10 +69,10 @@ void populate_level(struct Level *level, int levelNumber)
         struct Block* b = &level->blocks[x][y];
 
         //subtract 1 from width and height so that the blocks don't overlap at edges 1 pixel
-        b->width = width - 1;
-        b->height = height - 1;
-        b->x = x * width + BLOCK_OFFSET;
-        b->y = HEIGHT - (y + 1) * height;
+        //b->width = width - 1;
+        //b->height = height - 1;
+        //b->x = x * width + BLOCK_OFFSET;
+        //b->y = HEIGHT - (y + 1) * height;
         //b->type = c - '0';
 
         switch(c)
@@ -81,6 +83,7 @@ void populate_level(struct Level *level, int levelNumber)
                 b->color = colors[c - '0'];
                 b->indestructable = false;
                 b->inUse = true;
+                cpShapeSetLayers(b->blockShape, BALL_BLOCK_LAYER | WALL_BUMPER_LAYER);
                 blocks++;
                 
                 if (c == '8')
@@ -102,6 +105,7 @@ void populate_level(struct Level *level, int levelNumber)
                 b->color = colors[c - '0'];
                 b->indestructable = true;
                 b->inUse = true;
+                cpShapeSetLayers(b->blockShape, BALL_BLOCK_LAYER);
                 break;
             case '.':
                 b->color = (SDL_Color) {0, 0, 0, 0};
@@ -116,6 +120,8 @@ void populate_level(struct Level *level, int levelNumber)
     }
 
     level->blocksLeft = blocks;
+
+    printf("finished loading level\n");
 }
 
 void init_levels(void)

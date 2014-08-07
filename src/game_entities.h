@@ -22,6 +22,12 @@
 #define PADDLE_DAMP_LAYER       0x00000100
 #define UNUSED_BALL_LAYER       0x00001000
 #define WALL_BUMPER_LAYER       0x00010000
+#define BALL_BLOCK_LAYER        0x00100000
+#define UNUSED_BLOCK_LAYER      0x01000000
+
+//These are identifiers for each entity, used for the collision callbacks
+#define BALL_COLLISION_TYPE  1
+#define BLOCK_COLLISION_TYPE 2
 
 //  ball (paddle, walls)
 //  paddle (powerups, wall)

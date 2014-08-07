@@ -12,8 +12,15 @@
 //Initialises the player paddle.
 static void init_paddle(struct Game *game);
 
+//Initialises the blocks
+static void init_blocks(struct Game *game);
+
 //Moves the player.
 static void move_player(struct Game *game);
+
+//
+static cpBool ball_block_pre_solve(cpArbiter *arb, cpSpace *space, void *ignore);
+//static void ball_block_pre_solve(cpArbiter *arb, cpSpace *space, void *ignore);
 
 //Moves all the balls, (to be used when ball isn't attached). Keeps them within bounds of left/ right/ ceiling.
 static void move_balls(struct Game *game);
@@ -108,7 +115,7 @@ static void move_player(struct Game *game)
     if (dir_key_held(Down)) y -= 1;
 
     float impulse = 50;
-    float gravityImpulse = 20;
+    float gravityImpulse = 0;//20;
 
     cpBodyApplyImpulse(game->paddle.paddleBody, cpv(x * impulse, - gravityImpulse), cpvzero);
     cpBodyApplyImpulse(game->paddle.paddleBody, cpv(0, y * impulse), cpvzero);
@@ -340,11 +347,16 @@ void init_game(struct Game *game)
         //set balls to same group
         //TODO: make this number something else
         cpShapeSetGroup(ball->ballShape, 1);
-
         cpShapeSetLayers(ball->ballShape, UNUSED_BALL_LAYER);
+        cpShapeSetCollisionType(ball->ballShape, BALL_COLLISION_TYPE);
+        cpShapeSetUserData(ball->ballShape, ball);
     }
 
     init_paddle(game);
+    init_blocks(game);
+
+    //set the collision handler for balls + block
+    cpSpaceAddCollisionHandler(game->space, BALL_COLLISION_TYPE, BLOCK_COLLISION_TYPE, NULL, NULL, NULL, NULL, NULL);
 }
 
 static void init_paddle(struct Game *game)
@@ -402,6 +414,43 @@ static void init_paddle(struct Game *game)
     cpSpaceAddShape(game->space, game->paddleDamper);
 }
 
+static void init_blocks(struct Game *game)
+{
+    for (int y = 0; y < BLOCKS_DOWN; y++)
+    {
+        for (int x = 0; x < BLOCKS_ACROSS; x++)
+        {
+            struct Block* b = &game->level.blocks[x][y];
+
+            int blockX = x * BLOCK_WIDTH + BLOCK_OFFSET + BLOCK_WIDTH / 2;
+            int blockY = HEIGHT - (y + 1) * BLOCK_HEIGHT;
+
+            //TODO: these had 1 subtracted before, what should I do here..?
+            b->width = BLOCK_WIDTH;
+            b->height = BLOCK_HEIGHT;
+
+            //initialise the block body
+            b->blockBody = cpSpaceAddBody(game->space, cpBodyNew(20, INFINITY));
+            cpBodySetPos(b->blockBody, cpv(blockX, blockY));
+
+            //initialise the block shape
+            b->blockShape = cpSpaceAddShape(game->space, cpBoxShapeNew(b->blockBody, BLOCK_WIDTH, BLOCK_HEIGHT));
+            cpShapeSetLayers(b->blockShape, BALL_PADDLE_LAYER | PADDLE_DAMP_LAYER);
+
+            cpShapeSetFriction(b->blockShape, 0.7);
+            cpShapeSetElasticity(b->blockShape, 1);
+
+            //put blocks in same group, set to unused layer, set collision type, associate block to shape
+            cpShapeSetGroup(b->blockShape, 2); //TODO: change this hardcoded number
+            cpShapeSetLayers(b->blockShape, UNUSED_BLOCK_LAYER);
+            cpShapeSetCollisionType(b->blockShape, BLOCK_COLLISION_TYPE);
+            cpShapeSetUserData(b->blockShape, b);
+        }
+    }
+
+    printf("finished init blocks\n");
+}
+
 void cleanup_game(struct Game *game)
 {
 
@@ -436,7 +485,7 @@ void reset_game(struct Game *game)
 
     game->numBalls = 1;
     game->balls[0].inUse = true;
-    cpShapeSetLayers(game->balls[0].ballShape, BALL_PADDLE_LAYER | BALL_WALL_LAYER);
+    cpShapeSetLayers(game->balls[0].ballShape, BALL_PADDLE_LAYER | BALL_WALL_LAYER | BALL_BLOCK_LAYER);
 
     game->attached = true;
 

@@ -2,6 +2,7 @@
 
 #include <stdbool.h>
 #include <SDL/SDL.h>
+#include <chipmunk/chipmunk.h>
 
 #define NUM_LEVELS 35
 #define BLOCKS_ACROSS 11
@@ -15,8 +16,11 @@
 
 struct Block
 {
-    int x;                                  //the absolute x position of this block
-    int y;                                  //the absolute y position of this block
+    cpBody *blockBody;
+    cpShape *blockShape;
+
+    //int x;                                  //the absolute x position of this block
+    //int y;                                  //the absolute y position of this block
     int width;                              //the width of this block
     int height;                             //the height of this block
     int points;                             //the number of points for destroying this block

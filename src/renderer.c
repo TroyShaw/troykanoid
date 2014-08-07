@@ -72,14 +72,20 @@ void renderGame(struct Game *game)
         for (int j = 0; j < BLOCKS_DOWN; j++)
         {
             struct Block* block = &game->level.blocks[i][j];
-            printf("block: %d\n", block->x);
+            
             if (!block->inUse) continue;
+
+            cpVect pos = cpBodyGetPos(block->blockBody);
+
+            //TODO why are we adding and subtracting here?
+            float blockX = pos.x - block->width / 2.0;
+            float blockY = pos.y + block->height / 2.0;
 
             //set_color3f(block->color.r, block->color.g, block->color.b);
             //fill_rect(block->x, block->y, block->width, block->height);
             //set_color3f(127, 127, 127);
             //draw_rect(block->x, block->y, block->width, block->height);
-            draw_image(block->x, block->y, block->image);
+            draw_image(blockX, blockY, block->image);
         }
     }
 
@@ -143,14 +149,15 @@ void renderGame(struct Game *game)
 
     draw_string(10, HEIGHT - 25, scoreString, 1.0f, 1.0f, 1.0f, 1.0f);
     
-    for (int i = 0; i < player.lives; i++) draw_image(WIDTH - i * 20 - 30, HEIGHT - 10, ball_image());
+    for (int i = 0; i < player.lives; i++)
+    {
+        draw_image(WIDTH - i * 20 - 30, HEIGHT - 10, ball_image());
+    }
 //end draw info strings
 
 //if we are paused, we draw a slightly transparent overly across the whole screen, then the "paused" string
     if (game->paused)
     {
-        //TODO
-        //glPushMatrix();
         set_color4f(0, 0, 0, 190);
 
         fill_rect(0, 0, WIDTH, HEIGHT);
