@@ -83,7 +83,7 @@ void populate_level(struct Level *level, int levelNumber)
                 b->color = colors[c - '0'];
                 b->indestructable = false;
                 b->inUse = true;
-                cpShapeSetLayers(b->blockShape, BALL_BLOCK_LAYER | WALL_BUMPER_LAYER);
+                cpShapeSetLayers(b->blockShape, BALL_BLOCK_LAYER);
                 blocks++;
                 
                 if (c == '8')
@@ -110,6 +110,7 @@ void populate_level(struct Level *level, int levelNumber)
             case '.':
                 b->color = (SDL_Color) {0, 0, 0, 0};
                 b->inUse = false;
+                cpShapeSetLayers(b->blockShape, UNUSED_BLOCK_LAYER);
                 break;
             default:
                 printf("loaded wrong block %c/ %d\nprogram closing\b", c, c);
@@ -121,7 +122,7 @@ void populate_level(struct Level *level, int levelNumber)
 
     level->blocksLeft = blocks;
 
-    printf("finished loading level\n");
+    printf("finished loading level %d\n", levelNumber);
 }
 
 void init_levels(void)

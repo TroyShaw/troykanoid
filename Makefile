@@ -24,6 +24,7 @@ Defines_Release   := RELEASE
 Libs              := SDL SDL_image SDL_ttf SDL_mixer SDL_gfx chipmunk
 Libs_Debug        :=
 Libs_Release      :=
+Misc_Libs 		  := `pkg-config --cflags --libs glib-2.0`
 # Search Paths for Libraries (LibPaths is included before mode specific LibPaths_MODE)
 LibPaths          :=
 LibPaths_Debug    :=
@@ -90,15 +91,15 @@ $(call ObjectFilename,$(1),$(2)): $(2)
 endef
 
 define TargetTemplate
-CC_$(1) := $(CC) $(Defines:%=$(DefineFlag)%) $$(Defines_$(1):%=$(DefineFlag)%) $(InclPaths:%=$(IncPathFlag)%) $$(InclPaths_$(1):%=$(IncPathFlag)%) $(CFlags) $$(CFlags_$(1))
+CC_$(1) := $(CC) $(Defines:%=$(DefineFlag)%) $$(Defines_$(1):%=$(DefineFlag)%) $(InclPaths:%=$(IncPathFlag)%) $$(InclPaths_$(1):%=$(IncPathFlag)%) $(CFlags) $$(CFlags_$(1)) $(Misc_Libs)
 
 Objects_$(1)  := $(foreach file,$(Src),$(call ObjectFilename,$(1),$(file)))
 
 $(1):	init_$(1) $(call TargetFilename,$(1))
 
 $(call TargetFilename,$(1)): $$(Objects_$(1))
-	@echo ld: '$$@'
-	@$(LD) $(LFlags) $$(LFlags_$(1)) -o '$$@' $$(^:%='%') $(LibPaths:%=$(LibPathFlag)%) $$(LibPaths_$(1):%=$(LibPathFlag)%) $(Libs:%=$(LibraryFlag)%) $$(Libs_$(1):%=$(LibraryFlag)%)
+	@echo ld: '$$@' 
+	@$(LD) $(LFlags) $$(LFlags_$(1)) -o '$$@' $$(^:%='%') $(LibPaths:%=$(LibPathFlag)%) $$(LibPaths_$(1):%=$(LibPathFlag)%) $(Libs:%=$(LibraryFlag)%) $$(Libs_$(1):%=$(LibraryFlag)%) $(Misc_Libs)
 
 $(foreach file,$(Src),$(eval $(call CompileObject,$(1),$(file))))
 

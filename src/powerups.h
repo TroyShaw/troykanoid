@@ -29,7 +29,7 @@ enum Powerups
     MultiplyBall,       //causes the number of balls on screent to double (to a max of BALL_ARRAY_SIZE
     ForceField,         //causes a forcefield to appear below the player which rebounds a single ball
     ExtraLife,          //gives the player an extra life
-    StickyPaddle         //causes the ball to stick to the paddle until user pushes space to release them
+    StickyPaddle        //causes the ball to stick to the paddle until user pushes space to release them
 };
 
 #define NUM_POWERUPS 9
@@ -64,11 +64,12 @@ struct Game;
 void reset_powerup_manager(struct PowerupManager *manager);
 
 void moveAndProcessPowerups(struct PowerupManager *manager, struct Game *game);          //moves the powerups. If there
-void setPowerupColor(struct Game *game, int type);         //sets opengl's color to the balls color
 
 //generates a new powerup (assumes a block has been destroyed and probability determined to generate one)
 //x and y are the middle of the block in which the powerup was destroyed. It needs to be adjusted
 //for the width of the powerup too
-void generatePowerup(struct Game *game, int x, int y);      //generates a random powerup at the given (x,y) coordinates
+void generate_powerup(struct Game *game, int x, int y);      //generates a random powerup at the given (x,y) coordinates
 
 const char* powerup_name(enum Powerups powerup);
+
+void double_balls(struct Game *game);

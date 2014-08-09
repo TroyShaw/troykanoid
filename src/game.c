@@ -2,6 +2,7 @@
 #include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <glib.h>
 
 #include "game.h"
 #include "highscore.h"
@@ -18,9 +19,15 @@ static void init_blocks(struct Game *game);
 //Moves the player.
 static void move_player(struct Game *game);
 
-//
-static cpBool ball_block_pre_solve(cpArbiter *arb, cpSpace *space, void *ignore);
-//static void ball_block_pre_solve(cpArbiter *arb, cpSpace *space, void *ignore);
+//Called at the start of a collision. Return value determines if calculations continue for this collision.
+//We use this to allow for power balls to work properly.
+static cpBool ball_block_begin(cpArbiter *arb, cpSpace *space, void *ignore);
+
+//Called after a ball-block collision. Used to get rid of the block.
+static void ball_block_post_solve(cpArbiter *arb, cpSpace *space, void *ignore);
+
+//Called during the ball-paddle collision. Used to implement the proper angle reflections for collision.
+static cpBool ball_paddle_pre_solve(cpArbiter *arb, cpSpace *space, void *ignore);
 
 //Moves all the balls, (to be used when ball isn't attached). Keeps them within bounds of left/ right/ ceiling.
 static void move_balls(struct Game *game);
@@ -62,20 +69,19 @@ static void initiate_death(struct Game *game);
 
 void tick_game(struct Game *game)
 {
-    cpVect paddlePos = cpBodyGetPos(game->paddle.paddleBody);
-
-    //printf("paddle x: %f, width: %d\n", paddlePos.x, game->paddle.width);
-
     //do this here so if they pushed space this tick, they get processed immediately
     if (game->attached && space_pressed())
     {
         //user pressed go! start the round
-
         game->attached = false;
         
         //shoot the ball away
-        cpBodyApplyImpulse(game->balls[0].ballBody, cpv(450, 300), cpv(0, 0));
-    } 
+        struct Ball *b = game->ballList->data;
+        cpBodyApplyImpulse(b->ballBody, cpv(450, 300), cpv(0, 0));
+    } else if (!game->attached && space_pressed())
+    {
+        double_balls(game);
+    }
 
     //do a 1/60 timestep, but in 2 goes for better accuracy
     cpFloat timeStep = 1.0 / 120.0;
@@ -102,8 +108,6 @@ void tick_game(struct Game *game)
 
 static void move_player(struct Game *game)
 {
-    struct Paddle *paddle = &game->paddle;
-
     //will be -1 if left, 0 if left + right, 1 if right, 0 if neither
     int x = 0;
     int y = 0;
@@ -114,45 +118,30 @@ static void move_player(struct Game *game)
     if (dir_key_held(Up))  y += 1;
     if (dir_key_held(Down)) y -= 1;
 
-    float impulse = 50;
-    float gravityImpulse = 0;//20;
+    float impulse = 80;
+    float gravityImpulse = 28;
 
-    cpBodyApplyImpulse(game->paddle.paddleBody, cpv(x * impulse, - gravityImpulse), cpvzero);
-    cpBodyApplyImpulse(game->paddle.paddleBody, cpv(0, y * impulse), cpvzero);
-
-    //cpVect force = cpBodyGetForce(game->paddle.paddleBody);
-    //cpBodySetForce(game->paddle.paddleBody, force);
-
-    //move paddle
-    //paddle->x += x * PLAYER_MOVE_SPEED;
-
-    //if paddle out of bounds of screen, move them within
-    //paddle->x = min(max(paddle->x, 0), WIDTH - paddle->width);
+    cpBodyApplyImpulse(game->paddle.paddleBody, cpv(x * impulse, -gravityImpulse), cpvzero);
+    //cpBodyApplyImpulse(game->paddle.paddleBody, cpv(0, y * impulse), cpvzero);
 }
 
 static void move_balls(struct Game *game)
 {
-    struct Ball *ball = NULL;
-
-    for (int i = 0; i < game->numBalls; i++)
+    for (GList *l = game->ballList; l != NULL; l = l->next)
     {
-        ball = &game->balls[i];
+        struct Ball *ball = l->data;
+
+        if (ball)
+        {
+            //TODO
+            ;
+        }
 
         //do bounds checking.
         //if out of bottom, make ball unused and subtract 1 from ball total
         //else if out of other invert that directions velocity and set new position
         //TODO: will need to implement this
 
-        // if (ball->x < 0)
-        // {
-        //     ball->x = 0;
-        //     ball->velX *= -1.0f;
-        // }
-        // else if (ball->x + 2 * ball->radius > WIDTH)
-        // {
-        //     ball->x = WIDTH - 2 * ball->radius;
-        //     ball->velX *= -1.0f;
-        // }
 
         //TODO: forcefield powerup
         //Physics engine can calculuate this, but will need to bind a function that is called when collision happens        
@@ -183,10 +172,13 @@ static void move_balls(struct Game *game)
 
 static void move_ball_to_player(struct Game *game)
 {
-    struct Ball *ball = &game->balls[0];
+    struct Ball *ball = game->ballList->data;
     struct Paddle *paddle = &game->paddle;
 
+    cpVect pos = cpBodyGetPos(paddle->paddleBody);
+
     //TODO: need to attach the ball to the player somehow
+    cpBodySetPos(ball->ballBody, cpv(pos.x, pos.y + paddle->height / 2.0 + BALL_RADIUS));
     //ball->y = paddle->y + paddle->height;
     //ball->x = paddle->x + paddle->width / 2 - ball->radius;
 }
@@ -207,7 +199,8 @@ static void initiate_death(struct Game *game)
     //set num balls back to 1
     game->numBalls = 1;
     //set first ball to on
-    game->balls[0].inUse = true;
+    struct Ball *ball = game->ballList->data;
+    ball->inUse = true;
     //attach it to paddle
     game->attached = true;
     //move the ball to the player
@@ -231,11 +224,30 @@ static void goto_next_level(struct Game *game)
 }
 
 static void ball_block_collisions(struct Game *game)
-{
-    int x, y, xV, yV;
-    struct Block *bl = NULL;
-    struct Ball *b = NULL;
-    
+{   
+    for (int y = 0; y < BLOCKS_DOWN; y++)
+    {
+        for (int x = 0; x < BLOCKS_ACROSS; x++)
+        {
+            struct Block* b = &game->level.blocks[x][y];
+
+            if (b->collided)
+            {
+                b->inUse = false;
+                b->collided = false;
+                game->level.blocksLeft--;
+                game->player.score += b->points;
+                
+                cpShapeSetLayers(b->blockShape, UNUSED_BLOCK_LAYER);
+                //cpSpaceRemoveBody(game->space, b->blockBody);
+                //cpSpaceRemoveShape(game->space, b->blockShape);
+
+                cpVect pos = cpBodyGetPos(b->blockBody);
+                if (randF() < POWERUP_PROB) generate_powerup(game, pos.x, pos.y);
+            }
+        }
+    }
+
     //TODO: this loop basically can be removed
     //need to do callbacks for blocks hitting balls though
     for (int i = 0; i < game->numBalls; i++)
@@ -245,6 +257,7 @@ static void ball_block_collisions(struct Game *game)
         {
             for (int k = -1; k < 2; k++)
             {
+
                 // int ix = j + x;
                 // int iy = k + y;
                 
@@ -269,6 +282,11 @@ static void player_ball_collision(struct Game *game)
 {
     //TODO: basically this whole function can be removed I think
 
+    if (game)
+    {
+        //TODO
+    }
+
     // struct Paddle *paddle = &game->paddle;
 
     // for (int i = 0; i < game->numBalls; i++)
@@ -287,6 +305,66 @@ static void player_ball_collision(struct Game *game)
     //         ball->y = paddle->y + paddle->height;
     //     }
     // }
+}
+
+static cpBool ball_block_begin(cpArbiter *arb, cpSpace *space, void *unused)
+{
+    //retrieve the shapes involved
+    cpShape *a, *b; 
+    cpArbiterGetShapes(arb, &a, &b);
+
+    struct Block *block = (struct Block*) cpShapeGetUserData(b);
+
+    block->collided = true;
+    //the block is attached to the section shaperp
+
+    return true;
+}
+
+static void ball_block_post_solve(cpArbiter *arb, cpSpace *space, void *ignore)
+{
+
+}
+
+
+static void post_collision_callback(cpSpace *space, cpShape *shape, void *unused)
+{
+    //printf("lol\n");
+}
+
+static cpBool ball_paddle_pre_solve(cpArbiter *arb, cpSpace *space, void *ignore)
+{
+
+    cpShape *a, *b; 
+    cpArbiterGetShapes(arb, &a, &b);
+
+    //struct Ball *ball = (struct Ball*) cpShapeGetUserData(a);
+    //struct Paddle *paddle = (struct Paddle*) cpShapeGetUserData(b);
+
+    cpVect vel = cpArbiterGetSurfaceVelocity(arb);
+
+    //cpArbiterSetSurfaceVelocity(arb, cpv(500, 500));
+    //cpArbiterSetElasticity(arb, 0);
+
+    //printf("%f %f\n", vel.x, vel.y);
+
+    cpContactPointSet set = cpArbiterGetContactPointSet(arb);
+    
+    for(int i=0; i<set.count; i++){
+        // get and work with the collision point normal and penetration distance:
+        cpVect p = set.points[i].point;             //x and y coordinate on-screen (from origin) of collision
+        cpVect n = set.points[i].normal;            //the normal?
+        cpFloat d = set.points[i].dist;             //the penetration distance of the collision
+
+        //printf("(%f, %f), (%f, %f), %f\n", p.x, p.y, n.x, n.y, d);
+
+        set.points[i].normal = cpv(0, -1);
+        //set.points[i].dist = 10;
+    }
+
+    cpArbiterSetContactPointSet(arb, &set);
+
+    return true;
 }
 
 void init_game(struct Game *game)
@@ -323,40 +401,18 @@ void init_game(struct Game *game)
     //int paddleY = 10;
     int paddleY = paddleHeight;
 
-    //Initialise the balls
-    for (int i = 0; i < BALL_ARRAY_SIZE; i++)
-    {
-        struct Ball *ball = &game->balls[i];
-
-        ball->color = (SDL_Color) {255, 179, 179, 179};
-        ball->inUse = false;
-
-        cpFloat mass = 1;
-        cpFloat moment = cpMomentForCircle(mass, 0, BALL_RADIUS, cpvzero);
-        ball->ballBody = cpSpaceAddBody(game->space, cpBodyNew(mass, moment));
-
-        int ballX = (WIDTH - BALL_RADIUS * 2) / 2;
-        int ballY = paddleY + paddleHeight;
-        
-        cpBodySetPos(ball->ballBody, cpv(ballX, ballY));
-        
-        ball->ballShape = cpSpaceAddShape(game->space, cpCircleShapeNew(ball->ballBody, BALL_RADIUS, cpvzero));
-        cpShapeSetFriction(ball->ballShape, 0.9);
-        cpShapeSetElasticity(ball->ballShape, 1);
-
-        //set balls to same group
-        //TODO: make this number something else
-        cpShapeSetGroup(ball->ballShape, 1);
-        cpShapeSetLayers(ball->ballShape, UNUSED_BALL_LAYER);
-        cpShapeSetCollisionType(ball->ballShape, BALL_COLLISION_TYPE);
-        cpShapeSetUserData(ball->ballShape, ball);
-    }
+    //Initialise the ball
+    printf("init ball start\n");
+    game->ballList = NULL;
+    game->ballList = g_slist_append(game->ballList, init_ball(game, 0, 0));
+    printf("finished init ball\n");
 
     init_paddle(game);
     init_blocks(game);
 
     //set the collision handler for balls + block
-    cpSpaceAddCollisionHandler(game->space, BALL_COLLISION_TYPE, BLOCK_COLLISION_TYPE, NULL, NULL, NULL, NULL, NULL);
+    cpSpaceAddCollisionHandler(game->space, BALL_COLLISION_TYPE, BLOCK_COLLISION_TYPE, ball_block_begin, NULL, NULL, NULL, NULL);
+    cpSpaceAddCollisionHandler(game->space, BALL_COLLISION_TYPE, PADDLE_COLLISION_TYPE, NULL, ball_paddle_pre_solve, NULL, NULL, NULL);
 }
 
 static void init_paddle(struct Game *game)
@@ -371,14 +427,16 @@ static void init_paddle(struct Game *game)
     //make the main body. Rotational inertia of INFINITY to stop it spinning
     game->paddle.paddleBody = cpSpaceAddBody(game->space, cpBodyNew(paddleMass, INFINITY));
     
-    cpBodySetVelLimit(game->paddle.paddleBody, 500);
-    cpBodySetPos(game->paddle.paddleBody, cpv(paddleX, paddleY));
+    cpBodySetVelLimit(game->paddle.paddleBody, 700);
+    cpBodySetPos(game->paddle.paddleBody, cpv(paddleX + PADDLE_DEFAULT_WIDTH / 2.0, paddleY));
 
     //initialise the main body of the paddle 
     game->paddle.paddleShape = cpSpaceAddShape(game->space, cpBoxShapeNew(game->paddle.paddleBody, PADDLE_DEFAULT_WIDTH, PADDLE_DEFAULT_HEIGHT));
-    cpShapeSetLayers(game->paddle.paddleShape, BALL_PADDLE_LAYER | PADDLE_DAMP_LAYER);
+    cpShapeSetCollisionType(game->paddle.paddleShape, PADDLE_COLLISION_TYPE);
+    cpShapeSetLayers(game->paddle.paddleShape, BALL_PADDLE_LAYER);
+    cpShapeSetUserData(game->paddle.paddleShape, &game->paddle);
 
-    cpShapeSetFriction(game->paddle.paddleShape, 0.7);
+    cpShapeSetFriction(game->paddle.paddleShape, 0);
     cpShapeSetElasticity(game->paddle.paddleShape, 1);
 
     //initialise the side bumpers
@@ -407,6 +465,11 @@ static void init_paddle(struct Game *game)
     cpShapeSetFriction(game->paddle.rightBallBumper, 1);
 
     //Initialise paddle damper
+    cpShape* paddleDamper = cpSpaceAddShape(game->space, cpBoxShapeNew(game->paddle.paddleBody, PADDLE_DEFAULT_WIDTH, PADDLE_DEFAULT_HEIGHT));
+    cpShapeSetLayers(paddleDamper, PADDLE_DAMP_LAYER);
+    cpShapeSetFriction(paddleDamper, 0.9);
+
+
     game->paddleDamper = cpSegmentShapeNew(game->space->staticBody, cpv(0, paddleY - PADDLE_DEFAULT_HEIGHT + 10), cpv(WIDTH, paddleY - PADDLE_DEFAULT_HEIGHT + 10), 0);
     cpShapeSetLayers(game->paddleDamper, PADDLE_DAMP_LAYER);
     cpShapeSetFriction(game->paddleDamper, 1);
@@ -428,16 +491,18 @@ static void init_blocks(struct Game *game)
             //TODO: these had 1 subtracted before, what should I do here..?
             b->width = BLOCK_WIDTH;
             b->height = BLOCK_HEIGHT;
+            
+            b->collided = false;
 
             //initialise the block body
-            b->blockBody = cpSpaceAddBody(game->space, cpBodyNew(20, INFINITY));
+            b->blockBody = cpSpaceAddBody(game->space, cpBodyNew(INFINITY, INFINITY));
             cpBodySetPos(b->blockBody, cpv(blockX, blockY));
 
             //initialise the block shape
             b->blockShape = cpSpaceAddShape(game->space, cpBoxShapeNew(b->blockBody, BLOCK_WIDTH, BLOCK_HEIGHT));
             cpShapeSetLayers(b->blockShape, BALL_PADDLE_LAYER | PADDLE_DAMP_LAYER);
 
-            cpShapeSetFriction(b->blockShape, 0.7);
+            cpShapeSetFriction(b->blockShape, 0);
             cpShapeSetElasticity(b->blockShape, 1);
 
             //put blocks in same group, set to unused layer, set collision type, associate block to shape
@@ -445,6 +510,10 @@ static void init_blocks(struct Game *game)
             cpShapeSetLayers(b->blockShape, UNUSED_BLOCK_LAYER);
             cpShapeSetCollisionType(b->blockShape, BLOCK_COLLISION_TYPE);
             cpShapeSetUserData(b->blockShape, b);
+
+            //setup the post-step collision callback
+//            cpSpaceAddPostStepCallback(game->space, post_collision_callback, b->blockShape, NULL);
+            //cpSpaceRemovePostStepCallback();
         }
     }
 
@@ -465,27 +534,15 @@ void reset_game(struct Game *game)
     game->paddle.realWidth = PADDLE_DEFAULT_WIDTH;
     game->paddle.height = PADDLE_DEFAULT_HEIGHT;
     //game->paddle.x = (WIDTH - PADDLE_DEFAULT_WIDTH) / 2;
-    //game->paddle.y = 10;  
+    //game->paddle.y = 10;
     game->player.lives = DEFAULT_LIVES;
     game->player.score = 0;
     game->currentLevel = 1;
 
-    for (int i = 0; i < BALL_ARRAY_SIZE; i++)
-    {
-        struct Ball *ball = &game->balls[i];
-
-        ball->color = (SDL_Color) {255, 179, 179, 179};
-        
-        //ball->x = (WIDTH - ball->radius * 2) / 2;
-        //ball->y = game->paddle.y + game->paddle.height;
-        // ball->velX = 5;
-        // ball->velY = 5;
-        // ball->inUse = false;
-    }
-
     game->numBalls = 1;
-    game->balls[0].inUse = true;
-    cpShapeSetLayers(game->balls[0].ballShape, BALL_PADDLE_LAYER | BALL_WALL_LAYER | BALL_BLOCK_LAYER);
+    struct Ball *ball = game->ballList->data;
+    ball->inUse = true;
+    cpShapeSetLayers(ball->ballShape, BALL_PADDLE_LAYER | BALL_WALL_LAYER | BALL_BLOCK_LAYER);
 
     game->attached = true;
 
@@ -493,6 +550,21 @@ void reset_game(struct Game *game)
 
     //load level 1
     populate_level(&game->level, 1);
+
+    //add in the blocks that are current to the physics world
+    for (int y = 0; y < BLOCKS_DOWN; y++)
+    {
+        for (int x = 0; x < BLOCKS_ACROSS; x++)
+        {
+            struct Block* b = &game->level.blocks[x][y];
+
+            if (!b->inUse) continue;
+
+            //cpShapeSetLayers(b->blockShape, BALL_BLOCK_LAYER);
+            //cpSpaceAddBody(game->space, b->blockBody);
+            //cpSpaceAddShape(game->space, b->blockShape);
+        }
+    }
 }
 
 bool is_game_over(struct Game *game)

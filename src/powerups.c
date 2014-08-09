@@ -6,8 +6,6 @@
 #include "powerups.h"
 #include "util.h"
 
-static void doubleBalls(struct Game *game);
-
 void reset_powerup_manager(struct PowerupManager *manager)
 {
     for (int i = 0; i < POWERUP_ARRAY_SIZE; i++)
@@ -137,39 +135,42 @@ void moveAndProcessPowerups(struct PowerupManager *manager, struct Game *game)
     }
 }
 
-//numBalls
-//                              BALL_ARRAY_SIZE = 10
-// 0  1  2  3  4  5  6  7  8  9
-// [] [] [] [] [] [] [] [] [] [] 
-
-static void doubleBalls(struct Game *game)
+void double_balls(struct Game *game)
 {
+    int numNewBalls = g_slist_length(game->ballList);
 
-    //return if we have no room left for balls
-    if (BALL_ARRAY_SIZE == game->numBalls) return;
-    //printf("Made here %d\n", i);
-    int numNewBalls = min(game->numBalls, BALL_ARRAY_SIZE - game->numBalls);
+    GSList *newBallList = NULL;
 
-    //clone our balls and invert x velocity
-    for (int i = 0; i < numNewBalls; i++)
+    for (GSList *l = game->ballList; l != NULL; l = l->next)
     {
+        struct Ball *oldBall = l->data;
 
-        game->balls[game->numBalls + i] = game->balls[i];
-        
-        //TODO: basically need to invert the balls velocity/ forces. Need to do this properly though
-        //game->balls[game->numBalls + i].velX *= -1;
-        //make ball always shoot upwards otherwise makes it hard to keep ball in play
-        //when ball is descending`
-        //TODO: same here
-        //game->balls[game->numBalls + i].velY = abs(game->balls[game->numBalls + i].velY);
+        cpVect oldBallPos = cpBodyGetPos(oldBall->ballBody);
+        cpVect oldBallVel = cpBodyGetVel(oldBall->ballBody);
 
+        struct Ball *newBall = init_ball(game, oldBallPos.x + 30, oldBallPos.y);
+
+        printf("vel: %f %f\n", oldBallVel.x, oldBallVel.y);
+
+        float newX = -oldBallVel.x;
+        float newY = oldBallVel.y < 0 ? -oldBallVel.y : oldBallVel.y;
+
+        cpBodySetVel(newBall->ballBody, cpv(newX, newY));
+        //cpShapeSetSurfaceVelocity(newBall->ballShape, oldBallVel);
+        //cpBodyApplyImpulse(newBall->ballBody, cpv(450, 300), cpv(0, 0));
+
+        newBallList = g_slist_append(newBallList, newBall);
     }
 
-    //then increment our ball count
+    game->ballList = g_slist_concat(game->ballList, newBallList);
+
     game->numBalls += numNewBalls;
+
+
+    //printf("made %d new balls\n", numNewBalls);
 }
 
-void generatePowerup(struct Game *game, int x, int y)
+void generate_powerup(struct Game *game, int x, int y)
 {
     int w = 10, h = 10;
     int i;
@@ -190,17 +191,6 @@ void generatePowerup(struct Game *game, int x, int y)
         //return since we only generate 1 powerup
         return;
     }
-}
-
-void setPowerupColor(struct Game *game, int type)
-{
-    //TODO
-    if (type || game)
-    {
-        ;
-    }
-    //glColor3f(0.2f, 0.9f, 0.2f);
-    //glColor3f(randF(), randF(), randF());
 }
 
 const char* powerup_name(enum Powerups powerup)

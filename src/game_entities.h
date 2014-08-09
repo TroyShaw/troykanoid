@@ -1,6 +1,7 @@
 #pragma once
 
 #include <chipmunk/chipmunk.h>
+#include <glib.h>
 
 #include "levels.h"
 #include "powerups.h"
@@ -20,7 +21,6 @@
 #define BALL_WALL_LAYER         0x10000000
 #define PADDLE_POWERUP_LAYER    0x00000010
 #define PADDLE_DAMP_LAYER       0x00000100
-#define UNUSED_BALL_LAYER       0x00001000
 #define WALL_BUMPER_LAYER       0x00010000
 #define BALL_BLOCK_LAYER        0x00100000
 #define UNUSED_BLOCK_LAYER      0x01000000
@@ -28,6 +28,7 @@
 //These are identifiers for each entity, used for the collision callbacks
 #define BALL_COLLISION_TYPE  1
 #define BLOCK_COLLISION_TYPE 2
+#define PADDLE_COLLISION_TYPE 3
 
 //  ball (paddle, walls)
 //  paddle (powerups, wall)
@@ -85,8 +86,11 @@ struct Game
     struct Level level;                         //the level struct
     struct Player player;                       //the player
     struct Paddle paddle;
-    struct Ball balls[BALL_ARRAY_SIZE];         //the balls
+    GSList *ballList;                     //the balls
     int numBalls;                               //number of balls in use (useful for various reasons)
     bool attached;                              //if the ball is attached to paddle (i.e at start of games and after death)
     struct PowerupManager powerupManager;       //the manager for powerups
 };
+
+//Dynamically allocates memory for, and initialises, a new ball.
+struct Ball *init_ball(struct Game *game, float x, float y);

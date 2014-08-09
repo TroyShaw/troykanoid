@@ -16,26 +16,17 @@ void renderGame(struct Game *game)
     struct Player player = game->player;
     struct Paddle paddle = game->paddle;
 
-    set_color3f(255, 0, 0);
-
-
-    draw_circle(5, 5, 5);
-
     draw_image(0, HEIGHT, background_image());
 
 //draw ball
-    for (int i = 0; i < game->numBalls; i++)
+    for (GSList *l = game->ballList; l != NULL; l = l->next)
     {
-        struct Ball ball = game->balls[i];
+        struct Ball *ball = l->data;
 
         if (manager.meteor) set_color3f(255, 25, 25);
-        else set_color3f(ball.color.r, ball.color.g, ball.color.b);
+        else set_color3f(ball->color.r, ball->color.g, ball->color.b);
 
-        cpVect pos = cpBodyGetPos(ball.ballBody);
-
-        //fill_circle(pos.x, pos.y, BALL_RADIUS);
-        //set_color3f(255, 0, 0);
-        //draw_circle(pos.x, pos.y, BALL_RADIUS);
+        cpVect pos = cpBodyGetPos(ball->ballBody);
 
         draw_image(pos.x - BALL_RADIUS, pos.y + BALL_RADIUS, ball_image());
     }
@@ -54,14 +45,12 @@ void renderGame(struct Game *game)
             if (millis < 1000)
             {
                 float dt = millis / 1000.0f;
-
                 draw_string(p.x, p.y + 10 + dt * 50, powerup_name(p.type), 1, 1, 1, 1 - 1 * dt);
             }
         }
         else
         {            
             fill_rect(p.x, p.y, p.width, p.height);
-            setPowerupColor(game, p.type);
         }
     }
 //end draw powerups
@@ -81,10 +70,6 @@ void renderGame(struct Game *game)
             float blockX = pos.x - block->width / 2.0;
             float blockY = pos.y + block->height / 2.0;
 
-            //set_color3f(block->color.r, block->color.g, block->color.b);
-            //fill_rect(block->x, block->y, block->width, block->height);
-            //set_color3f(127, 127, 127);
-            //draw_rect(block->x, block->y, block->width, block->height);
             draw_image(blockX, blockY, block->image);
         }
     }
@@ -104,16 +89,7 @@ void renderGame(struct Game *game)
     float paddleX = paddlePos.x - game->paddle.width / 2.0;
     float paddleY = paddlePos.y - game->paddle.height / 2.0;
 
-    set_color3f(paddle.color.r, paddle.color.g, paddle.color.b);
-    //fill_rect(paddleX, paddleY, paddle.width, (int) paddle.height - 1);
-
     float bumperR = paddle.height / 2.0f;
-
-    //fill_circle(paddleX, paddleY + bumperR, bumperR);
-    //draw_circle(paddleX, paddleY + bumperR, bumperR);
-    
-    //fill_circle(paddleX + paddle.width, paddleY + bumperR, bumperR);
-    //draw_circle(paddleX + paddle.width, paddleY + bumperR, bumperR);
 
     draw_image(paddleX - bumperR, paddleY + paddle.height, paddle_left_bumper_image());
     draw_image(paddleX + paddle.width - bumperR, paddleY + paddle.height, paddle_right_bumper_image());
