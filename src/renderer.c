@@ -246,20 +246,24 @@ void renderMenu(struct HighscoreManager *hsManager)
 
 void renderPostGame(struct Game *game, struct HighscoreManager *hsManager)
 {
-    printf("render post\n");
+    draw_image(0, HEIGHT, background_image());
+
     set_color3f(255, 0, 0);
 
-    char won[] = "Congratulations, you completed Troykanoid!";
+    char won1[] = "Congratulations!";
+    char won2[] = "You completed Troykanoid!";
     char lost[] = "Oh no! You died!";
 
     char noHS[] = "You didn't make it onto the highscores... Press enter to continue";
-    char highscore[] = "You came xxx! Enter your name and press enter!";
+    char highscore[] = "You came xxx!";
+    char prompt[] = "Enter your name and press enter!";
 
     int i = hsManager->position;
 
     if (game->currentLevel == NUM_LEVELS)
     {
-        center_print(HEIGHT - 50, won, 1, 1, 1, 1);
+        center_print(HEIGHT - 50, won1, 1, 1, 1, 1);
+        center_print(HEIGHT - 80, won2, 1, 1, 1, 1);
     }
     else
     {
@@ -299,7 +303,8 @@ void renderPostGame(struct Game *game, struct HighscoreManager *hsManager)
             break;
         }
 
-        center_print(HEIGHT - 250, highscore, 1, 1, 1, 1);
+        center_print(HEIGHT - 180, highscore, 1, 1, 1, 1);
+        center_print(HEIGHT - 220, prompt, 1, 1, 1, 1);
 
         char *nb = hsManager->nameBuffer;
 

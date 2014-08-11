@@ -66,8 +66,7 @@ void moveAndProcessPowerups(struct PowerupManager *manager, struct Game *game)
                 break;
             
             case MultiplyBall:
-                //TODO: causes crash
-                doubleBalls(game);
+                double_balls(game);
                 break;
             
             case BallComet:
@@ -139,6 +138,7 @@ void double_balls(struct Game *game)
 {
     int numNewBalls = g_slist_length(game->ballList);
 
+    //note I do not need to free this list since g_slist_concat uses the nodes directly
     GSList *newBallList = NULL;
 
     for (GSList *l = game->ballList; l != NULL; l = l->next)
@@ -154,8 +154,6 @@ void double_balls(struct Game *game)
         float newY = oldBallVel.y < 0 ? -oldBallVel.y : oldBallVel.y;
 
         cpBodySetVel(newBall->ballBody, cpv(newX, newY));
-        //cpShapeSetSurfaceVelocity(newBall->ballShape, oldBallVel);
-        //cpBodyApplyImpulse(newBall->ballBody, cpv(450, 300), cpv(0, 0));
 
         newBallList = g_slist_append(newBallList, newBall);
     }
@@ -163,9 +161,6 @@ void double_balls(struct Game *game)
     game->ballList = g_slist_concat(game->ballList, newBallList);
 
     game->numBalls += numNewBalls;
-
-
-    //printf("made %d new balls\n", numNewBalls);
 }
 
 void generate_powerup(struct Game *game, int x, int y)

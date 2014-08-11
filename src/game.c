@@ -47,26 +47,6 @@ static void initiate_death(struct Game *game);
 //Helper method to get the first ball (assuming it's there) instead of having to go through the list functions.
 static struct Ball *first_ball(struct Game *game);
 
-//general algorithm
-//two modes, attached, not attached
-//attached:
-//  move player
-//  move ball position to player
-//non attached:
-//  move player
-//  move balls
-//  move powerups
-//  check powerups collision with player, if so, apply poweurp
-//  check ball collision with player, if so, make balls y velocity positive
-//  check ball isn't out of bounds of screen, of so, set ball as not active, and subtract 1 from current balls
-//      if current balls is 0, initiate death sequence
-//          remove 1 from lives
-//          if lives is -1, end game
-//          else
-//          make all powerups inactive
-//          set first ball to active
-//          set attached mode
-
 void tick_game(struct Game *game)
 {
     //do this here so if they pushed space this tick, they get processed immediately
@@ -78,9 +58,9 @@ void tick_game(struct Game *game)
         //shoot the ball away
         struct Ball *b = first_ball(game);
         cpBodyApplyImpulse(b->ballBody, cpv(450, 300), cpv(0, 0));
-    } else if (!game->attached && space_pressed())
+    }
+    else if (!game->attached && space_pressed())
     {
-        //reset_paddle(game);
         double_balls(game);
     }
 
@@ -124,7 +104,6 @@ static void move_player(struct Game *game)
     float gravityImpulse = 28;
 
     cpBodyApplyImpulse(game->paddle.paddleBody, cpv(x * impulse, -gravityImpulse), cpvzero);
-    //cpBodyApplyImpulse(game->paddle.paddleBody, cpv(0, y * impulse), cpvzero);
 }
 
 static void move_balls(struct Game *game)
@@ -137,7 +116,14 @@ static void move_balls(struct Game *game)
 
         cpVect pos = cpBodyGetPos(ball->ballBody);
 
+        //this is the actual condition we need to check for: the ball leaving the bottom of the screen
         if (pos.y < 0)
+        {
+            toRemoveList = g_slist_append(toRemoveList, ball);
+        }
+
+        //do some sanity checks though, make sure the ball hasn't gone outside the bounds while moving/ left/ left
+        if (pos.x < 0 || pos.x > WIDTH || pos.y > HEIGHT)
         {
             toRemoveList = g_slist_append(toRemoveList, ball);
         }
@@ -198,6 +184,14 @@ static void ball_block_collisions(struct Game *game)
 
             if (b->collided)
             {
+                if (b->indestructable)
+                {
+                    //if indestructible, just reset the collision status and continue iterating.
+                    b->collided = false;
+                    continue;
+                }
+
+
                 b->inUse = false;
                 b->collided = false;
                 game->level.blocksLeft--;
@@ -304,7 +298,7 @@ static cpBool ball_paddle_pre_solve(cpArbiter *arb, cpSpace *space, void *ignore
 
 void init_game(struct Game *game)
 {
-    static hasInit = false;
+    static bool hasInit = false;
     
     if (hasInit)
     {
@@ -395,6 +389,14 @@ static void soft_reset_game(struct Game *game)
     reset_paddle(game);
 
     //delete whatever balls exist and then create the initial one
+    for (GSList *l = game->ballList; l != NULL; l = l->next)
+    {
+        struct Ball *toRemove = l->data;
+        free_ball(game, toRemove);
+    }
+
+    g_slist_free(game->ballList);
+
     game->ballList = g_slist_append(NULL, init_ball(game, 0, 0));
     game->numBalls = 1;
     game->attached = true;
