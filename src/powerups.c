@@ -150,8 +150,6 @@ void double_balls(struct Game *game)
 
         struct Ball *newBall = init_ball(game, oldBallPos.x + 30, oldBallPos.y);
 
-        printf("vel: %f %f\n", oldBallVel.x, oldBallVel.y);
-
         float newX = -oldBallVel.x;
         float newY = oldBallVel.y < 0 ? -oldBallVel.y : oldBallVel.y;
 

@@ -23,8 +23,8 @@ void renderGame(struct Game *game)
     {
         struct Ball *ball = l->data;
 
-        if (manager.meteor) set_color3f(255, 25, 25);
-        else set_color3f(ball->color.r, ball->color.g, ball->color.b);
+        //if (manager.meteor) set_color3f(255, 25, 25);
+        //else set_color3f(ball->color.r, ball->color.g, ball->color.b);
 
         cpVect pos = cpBodyGetPos(ball->ballBody);
 
@@ -77,15 +77,16 @@ void renderGame(struct Game *game)
 //draw forcefield
     if (manager.forceField)
     {
-        set_color3f(paddle.color.r, paddle.color.g, paddle.color.b);
+        //set_color3f(paddle.color.r, paddle.color.g, paddle.color.b);
         fill_rect(0, 3, WIDTH, 7);
     }
 //end draw forcefield
 
 //draw player
+    draw_image(0, 20, paddle_left_bumper_image());
     cpVect paddlePos = cpBodyGetPos(game->paddle.paddleBody);
-
     //coords we display at
+    
     float paddleX = paddlePos.x - game->paddle.width / 2.0;
     float paddleY = paddlePos.y - game->paddle.height / 2.0;
 
@@ -245,6 +246,7 @@ void renderMenu(struct HighscoreManager *hsManager)
 
 void renderPostGame(struct Game *game, struct HighscoreManager *hsManager)
 {
+    printf("render post\n");
     set_color3f(255, 0, 0);
 
     char won[] = "Congratulations, you completed Troykanoid!";

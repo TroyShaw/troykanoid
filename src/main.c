@@ -16,7 +16,6 @@
 #include "ui/graphics.h"
 #include "ui/window.h"
 
-static void resource_init(void);
 static void startup_init(void);
 static void main_loop(void);
 static void clean_up(void);
@@ -34,7 +33,6 @@ static bool gameRunning;
 
 int main(void)
 {
-    resource_init();
     startup_init();
 
     main_loop();
@@ -44,31 +42,25 @@ int main(void)
     return 0;
 }
 
-static void resource_init(void)
+static void startup_init(void)
 {
     init_window(SCREEN_TITLE, WIDTH, HEIGHT);
     init_graphics();
-
     load_images();
+
     init_highscore_manager(&hsManager);
-}
-
-static void startup_init(void)
-{
-    mode = MAIN_MENU;
-    gameRunning = true;
-
-    //initialize the random number generator with new value
-    srand(time(NULL));
-
-    fps_init(60);
     init_levels();
     init_game(&game);
+
+    fps_init(60);
+    srand(time(NULL));
+    
+    mode = MAIN_MENU;
+    gameRunning = true;
 }
 
 static void main_loop(void)
 {
-
     while (gameRunning && !key_held(SDLK_ESCAPE))
     {
         process_events();
@@ -114,8 +106,10 @@ static void internal_tick(void)
         //check if they've lost or beaten the game
         if (is_game_over(&game) || has_beaten_game(&game))
         {
+            printf("gameover\n");
             set_score(&hsManager, game.player.score);
             mode = POST_GAME;
+            printf("gameovers\n");
         }
 
         break;
@@ -173,7 +167,6 @@ static void internal_keydown(unsigned char key)
     }
 
 }
-
 
 static void process_events(void)
 {

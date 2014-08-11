@@ -46,8 +46,6 @@ struct Ball
 {
     cpShape *ballShape;
     cpBody *ballBody;
-    SDL_Color color;
-    bool inUse;                         //true if ball is being displayed/ etc, on screen right now
 };
 
 struct Player
@@ -71,7 +69,6 @@ struct Paddle
     int width;
     int realWidth;
     int height;
-    SDL_Color color;
 };
 
 struct Game
@@ -94,3 +91,11 @@ struct Game
 
 //Dynamically allocates memory for, and initialises, a new ball.
 struct Ball *init_ball(struct Game *game, float x, float y);
+
+//Frees a ball, removing it from the physics engine and also freeing the underling memory.
+void free_ball(struct Game *game, struct Ball *ball);
+
+//Initialises the paddle, allocating memory for it, etc.
+void init_paddle(struct Game *game);
+//Resets a paddle back to its starting location and size.
+void reset_paddle(struct Game *game);

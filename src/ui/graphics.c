@@ -96,9 +96,18 @@ void center_print(float y, const char* text, float r, float g, float b, float a)
 
 void draw_string(float x, float y, const char* text, float r, float g, float b, float a)
 {
+    if (text == NULL || strlen(text) == 0) return;
+
     SDL_Surface *text_surface;
     SDL_Color text_color = {r * 255, g * 255, b * 255, 0};
     text_surface = TTF_RenderText_Blended(font, text, text_color);
+    
+    if (text_surface == NULL)
+    {
+        printf("surface was null for string: %s\n", text);
+        exit(1);
+    }
+
     SetSurfaceAlpha(text_surface, a * 255);
 
     //TODO: the - 27 is a hack because changing to SDL caused a weird offset.

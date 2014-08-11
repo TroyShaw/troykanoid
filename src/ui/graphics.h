@@ -18,7 +18,7 @@ void draw_circle(float cx, float cy, float r);
 //fills a circle centered at (cx, cy) of radius r, in the last color that was set
 void fill_circle(float cx, float cy, float r);
 
-//Draws image
+//Draws image with top left corner of image at (x, y) with origin at bottom left corner of the screen.
 void draw_image(float x, float y, SDL_Surface *image);
 
 //draws text centered on x axis at y value
