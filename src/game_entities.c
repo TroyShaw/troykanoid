@@ -61,11 +61,6 @@ void init_paddle(struct Game *game)
 
     //initialise the side bumpers
     float bumperRadius = PADDLE_DEFAULT_HEIGHT / 2;
-
-    float bumperY = paddleY - PADDLE_DEFAULT_HEIGHT / 2;
-    float bumperLeftX = paddleX;
-    float bumperRightX = paddleX + PADDLE_DEFAULT_WIDTH;
-
     float xOffset = PADDLE_DEFAULT_WIDTH / 2;
 
     game->paddle.leftBallBumper = cpSpaceAddShape(game->space, cpCircleShapeNew(game->paddle.paddleBody, bumperRadius, cpv(-xOffset, 0)));
@@ -100,7 +95,6 @@ void init_paddle(struct Game *game)
 void reset_paddle(struct Game *game)
 {
     //reset the width, the location, and also any movement speed
-    int paddleY = PADDLE_DEFAULT_HEIGHT;
     int paddleX = (WIDTH - PADDLE_DEFAULT_WIDTH) / 2;
 
     cpVect pos = cpBodyGetPos(game->paddle.paddleBody);

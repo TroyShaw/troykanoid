@@ -84,8 +84,6 @@ void tick_game(struct Game *game)
         if (game->numBalls == 0) initiate_death(game);
         if (game->level.blocksLeft == 0) goto_next_level(game);
     }
-
-    printf("num balls: %d\n", game->numBalls);
 }
 
 static void move_player(struct Game *game)
@@ -191,7 +189,6 @@ static void ball_block_collisions(struct Game *game)
                     continue;
                 }
 
-
                 b->inUse = false;
                 b->collided = false;
                 game->level.blocksLeft--;
@@ -264,34 +261,34 @@ static void post_collision_callback(cpSpace *space, cpShape *shape, void *unused
 
 static cpBool ball_paddle_pre_solve(cpArbiter *arb, cpSpace *space, void *ignore)
 {
-    cpShape *a, *b; 
-    cpArbiterGetShapes(arb, &a, &b);
+    // cpShape *a, *b; 
+    // cpArbiterGetShapes(arb, &a, &b);
 
-    //struct Ball *ball = (struct Ball*) cpShapeGetUserData(a);
-    //struct Paddle *paddle = (struct Paddle*) cpShapeGetUserData(b);
+    // //struct Ball *ball = (struct Ball*) cpShapeGetUserData(a);
+    // //struct Paddle *paddle = (struct Paddle*) cpShapeGetUserData(b);
 
-    cpVect vel = cpArbiterGetSurfaceVelocity(arb);
+    // cpVect vel = cpArbiterGetSurfaceVelocity(arb);
 
-    //cpArbiterSetSurfaceVelocity(arb, cpv(500, 500));
-    //cpArbiterSetElasticity(arb, 0);
+    // //cpArbiterSetSurfaceVelocity(arb, cpv(500, 500));
+    // //cpArbiterSetElasticity(arb, 0);
 
-    //printf("%f %f\n", vel.x, vel.y);
+    // //printf("%f %f\n", vel.x, vel.y);
 
-    cpContactPointSet set = cpArbiterGetContactPointSet(arb);
+    // cpContactPointSet set = cpArbiterGetContactPointSet(arb);
     
-    for(int i=0; i<set.count; i++){
-        // get and work with the collision point normal and penetration distance:
-        cpVect p = set.points[i].point;             //x and y coordinate on-screen (from origin) of collision
-        cpVect n = set.points[i].normal;            //the normal?
-        cpFloat d = set.points[i].dist;             //the penetration distance of the collision
+    // for(int i=0; i<set.count; i++){
+    //     // get and work with the collision point normal and penetration distance:
+    //     cpVect p = set.points[i].point;             //x and y coordinate on-screen (from origin) of collision
+    //     cpVect n = set.points[i].normal;            //the normal?
+    //     cpFloat d = set.points[i].dist;             //the penetration distance of the collision
 
-        //printf("(%f, %f), (%f, %f), %f\n", p.x, p.y, n.x, n.y, d);
+    //     //printf("(%f, %f), (%f, %f), %f\n", p.x, p.y, n.x, n.y, d);
 
-        set.points[i].normal = cpv(0, -1);
-        //set.points[i].dist = 10;
-    }
+    //     set.points[i].normal = cpv(0, -1);
+    //     //set.points[i].dist = 10;
+    // }
 
-    cpArbiterSetContactPointSet(arb, &set);
+    // cpArbiterSetContactPointSet(arb, &set);
 
     return true;
 }

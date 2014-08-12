@@ -10,7 +10,7 @@ bool init_window(const char* title, int width, int height)
 		return false;
 	}
 
-	screen = SDL_SetVideoMode(width, height, 32, SDL_SWSURFACE);
+	screen = SDL_SetVideoMode(width, height, 32, SDL_HWSURFACE);
 
 	if (screen == NULL)
 	{

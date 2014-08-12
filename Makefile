@@ -31,6 +31,7 @@ LibPaths_Debug    :=
 LibPaths_Release  :=
 # Compiler specific flags (CFlags is included before mode specific CFlags_MODE)
 CFlags            := -std=c99 -pedantic -Wall -Wextra -Wshadow -Wcast-qual -Wwrite-strings -Wstrict-prototypes -Wformat-nonliteral -Wformat-y2k
+CFlags            += -Wno-unused-parameter
 CFlags_Debug      := -g
 CFlags_Release    := -O2
 # Linker specific flags (LFlags is included before mode specific LFlags_MODE)

@@ -197,6 +197,11 @@ void enter_char(struct HighscoreManager *m, unsigned char c)
     }
 }
 
+bool made_highscore(struct HighscoreManager *highscoreManager)
+{
+    return highscoreManager->position != -1;
+}
+
 bool verify_highscore_name(struct HighscoreManager *highscoreManager)
 {
     return strlen(highscoreManager->nameBuffer) > 0;

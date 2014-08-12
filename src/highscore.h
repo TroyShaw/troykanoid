@@ -39,5 +39,8 @@ void enter_char(struct HighscoreManager *highscoreManager, unsigned char c);
 //Verifies the high-score name has more than 1 character.
 bool verify_highscore_name(struct HighscoreManager *highscoreManager);
 
+//Returns true if the user made it into the highscore table with the last entered score.
+bool made_highscore(struct HighscoreManager *highscoreManager);
+
 //Returns the time in milliseconds since the last valid key press (backspace included).
 unsigned int get_last_press(void);

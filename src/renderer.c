@@ -83,7 +83,6 @@ void renderGame(struct Game *game)
 //end draw forcefield
 
 //draw player
-    draw_image(0, 20, paddle_left_bumper_image());
     cpVect paddlePos = cpBodyGetPos(game->paddle.paddleBody);
     //coords we display at
     
@@ -109,13 +108,6 @@ void renderGame(struct Game *game)
         draw_image(x, paddleY + paddle.height, paddle_center_image());
     }
 //end draw player
-
-//draw paddle damper
-    cpVect paddleDampPos = cpBodyGetPos(game->paddleDamper->body);
-
-    //set_color3f(paddle.color.r, paddle.color.g, paddle.color.b);
-    //fill_rect(paddleDampPos.x, paddleDampPos.y, WIDTH, 1);
-//end draw paddle maper
 
 //info strings
     set_color4f(150, 150, 150, 100);
@@ -254,10 +246,13 @@ void renderPostGame(struct Game *game, struct HighscoreManager *hsManager)
     char won2[] = "You completed Troykanoid!";
     char lost[] = "Oh no! You died!";
 
-    char noHS[] = "You didn't make it onto the highscores... Press enter to continue";
-    char highscore[] = "You came xxx!";
+    char noHS1[] = "You didn't make it onto the highscores...";
+    char noHS2[] = "Press enter to continue!";
+
     char prompt[] = "Enter your name and press enter!";
 
+    char highscore[256];
+    
     int i = hsManager->position;
 
     if (game->currentLevel == NUM_LEVELS)
@@ -272,34 +267,19 @@ void renderPostGame(struct Game *game, struct HighscoreManager *hsManager)
 
     if (i != -1)
     {
-        //add 1st/2nd/3rd etc to string
-        //1st - 2nd - 3rd - 4/5/6/7/8/9th
         switch (i)
         {
         case 1:
-            highscore[9] = '1';
-            highscore[10] = 's';
-            highscore[11] = 't';
+            sprintf(highscore, "You came %s!", "1st");
             break;
         case 2:
-            highscore[9]  = '2';
-            highscore[10] = 'n';
-            highscore[11] = 'd';
+            sprintf(highscore, "You came %s!", "2nd");
             break;
         case 3:
-            highscore[9]  = '3';
-            highscore[10] = 'r';
-            highscore[11] = 'd';
+            sprintf(highscore, "You came %s!", "3rd");
             break;
-        case 4:
-        case 5:
-        case 6:
-        case 7:
-        case 8:
-        case 9:
-            highscore[9]  = '0' + i;
-            highscore[10] = 't';
-            highscore[11] ='h';
+        case 4: case 5: case 6: case 7: case 8: case 9:
+            sprintf(highscore, "You came %d%s!", i, "th");
             break;
         }
 
@@ -324,6 +304,7 @@ void renderPostGame(struct Game *game, struct HighscoreManager *hsManager)
     }
     else
     {
-        center_print(HEIGHT - 250, noHS, 1, 1, 1, 1);
+        center_print(HEIGHT - 240, noHS1, 1, 1, 1, 1);
+        center_print(HEIGHT - 270, noHS2, 1, 1, 1, 1);
     }
 }
