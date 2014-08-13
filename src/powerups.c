@@ -6,21 +6,21 @@
 #include "powerups.h"
 #include "util.h"
 
+//Allocates memory for the given powerup at that location
+struct Powerup *internal_generate_powerup(struct Game *game, float x, float y);
+
+//Frees the powerup
+void free_powerup(struct Powerup *powerup);
+
 void reset_powerup_manager(struct PowerupManager *manager)
 {
-    for (int i = 0; i < POWERUP_ARRAY_SIZE; i++)
+    for (GSList *l = manager->powerups; l != NULL; l = l->next)
     {
-        struct Powerup* p = &manager->powerups[i];
-        
-        //set the width and height cause it isn't initialized anywhere else...
-        //TODO: actually maybe it can be set on powerup creation..? 
-        p->height = 5;
-        p->width = 5;
-        p->inUse = false;
-
-        //set this number negative so that we don't render them at the start of the game
-        p->tick_pickedup = -10000;
+        free_powerup(l->data);
     }
+
+    g_slist_free(manager->powerups);
+    manager->powerups = NULL;
 
     manager->forceField = false;
     manager->forceFieldCount = 0;
@@ -32,17 +32,15 @@ void reset_powerup_manager(struct PowerupManager *manager)
     manager->stickyCount = 0;
 }
 
-void moveAndProcessPowerups(struct PowerupManager *manager, struct Game *game)
+void move_and_process_powerups(struct PowerupManager *manager, struct Game *game)
 {
     struct Player *player = &game->player;
     struct Paddle *paddle = &game->paddle;
 
-    for (int i = 0; i < POWERUP_ARRAY_SIZE; i++)
+    for (GSList *l = manager->powerups; l != NULL; l = l->next)
     {
-        struct Powerup *p = &manager->powerups[i];
+        struct Powerup *p = l->data;
         
-        if (!p->inUse) continue;
-
         //if we've collided, do some logic
         //if (rectToRect(paddle->x, paddle->y, paddle->width, paddle->height, p->x, p->y, p->width, p->height))
         if (false)
@@ -92,7 +90,7 @@ void moveAndProcessPowerups(struct PowerupManager *manager, struct Game *game)
             player->score += POWERUP_POINTS;
 
             //show powerup not in use now
-            p->inUse = false;
+            //p->inUse = false;
 
             //record the time of pickup
             p->tick_pickedup = frames_game();
@@ -100,10 +98,10 @@ void moveAndProcessPowerups(struct PowerupManager *manager, struct Game *game)
         else
         {
             //else we drop the powerup
-            p->y -= POWERUP_DROP_SPEED;
+            //p->y -= POWERUP_DROP_SPEED;
             
             //if it's below the ground, we set it to not be in use
-            p->inUse = (p->y + p->height) > 0;
+            //p->inUse = (p->y + p->height) > 0;
         }
     }
 
@@ -163,27 +161,48 @@ void double_balls(struct Game *game)
     game->numBalls += numNewBalls;
 }
 
+void free_powerup(struct Powerup *powerup)
+{
+    cpSpace *space = cpBodyGetSpace(powerup->powerupBody);
+
+    cpSpaceRemoveBody(space, powerup->powerupBody);
+    cpSpaceRemoveShape(space, powerup->powerupShape);
+
+    cpBodyFree(powerup->powerupBody);
+    cpShapeFree(powerup->powerupShape);
+
+    free(powerup);
+}
+
+struct Powerup *internal_generate_powerup(struct Game *game, float x, float y)
+{
+    struct Powerup* p = malloc(sizeof *p);
+
+    p->type = (enum Powerups) (randF() * NUM_POWERUPS);
+    p->width = 10;
+    p->height = 10;
+    p->tick_pickedup = 0;
+
+    p->powerupBody = cpSpaceAddBody(game->space, cpBodyNew(1, INFINITY));
+    
+    p->powerupShape = cpSpaceAddShape(game->space, cpBoxShapeNew(p->powerupBody, p->width, p->height));
+    cpBodySetPos(p->powerupBody, cpv(x, y));    
+    //TODO: set this to something else
+    cpShapeSetGroup(p->powerupShape, 8);
+    //cpShapeSetCollisionType(game->paddle.paddleShape, PADDLE_COLLISION_TYPE);
+    cpShapeSetLayers(p->powerupShape, POWERUP_PADDLE_LAYER);
+    cpShapeSetUserData(p->powerupShape, p);
+
+    cpBodyApplyImpulse(p->powerupBody, cpv(0, POWERUP_DROP_VELOCITY), cpvzero);
+
+    return p;
+}
+
 void generate_powerup(struct Game *game, int x, int y)
 {
-    int w = 10, h = 10;
-    int i;
-    struct Powerup *p;
+    struct Powerup *p = internal_generate_powerup(game, x, y);
 
-    for (i = 0; i < POWERUP_ARRAY_SIZE; i++)
-    {
-        p = &game->powerupManager.powerups[i];
-        if (p->inUse) continue;
-
-        p->width = w;
-        p->height = h;
-        p->x = x - w / 2;
-        p->y = y - h / 2;
-        p->type = (enum Powerups) (randF() * NUM_POWERUPS);
-        p->inUse = true;
-
-        //return since we only generate 1 powerup
-        return;
-    }
+    game->powerupManager.powerups = g_slist_append(game->powerupManager.powerups, p);
 }
 
 const char* powerup_name(enum Powerups powerup)

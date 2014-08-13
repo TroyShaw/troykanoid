@@ -24,6 +24,7 @@
 #define WALL_BUMPER_LAYER       0x00010000
 #define BALL_BLOCK_LAYER        0x00100000
 #define UNUSED_BLOCK_LAYER      0x01000000
+#define POWERUP_PADDLE_LAYER   0x100000000
 
 //These are identifiers for each entity, used for the collision callbacks
 #define BALL_COLLISION_TYPE  1

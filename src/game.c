@@ -78,7 +78,7 @@ void tick_game(struct Game *game)
     {
         move_player(game);
         move_balls(game);
-        moveAndProcessPowerups(&game->powerupManager, game);
+        move_and_process_powerups(&game->powerupManager, game);
         ball_block_collisions(game);
 
         if (game->numBalls == 0) initiate_death(game);
@@ -120,7 +120,7 @@ static void move_balls(struct Game *game)
             toRemoveList = g_slist_append(toRemoveList, ball);
         }
 
-        //do some sanity checks though, make sure the ball hasn't gone outside the bounds while moving/ left/ left
+        //do some sanity checks though, make sure the ball hasn't gone outside the bounds while moving/ left/ right
         if (pos.x < 0 || pos.x > WIDTH || pos.y > HEIGHT)
         {
             toRemoveList = g_slist_append(toRemoveList, ball);

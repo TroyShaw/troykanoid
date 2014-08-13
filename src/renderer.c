@@ -33,24 +33,25 @@ void renderGame(struct Game *game)
 //end draw ball
 
 //draw powerups
-    for (int i = 0; i < POWERUP_ARRAY_SIZE; i++)
+    for (GSList *l = manager.powerups; l != NULL; l = l->next)
     {
-        struct Powerup p = manager.powerups[i];
+        struct Powerup *p = l->data;
+        cpVect pos = cpBodyGetPos(p->powerupBody);
 
-        if (!p.inUse)
+        if (false) //!p->inUse) TODO: make it fade up
         {
             //draw the powerup string as well. Fade upwards for about a second
-            int millis = frames_to_millis(frames_game() - p.tick_pickedup);
+            int millis = frames_to_millis(frames_game() - p->tick_pickedup);
 
             if (millis < 1000)
             {
                 float dt = millis / 1000.0f;
-                draw_string(p.x, p.y + 10 + dt * 50, powerup_name(p.type), 1, 1, 1, 1 - 1 * dt);
+                draw_string(pos.x, pos.y + 10 + dt * 50, powerup_name(p->type), 1, 1, 1, 1 - 1 * dt);
             }
         }
         else
         {            
-            fill_rect(p.x, p.y, p.width, p.height);
+            draw_image(pos.x - p->width / 2.0, pos.y + p->height / 2.0, powerup_image());
         }
     }
 //end draw powerups

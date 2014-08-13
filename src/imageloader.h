@@ -10,6 +10,10 @@ SDL_Surface* paddle_center_image(void);
 
 SDL_Surface* ball_image(void);
 
+SDL_Surface* powerup_image(void);
+
+SDL_Surface *bullet_image(void);
+
 SDL_Surface* background_image(void);
 
 SDL_Surface* brick_white_image(void);

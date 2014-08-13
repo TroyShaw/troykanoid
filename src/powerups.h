@@ -1,14 +1,9 @@
 #pragma once
 
 #include <stdbool.h>
+#include <glib.h>
 
-//TODO: currently a powerup can be displaying it's grab text, and the code to generate a new powerup will select it to drop
-//meaning that the text will suddenly disappear if the ball happens to hit another block and a powerup is generated
-//need to add in a check for this (maybe states the powerup can be in)
-
-#define POWERUP_ARRAY_SIZE 32           //the max number, and size of the array, of the powerups
-
-#define POWERUP_DROP_SPEED 4            //the drop speed in pixels per game tick
+#define POWERUP_DROP_VELOCITY -200      //the drop speed in pixels per game tick
 #define POWERUP_PROB 0.8                //the probability of a powerup appearing on block destruction
 #define POWERUP_POINTS 50               //amount of points you get for picking up a powerup
 #define FORCE_FIELD_COUNTDOWN 600       //number of ticks it takes before forcefield goes away
@@ -36,40 +31,37 @@ enum Powerups
 
 struct Powerup
 {
-    int x;                              //x coord of powerup
-    int y;                              //y coord of powerup
+    struct cpShape *powerupShape;
+    struct cpBody *powerupBody;
     int width;                          //width of powerup
     int height;                         //height of powerup
     enum Powerups type;                 //type of powerup. Check above for different types
-    bool inUse;                         //true if we are displaying powerup on screen
     long int tick_pickedup;             //the frames_game() we picked this powerup at
 };
 
 struct PowerupManager
 {
-    struct Powerup powerups[POWERUP_ARRAY_SIZE];    //the array of all powerups.
+    GSList *powerups;                               //the powerups
     bool forceField;                                //true if the user has activated the forcefield
     int forceFieldCount;                            //ticks left the field has
     bool meteor;                                    //true if the balls are in meteor mode (go straight through destructible blocks)
     int meteorCount;                                //ticks left the meteor has
     bool sticky;                                    //true if the balls stick to paddle
-    int stickyCount;                                 //ticks left sticky has
+    int stickyCount;                                //ticks left sticky has
 };
 
-//forward declaration of Game struct
-//TODO: can we remove this?
+//forward declaration of the Game struct
 struct Game;
 
 //Resets the powerup-manager to a fresh state. Should be called at the start of each level.
 void reset_powerup_manager(struct PowerupManager *manager);
 
-void moveAndProcessPowerups(struct PowerupManager *manager, struct Game *game);          //moves the powerups. If there
+void move_and_process_powerups(struct PowerupManager *manager, struct Game *game);
 
-//generates a new powerup (assumes a block has been destroyed and probability determined to generate one)
-//x and y are the middle of the block in which the powerup was destroyed. It needs to be adjusted
-//for the width of the powerup too
-void generate_powerup(struct Game *game, int x, int y);      //generates a random powerup at the given (x,y) coordinates
+//generates a random powerup at the given (x,y) coordinates
+void generate_powerup(struct Game *game, int x, int y);      
 
+//Gets the powerups name.
 const char* powerup_name(enum Powerups powerup);
 
 void double_balls(struct Game *game);

@@ -7,18 +7,23 @@
 
 #define PADDLE_DIR "paddle/"
 #define BRICKS_DIR "bricks/"
+#define POWERUP_DIR "powerups/"
 
 //loads an image from filename and returns it as an SDL_Surface
 static SDL_Surface *load_image(const char *filename);
 
 static void load_paddle_images(void);
 static void dispose_paddle_images(void);
+static void load_powerup_images(void);
+static void dispose_powerup_images(void);
 static void load_brick_images(void);
 static void dispose_brick_images(void);
 
 static SDL_Surface *paddleLeftBumper;
 static SDL_Surface *paddleRightBumper;
 static SDL_Surface *paddleCenter;
+
+static SDL_Surface *powerup;
 
 static SDL_Surface *ball;
 
@@ -29,6 +34,7 @@ static SDL_Surface *blueBrick, *pinkBrick, *yellowBrick, *silverBrick, *goldBric
 
 void load_images(void)
 {
+    load_powerup_images();
     load_paddle_images();
     load_brick_images();
 
@@ -39,6 +45,7 @@ void load_images(void)
 
 void dispose_images(void)
 {
+    dispose_powerup_images();
     dispose_paddle_images();
     dispose_brick_images();
 }
@@ -55,6 +62,16 @@ static void dispose_paddle_images(void)
     SDL_FreeSurface(paddleLeftBumper);
     SDL_FreeSurface(paddleRightBumper);
     SDL_FreeSurface(paddleCenter);
+}
+
+static void load_powerup_images(void)
+{
+    powerup = load_image(DIR POWERUP_DIR "powerup.png");
+}
+
+static void dispose_powerup_images(void)
+{
+    SDL_FreeSurface(powerup);
 }
 
 static void load_brick_images(void)
@@ -105,42 +122,14 @@ SDL_Surface* ball_image(void)
     return ball;
 }
 
+SDL_Surface* powerup_image(void)
+{
+    return powerup;
+}
+
 SDL_Surface* background_image(void)
 {
     return background;
-}
-
-static SDL_Surface *load_image(const char *filename)
-{
-    printf("loading image: %s\n", filename);
-    
-    //The image that's loaded
-    SDL_Surface* loadedImage = NULL;
-
-    //The optimized image that will be used
-    SDL_Surface* optimizedImage = NULL;
-
-    //Load the image using SDL_image
-    loadedImage = IMG_Load(filename);
-
-    //If the image loaded
-    if(loadedImage != NULL)
-    {
-        //Create an optimized image
-        optimizedImage = SDL_DisplayFormatAlpha(loadedImage);
-
-        //Free the old image
-        SDL_FreeSurface(loadedImage);
-    }
-    else
-    {
-        printf("Error opening image %s\n", filename);
-        printf("Aborting.\n");
-        exit(1);
-    }
-
-    //Return the optimized image
-    return optimizedImage;
 }
 
 SDL_Surface* brick_white_image(void)
@@ -193,3 +182,36 @@ SDL_Surface* brick_gold_image(void)
     return goldBrick;
 }
 
+
+static SDL_Surface *load_image(const char *filename)
+{
+    printf("loading image: %s\n", filename);
+    
+    //The image that's loaded
+    SDL_Surface* loadedImage = NULL;
+
+    //The optimized image that will be used
+    SDL_Surface* optimizedImage = NULL;
+
+    //Load the image using SDL_image
+    loadedImage = IMG_Load(filename);
+
+    //If the image loaded
+    if(loadedImage != NULL)
+    {
+        //Create an optimized image
+        optimizedImage = SDL_DisplayFormatAlpha(loadedImage);
+
+        //Free the old image
+        SDL_FreeSurface(loadedImage);
+    }
+    else
+    {
+        printf("Error opening image %s\n", filename);
+        printf("Aborting.\n");
+        exit(1);
+    }
+
+    //Return the optimized image
+    return optimizedImage;
+}

@@ -195,8 +195,13 @@ static void process_events(void)
 {
     static SDL_Event event;
 
+    if (mode == POST_GAME) SDL_EnableUNICODE(1);
+    else SDL_EnableUNICODE(0);
+
     while (SDL_PollEvent(&event))
     {
+        int key;
+
         switch (event.type)
         {
             case SDL_QUIT:
@@ -204,8 +209,11 @@ static void process_events(void)
 
                 break;
             case SDL_KEYDOWN:
-                handle_keydown(event.key.keysym.sym);
-                internal_keydown(event.key.keysym.sym);
+                if (mode == POST_GAME) key = event.key.keysym.unicode;
+                else key = event.key.keysym.sym;
+
+                handle_keydown(key);
+                internal_keydown(key);
                 break;
             case SDL_KEYUP:
                 handle_keyup(event.key.keysym.sym);
