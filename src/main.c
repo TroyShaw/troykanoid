@@ -1,8 +1,6 @@
 #include <stdbool.h>
 #include <stdio.h>
 
-#include <sys/time.h>
-
 #include <SDL/SDL.h>
 
 #include "defines.h"
@@ -16,10 +14,6 @@
 #include "renderer.h"
 #include "ui/graphics.h"
 #include "ui/window.h"
-
-#define PERF_MON false
-
-static uint64_t clock_get_time(void);
 
 static void startup_init(void);
 static void main_loop(void);
@@ -70,22 +64,8 @@ static void main_loop(void)
     {
         process_events();
 
-        int tickBefore, tickAfter;
-        int renderBefore, renderAfter;
-
-        tickBefore = clock_get_time();
-        internal_tick();
-        tickAfter = clock_get_time();
-
-        renderBefore = clock_get_time();
+        internal_tick();        
         internal_render();
-        renderAfter = clock_get_time();
-
-        if (PERF_MON)
-        {
-            printf("tick:  %d\n", tickAfter - tickBefore);    
-            printf("render %d\n", renderAfter - renderBefore);
-        }
 
         fps_sleep();
     }
@@ -225,10 +205,4 @@ static void process_events(void)
     keyevents_finished();
 }
 
-static uint64_t clock_get_time(void)
-{
-    struct timeval tv;
-    gettimeofday(&tv, NULL);
 
-    return (uint64_t)tv.tv_sec * 1000000LL + (uint64_t)tv.tv_usec;
-}
