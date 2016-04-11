@@ -21,7 +21,7 @@ Defines           :=
 Defines_Debug     := DEBUG
 Defines_Release   := RELEASE
 # List of Library Names (Libs is included before mode specific Libs_MODE)
-Libs              := SDL SDL_image SDL_ttf SDL_mixer SDL_gfx chipmunk
+Libs              := SDL2 SDL2_image SDL2_ttf SDL2_mixer SDL2_gfx chipmunk
 Libs_Debug        :=
 Libs_Release      :=
 Misc_Libs 		  := `pkg-config --cflags --libs glib-2.0`

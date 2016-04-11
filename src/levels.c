@@ -1,6 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include <SDL/SDL_image.h>
+#include <SDL2/SDL_image.h>
 
 #include "defines.h"
 #include "game_entities.h"
@@ -8,7 +8,7 @@
 #include "levels.h"
 
 //Returns the correct image for the given brick
-static SDL_Surface *get_image(char brickchar);
+static struct Texture get_image(char brickchar);
 
 //colored bricks take 1 hit each
 //silver bricks take 2 + level / 8
@@ -144,7 +144,7 @@ void init_levels(void)
     colors[9] = (SDL_Color) {217, 217,  26, 0};     // gold
 }
 
-static SDL_Surface *get_image(char brickchar)
+static struct Texture get_image(char brickchar)
 {
     switch (brickchar)
     {

@@ -1,7 +1,7 @@
 #include <stdbool.h>
 #include <stdio.h>
 
-#include <SDL/SDL.h>
+#include <SDL2/SDL.h>
 
 #include "defines.h"
 #include "fps.h"
@@ -175,9 +175,6 @@ static void process_events(void)
 {
     static SDL_Event event;
 
-    if (mode == POST_GAME) SDL_EnableUNICODE(1);
-    else SDL_EnableUNICODE(0);
-
     while (SDL_PollEvent(&event))
     {
         int key;
@@ -189,8 +186,7 @@ static void process_events(void)
 
                 break;
             case SDL_KEYDOWN:
-                if (mode == POST_GAME) key = event.key.keysym.unicode;
-                else key = event.key.keysym.sym;
+                key = event.key.keysym.sym;
 
                 handle_keydown(key);
                 internal_keydown(key);

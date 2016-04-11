@@ -2,7 +2,7 @@
 
 //does a check to ensure the given keycode is within the bounds of valid keys
 //stops the program with an error if it is out of bounds
-static void check_keycode(int keycode);
+static bool check_keycode(int keycode);
 
 //gets the frame this direction was pressed.
 //Uses both wasd and arrow keys.
@@ -22,7 +22,7 @@ void keyevents_finished(void)
 
 void handle_keydown(int keycode)
 {
-	check_keycode(keycode);
+	if (!check_keycode(keycode)) return;
 
 	if (!keysHeld[keycode]) keysPressedFrame[keycode] = curKeyFrame;
 
@@ -31,7 +31,7 @@ void handle_keydown(int keycode)
 
 void handle_keyup(int keycode)
 {
-	check_keycode(keycode);
+	if (!check_keycode(keycode)) return;
 
 	if (keysHeld[keycode]) keysReleasedFrame[keycode] = curKeyFrame;
 
@@ -40,12 +40,13 @@ void handle_keyup(int keycode)
 
 bool dir_key_held(Direction direction)
 {
+
 	switch (direction)
 	{
-		case Up:    return keysHeld[SDLK_UP]    || keysHeld[SDLK_w];
-		case Down:  return keysHeld[SDLK_DOWN]  || keysHeld[SDLK_s];
-		case Left:  return keysHeld[SDLK_LEFT]  || keysHeld[SDLK_a];
-		case Right: return keysHeld[SDLK_RIGHT] || keysHeld[SDLK_d];
+		case Up:    return keysHeld[SDLK_w];// || keysHeld[SDLK_UP]    || ;
+		case Down:  return keysHeld[SDLK_s];// || keysHeld[SDLK_DOWN]  || ;
+		case Left:  return keysHeld[SDLK_a];// || keysHeld[SDLK_LEFT]  || ;
+		case Right: return keysHeld[SDLK_d];// || keysHeld[SDLK_RIGHT] || ;
 	}
 
 	printf("should never reach here\n");
@@ -76,21 +77,21 @@ bool dir_pressed_now(Direction *dir)
 
 bool key_held(int keycode)
 {
-	check_keycode(keycode);
+	if (!check_keycode(keycode)) return false;
 
 	return keysHeld[keycode];
 }
 
 bool key_pressed(int keycode)
 {
-	check_keycode(keycode);
+	if (!check_keycode(keycode)) return false;
 
 	return keysPressedFrame[keycode] == (curKeyFrame - 1);
 }
 
 bool key_released(int keycode)
 {
-	check_keycode(keycode);
+	if (!check_keycode(keycode)) return false;
 
 	return keysReleasedFrame[keycode] == (curKeyFrame - 1);
 }
@@ -125,12 +126,17 @@ static int frame_for_direction(Direction dir)
 	exit(1);
 }
 
-static void check_keycode(int keycode)
+static bool check_keycode(int keycode)
 {
 	if (keycode >= MAX_KEYS)
 	{
 		printf("Keycode %d is out of range.\n", keycode);
-		printf("Aborting\n");
-		exit(1);
+		//printf("Aborting\n");
+		//exit(1);
+		return false;
+	}
+	else
+	{
+		return true;
 	}
 }

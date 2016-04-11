@@ -1,6 +1,8 @@
 #pragma once
 
-#include <SDL/SDL_image.h>
+#include <SDL2/SDL_image.h>
+
+#include "texture.h"
 
 //initializes the graphics engine
 void init_graphics(void);
@@ -19,7 +21,7 @@ void draw_circle(float cx, float cy, float r);
 void fill_circle(float cx, float cy, float r);
 
 //Draws image with top left corner of image at (x, y) with origin at bottom left corner of the screen.
-void draw_image(float x, float y, SDL_Surface *image);
+void draw_image(float x, float y, struct Texture image);
 
 //draws text centered on x axis at y value
 void center_print(float y, const char* text, float r, float g, float b, float a);

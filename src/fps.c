@@ -1,6 +1,6 @@
 #include "fps.h"
 
-#include <SDL/SDL_framerate.h>
+#include <SDL2/SDL2_framerate.h>
 
 static FPSmanager fpsManager;
 static int fpsHz;

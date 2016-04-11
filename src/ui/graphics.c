@@ -1,11 +1,11 @@
-#include <SDL/SDL_gfxPrimitives.h>
-#include <SDL/SDL_ttf.h>
+#include <SDL2/SDL2_gfxPrimitives.h>
+#include <SDL2/SDL_ttf.h>
 
 #include "defines.h"
 #include "ui/window.h"
 #include "ui/graphics.h"
 
-static void SetSurfaceAlpha (SDL_Surface *surface, Uint8 alpha);
+//static void SetSurfaceAlpha (SDL_Surface *surface, Uint8 alpha);
 
 static int col_r, col_g, col_b, col_a;
 static TTF_Font *font;
@@ -13,6 +13,8 @@ static TTF_Font *font;
 void init_graphics(void)
 {
     //first init the font library
+    IMG_Init(IMG_INIT_PNG);
+
     if (TTF_Init() != 0)
     {
         printf("failed to init SDL_ttf: %s\n", TTF_GetError());
@@ -55,32 +57,32 @@ void set_color4f(int r, int g, int b, int a)
 //TODO: these functions seem to draw rectangles 1 pixel too high. Investigate
 void fill_rect(float x, float y, float w, float h)
 {
-    boxRGBA(get_screen(), x, get_y(y), x + w, get_y(y + h), col_r, col_g, col_b, col_a);
+    boxRGBA(get_renderer(), x, get_y(y), x + w, get_y(y + h), col_r, col_g, col_b, col_a);
 }
 
 void draw_rect(float x, float y, float w, float h)
 {
-    rectangleRGBA(get_screen(), x, get_y(y), x + w, get_y(y + h), col_r, col_g, col_b, col_a);
+    rectangleRGBA(get_renderer(), x, get_y(y), x + w, get_y(y + h), col_r, col_g, col_b, col_a);
 }
 
 void draw_line(float x1, float y1, float x2, float y2)
 {
-    lineRGBA(get_screen(), x1, get_y(y1), x2, get_y(y2), col_r, col_g, col_b, col_a);
+    lineRGBA(get_renderer(), x1, get_y(y1), x2, get_y(y2), col_r, col_g, col_b, col_a);
 }
 
 void draw_circle(float cx, float cy, float r)
 {
-    aacircleRGBA(get_screen(), cx, get_y(cy), r, col_r, col_g, col_b, col_a);
+    aacircleRGBA(get_renderer(), cx, get_y(cy), r, col_r, col_g, col_b, col_a);
 }
 
 void fill_circle(float cx, float cy, float r)
 {
-    filledCircleRGBA(get_screen(), cx, get_y(cy), r, col_r, col_g, col_b, col_a);
+    filledCircleRGBA(get_renderer(), cx, get_y(cy), r, col_r, col_g, col_b, col_a);
 }
 
-void draw_image(float x, float y, SDL_Surface *image)
+void draw_image(float x, float y, struct Texture image)
 {
-    apply_surface((int) x, (int) get_y(y), image);
+    apply_textureReal((int) x, (int) get_y(y), image);
 }
 
 void center_print(float y, const char* text, float r, float g, float b, float a)
@@ -108,10 +110,10 @@ void draw_string(float x, float y, const char* text, float r, float g, float b, 
         exit(1);
     }
 
-    SetSurfaceAlpha(text_surface, a * 255);
+    SDL_Texture *textTexture = SDL_CreateTextureFromSurface(get_renderer(), text_surface);
 
     //TODO: the - 27 is a hack because changing to SDL caused a weird offset.
-    apply_surface(x - 5, get_y(y) - 29 + 5, text_surface);
+    apply_texture(x - 5, get_y(y) - 29 + 5, textTexture);
 }
 
 float get_y(float y)
@@ -127,44 +129,4 @@ int str_width(const char* str)
     TTF_SizeText(font, str, &size_w, &size_h);
 
     return size_w;
-}
-
-
-// Changes a surface's alpha value, by altering per-pixel alpha if necessary.
-// from http://stackoverflow.com/questions/3229391/sdl-sdl-ttf-transparent-blended-text
-static void SetSurfaceAlpha (SDL_Surface *surface, Uint8 alpha)
-{
-    SDL_PixelFormat* fmt = surface->format;
-
-    // If surface has no alpha channel, just set the surface alpha.
-    if( fmt->Amask == 0 ) {
-        SDL_SetAlpha( surface, SDL_SRCALPHA, alpha );
-    }
-    // Else change the alpha of each pixel.
-    else {
-        unsigned bpp = fmt->BytesPerPixel;
-        // Scaling factor to clamp alpha to [0, alpha].
-        float scale = alpha / 255.0f;
-
-        SDL_LockSurface(surface);
-
-        for (int y = 0; y < surface->h; ++y) 
-        for (int x = 0; x < surface->w; ++x) {
-            // Get a pointer to the current pixel.
-            Uint32* pixel_ptr = (Uint32 *)( 
-                    (Uint8 *)surface->pixels
-                    + y * surface->pitch
-                    + x * bpp
-                    );
-
-            // Get the old pixel components.
-            Uint8 r, g, b, a;
-            SDL_GetRGBA( *pixel_ptr, fmt, &r, &g, &b, &a );
-
-            // Set the pixel with the new alpha.
-            *pixel_ptr = SDL_MapRGBA( fmt, r, g, b, scale * a );
-        }   
-
-        SDL_UnlockSurface(surface);
-    }       
 }

@@ -1,8 +1,10 @@
 #pragma once
 
 #include <stdbool.h>
-#include <SDL/SDL.h>
+#include <SDL2/SDL.h>
 #include <chipmunk/chipmunk.h>
+
+#include "texture.h"
 
 #define NUM_LEVELS 35
 #define BLOCKS_ACROSS 11
@@ -30,7 +32,7 @@ struct Block
     bool indestructable;                    //if this block is indestructible; balls just bounce off it
     bool inUse;                             //true if we are displaying this
     bool collided;                          //true if this block was active this tick but has collided with a ball and should be processed
-    SDL_Surface *image;                     //the image. TODO: create a proper type and then a get_brick_image(type) method?
+    struct Texture image;                          //the image. TODO: create a proper type and then a get_brick_image(type) method?
 };
 
 struct Level
