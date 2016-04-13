@@ -195,13 +195,13 @@ static struct Texture load_image(const char *filename)
     SDL_SetColorKey( loadedImage, SDL_TRUE, SDL_MapRGB( loadedImage->format, 0, 0xFF, 0xFF ) );
     SDL_Texture *newTexture = SDL_CreateTextureFromSurface( get_renderer(), loadedImage );
 
-    SDL_FreeSurface(loadedImage);
-
     struct Texture texture;
 
     texture.texture = newTexture;
     texture.w = loadedImage->w;
     texture.h = loadedImage->h;
+
+    SDL_FreeSurface(loadedImage);
 
     return texture;
     //If the image loaded

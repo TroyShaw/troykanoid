@@ -82,7 +82,7 @@ void tick_game(struct Game *game)
         ball_block_collisions(game);
 
         if (game->numBalls == 0) initiate_death(game);
-        if (game->level.blocksLeft == 0) goto_next_level(game);
+        if (game->level.blocksLeft == 0 || key_pressed(SDLK_i)) goto_next_level(game);
     }
 }
 

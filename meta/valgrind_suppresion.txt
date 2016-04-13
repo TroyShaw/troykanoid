@@ -1,0 +1,107 @@
+{
+	nouveau_dri.so
+	Memcheck:Leak
+	obj:*/nouveau_dri.so
+}
+
+{
+   suppress-leak
+   Memcheck:Leak
+   match-leak-kinds: possible
+   fun:malloc
+   fun:strdup
+   obj:/usr/lib/x86_64-linux-gnu/dri/nouveau_dri.so
+}
+
+{
+   new
+   Memcheck:Leak
+   match-leak-kinds: possible
+   fun:_Znwm
+   obj:/usr/lib/x86_64-linux-gnu/dri/nouveau_dri.so
+   obj:/usr/lib/x86_64-linux-gnu/dri/nouveau_dri.so
+   obj:/usr/lib/x86_64-linux-gnu/dri/nouveau_dri.so
+   obj:/usr/lib/x86_64-linux-gnu/dri/nouveau_dri.so
+   obj:/usr/lib/x86_64-linux-gnu/dri/nouveau_dri.so
+   obj:/usr/lib/x86_64-linux-gnu/dri/nouveau_dri.so
+   obj:/usr/lib/x86_64-linux-gnu/dri/nouveau_dri.so
+   obj:/usr/lib/x86_64-linux-gnu/dri/nouveau_dri.so
+   obj:/usr/lib/x86_64-linux-gnu/libSDL2-2.0.so.0.2.0
+   obj:/usr/lib/x86_64-linux-gnu/libSDL2-2.0.so.0.2.0
+   obj:/usr/lib/x86_64-linux-gnu/libSDL2-2.0.so.0.2.0
+}
+
+{
+   <insert_a_suppression_name_here>
+   Memcheck:Leak
+   match-leak-kinds: possible
+   fun:malloc
+   obj:/usr/lib/x86_64-linux-gnu/dri/nouveau_dri.so
+   obj:/usr/lib/x86_64-linux-gnu/dri/nouveau_dri.so
+   obj:/usr/lib/x86_64-linux-gnu/dri/nouveau_dri.so
+   obj:/usr/lib/x86_64-linux-gnu/dri/nouveau_dri.so
+   obj:/usr/lib/x86_64-linux-gnu/dri/nouveau_dri.so
+   obj:/usr/lib/x86_64-linux-gnu/libSDL2-2.0.so.0.2.0
+   obj:/usr/lib/x86_64-linux-gnu/libSDL2-2.0.so.0.2.0
+   obj:/usr/lib/x86_64-linux-gnu/libSDL2-2.0.so.0.2.0
+   fun:load_image
+   fun:load_powerup_images
+   fun:load_images
+}
+
+{
+   <insert_a_suppression_name_here>
+   Memcheck:Leak
+   match-leak-kinds: possible
+   fun:malloc
+   fun:realloc
+   obj:/usr/lib/x86_64-linux-gnu/dri/nouveau_dri.so
+   obj:/usr/lib/x86_64-linux-gnu/dri/nouveau_dri.so
+   obj:/usr/lib/x86_64-linux-gnu/dri/nouveau_dri.so
+   obj:/usr/lib/x86_64-linux-gnu/dri/nouveau_dri.so
+   obj:/usr/lib/x86_64-linux-gnu/dri/nouveau_dri.so
+   obj:/usr/lib/x86_64-linux-gnu/dri/nouveau_dri.so
+   obj:/usr/lib/x86_64-linux-gnu/dri/nouveau_dri.so
+   obj:/usr/lib/x86_64-linux-gnu/dri/nouveau_dri.so
+   obj:/usr/lib/x86_64-linux-gnu/dri/nouveau_dri.so
+   obj:/usr/lib/x86_64-linux-gnu/libSDL2-2.0.so.0.2.0
+}
+
+{
+   ignore_libcrypto_conditional_jump_errors
+   Memcheck:Leak
+   ...
+   obj:*/nouveau_dri.so
+}
+
+{
+   ignore_X11_leaks
+   Memcheck:Leak
+   ...
+   obj:*/libX11.so.*
+}
+
+{
+   ignore_X11_leaks
+   Memcheck:Leak
+   ...
+   obj:*/libX11.so.*
+}
+
+{
+   <insert_a_suppression_name_here>
+   Memcheck:Leak
+   match-leak-kinds: possible
+   fun:calloc
+   fun:allocate_dtv
+   fun:_dl_allocate_tls
+   fun:allocate_stack
+   fun:pthread_create@@GLIBC_2.2.5
+   obj:/usr/lib/x86_64-linux-gnu/libSDL2-2.0.so.0.2.0
+   obj:/usr/lib/x86_64-linux-gnu/libSDL2-2.0.so.0.2.0
+   obj:/usr/lib/x86_64-linux-gnu/libSDL2-2.0.so.0.2.0
+   obj:/usr/lib/x86_64-linux-gnu/libSDL2-2.0.so.0.2.0
+   fun:init_window
+   fun:startup_init
+   fun:main
+}

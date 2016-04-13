@@ -112,8 +112,11 @@ void draw_string(float x, float y, const char* text, float r, float g, float b, 
 
     SDL_Texture *textTexture = SDL_CreateTextureFromSurface(get_renderer(), text_surface);
 
+    SDL_FreeSurface(text_surface);
+
     //TODO: the - 27 is a hack because changing to SDL caused a weird offset.
     apply_texture(x - 5, get_y(y) - 29 + 5, textTexture);
+    SDL_DestroyTexture(textTexture);
 }
 
 float get_y(float y)
