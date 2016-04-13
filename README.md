@@ -14,11 +14,21 @@ It uses the same level designs as the original arkanoid game.
 
 ###Dependencies
 Troykanoid depends on a few libraries including:
-- SDL 1.2
+- SDL 2
+- SDL_image
 - SDL_ttf
 - SDL_gfxPrimitves
-- SDL_image
-- Chipmunk
+- SDL_mixer
+- Chipmunk Physics Library
+
+To install these libraries in Ubuntu, type
+
+- `sudo apt-get install libsdl2-dev`
+- `sudo apt-get install libsdl2-image-dev`
+- `sudo apt-get install libsdl2-ttf-dev`
+- `sudo apt-get install libsdl2-gfx-dev`
+- `sudo apt-get install libsdl2-mixer-dev`
+- `sudo apt-get install chipmunk-dev`
 
 Ensure these libraries are present, then build by typing `make clean` followed by `make`. `make clean` is necessary first because it copies various resources files to the bin directory.
 
