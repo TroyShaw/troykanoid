@@ -23,7 +23,7 @@ static void internal_tick(void);
 static void internal_render(void);
 
 static void process_events(void);
-static void internal_keydown(unsigned char key);
+static void internal_keydown(SDL_Keysym key);
 
 static enum Mode mode;
 static struct Game game;
@@ -73,12 +73,18 @@ static void main_loop(void)
 
 static void clean_up(void)
 {
-    cleanup_graphics();
     dispose_images();
+    cleanup_graphics();
 }
 
 static void internal_tick(void)
 {
+
+    if (pause_pressed()) 
+    {
+        printf("pause pressed\n");
+    }
+    
     switch (mode)
     {
     case MAIN_MENU:
@@ -131,8 +137,17 @@ static void internal_render(void)
     flip_screen();
 }
 
-static void internal_keydown(unsigned char key)
+static void internal_keydown(SDL_Keysym keysym)
 {
+    unsigned char key = keysym.sym;
+
+    bool should_capatilise = FALSE;
+
+    if (keysym.mod & KMOD_CAPS) should_capatilise = !should_capatilise;
+    if (keysym.mod & KMOD_SHIFT) should_capatilise = !should_capatilise;
+
+    unsigned char typed_key = should_capatilise ? toupper(key) : key;
+
     if (key == 27) exit(0);
 
     if (key == SDLK_k) game.paddle.width += 9;
@@ -163,7 +178,7 @@ static void internal_keydown(unsigned char key)
             }
 
         default:
-            enter_char(&hsManager, key);
+            enter_char(&hsManager, typed_key);
         }
 
         return;
@@ -174,6 +189,10 @@ static void internal_keydown(unsigned char key)
 static void process_events(void)
 {
     static SDL_Event event;
+
+    int length;
+    const Uint8 *state = SDL_GetKeyboardState(&length);
+    //printf("length of array: %i\n", length);
 
     while (SDL_PollEvent(&event))
     {
@@ -188,11 +207,18 @@ static void process_events(void)
             case SDL_KEYDOWN:
                 key = event.key.keysym.sym;
 
-                handle_keydown(key);
-                internal_keydown(key);
+                printf("text: %d, %d\n", event.key.keysym.sym, SDL_GetKeyFromScancode(event.key.keysym.scancode));
+                  printf("Physical %s key acting as %s key, %d\n",
+                    SDL_GetScancodeName(event.key.keysym.scancode),
+                      SDL_GetKeyName(event.key.keysym.sym),
+                      SDL_GetScancodeFromKey(event.key.keysym.sym));
+
+
+                handle_keydown(SDL_GetScancodeFromKey(event.key.keysym.sym));
+                internal_keydown(event.key.keysym);
                 break;
             case SDL_KEYUP:
-                handle_keyup(event.key.keysym.sym);
+                handle_keyup(SDL_GetScancodeFromKey(event.key.keysym.sym));
 
                 break;
         }
@@ -200,5 +226,4 @@ static void process_events(void)
 
     keyevents_finished();
 }
-
 

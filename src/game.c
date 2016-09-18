@@ -29,8 +29,8 @@ static void ball_block_post_solve(cpArbiter *arb, cpSpace *space, void *ignore);
 //Called during the ball-paddle collision. Used to implement the proper angle reflections for collision.
 static cpBool ball_paddle_pre_solve(cpArbiter *arb, cpSpace *space, void *ignore);
 
-//Moves all the balls, (to be used when ball isn't attached). Keeps them within bounds of left/ right/ ceiling.
-static void move_balls(struct Game *game);
+//Performs bounds checking on all balls, removing those that are out-of-bounds
+static void balls_bounds_check(struct Game *game);
 
 //Moves the first ball to players location, should be used when ball is attached.
 static void move_ball_to_player(struct Game *game);
@@ -77,7 +77,7 @@ void tick_game(struct Game *game)
     else
     {
         move_player(game);
-        move_balls(game);
+        balls_bounds_check(game);
         move_and_process_powerups(&game->powerupManager, game);
         ball_block_collisions(game);
 
@@ -104,24 +104,19 @@ static void move_player(struct Game *game)
     cpBodyApplyImpulse(game->paddle.paddleBody, cpv(x * impulse, -gravityImpulse), cpvzero);
 }
 
-static void move_balls(struct Game *game)
+static void balls_bounds_check(struct Game *game)
 {
     GSList *toRemoveList = NULL;
 
     for (GSList *l = game->ballList; l != NULL; l = l->next)
     {
         struct Ball *ball = l->data;
-
         cpVect pos = cpBodyGetPos(ball->ballBody);
 
-        //this is the actual condition we need to check for: the ball leaving the bottom of the screen
-        if (pos.y < 0)
-        {
-            toRemoveList = g_slist_append(toRemoveList, ball);
-        }
-
-        //do some sanity checks though, make sure the ball hasn't gone outside the bounds while moving/ left/ right
-        if (pos.x < 0 || pos.x > WIDTH || pos.y > HEIGHT)
+        //If ball is anywhere out of bounds, simply remove it.
+        //There is a bounds on sides and roof, but if the ball goes fast enough
+        //it can pass through the bounds.
+        if (pos.y < 0 || pos.x < 0 || pos.x > WIDTH || pos.y > HEIGHT)
         {
             toRemoveList = g_slist_append(toRemoveList, ball);
         }

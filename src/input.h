@@ -1,11 +1,12 @@
 #pragma once
 
 #include <SDL2/SDL.h>
+#include <SDL2/SDL_scancode.h>
 #include <stdbool.h>
 
 #include "direction.h"
 
-#define MAX_KEYS 323
+#define MAX_KEYS SDL_NUM_SCANCODES
 
 //Call at the end of each round of keypresses. If this isn't called key_pressed() and key_released() will not work.
 void keyevents_finished(void);

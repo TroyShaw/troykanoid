@@ -27,6 +27,10 @@ void handle_keydown(int keycode)
 	if (!keysHeld[keycode]) keysPressedFrame[keycode] = curKeyFrame;
 
 	keysHeld[keycode] = true;
+
+	printf("keydown keycode: %d\n", keycode);
+	printf("keydown scancodefromkey: %d\n", SDL_GetScancodeFromKey(SDLK_p));
+
 }
 
 void handle_keyup(int keycode)
@@ -43,10 +47,10 @@ bool dir_key_held(Direction direction)
 
 	switch (direction)
 	{
-		case Up:    return keysHeld[SDLK_w];// || keysHeld[SDLK_UP]    || ;
-		case Down:  return keysHeld[SDLK_s];// || keysHeld[SDLK_DOWN]  || ;
-		case Left:  return keysHeld[SDLK_a];// || keysHeld[SDLK_LEFT]  || ;
-		case Right: return keysHeld[SDLK_d];// || keysHeld[SDLK_RIGHT] || ;
+		case Up:    return keysHeld[SDL_GetScancodeFromKey(SDLK_w)] || keysHeld[SDL_GetScancodeFromKey(SDLK_UP)];
+		case Down:  return keysHeld[SDL_GetScancodeFromKey(SDLK_s)] || keysHeld[SDL_GetScancodeFromKey(SDLK_DOWN)];
+		case Left:  return keysHeld[SDL_GetScancodeFromKey(SDLK_a)] || keysHeld[SDL_GetScancodeFromKey(SDLK_LEFT)];
+		case Right: return keysHeld[SDL_GetScancodeFromKey(SDLK_d)] || keysHeld[SDL_GetScancodeFromKey(SDLK_RIGHT)];
 	}
 
 	printf("should never reach here\n");
@@ -77,23 +81,27 @@ bool dir_pressed_now(Direction *dir)
 
 bool key_held(int keycode)
 {
-	if (!check_keycode(keycode)) return false;
+	int k = SDL_GetScancodeFromKey(keycode);
+	if (!check_keycode(k)) return false;
 
-	return keysHeld[keycode];
+	return keysHeld[k];
 }
 
 bool key_pressed(int keycode)
 {
-	if (!check_keycode(keycode)) return false;
+	int k = SDL_GetScancodeFromKey(keycode);
+	if (!check_keycode(k)) return false;
 
-	return keysPressedFrame[keycode] == (curKeyFrame - 1);
+	return keysPressedFrame[k] == (curKeyFrame - 1);
 }
 
 bool key_released(int keycode)
 {
-	if (!check_keycode(keycode)) return false;
+	int k = SDL_GetScancodeFromKey(keycode);
 
-	return keysReleasedFrame[keycode] == (curKeyFrame - 1);
+	if (!check_keycode(k)) return false;
+
+	return keysReleasedFrame[k] == (curKeyFrame - 1);
 }
 
 //Tests if space is pressed

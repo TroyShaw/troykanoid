@@ -1,20 +1,28 @@
 #include <SDL2/SDL2_gfxPrimitives.h>
+#include <SDL2/SDL_image.h>
 #include <SDL2/SDL_ttf.h>
 
 #include "defines.h"
 #include "ui/window.h"
 #include "ui/graphics.h"
 
-//static void SetSurfaceAlpha (SDL_Surface *surface, Uint8 alpha);
-
 static int col_r, col_g, col_b, col_a;
 static TTF_Font *font;
 
 void init_graphics(void)
 {
-    //first init the font library
-    IMG_Init(IMG_INIT_PNG);
+    //init image library
+    int flags = IMG_INIT_PNG;
+    int initted = IMG_Init(IMG_INIT_PNG);
+    
+    if ((initted & flags) != flags)
+    {
+        printf("failed to init SDL_image: %s\n", IMG_GetError());
+        SDL_Quit();
+        exit(1);
+    }
 
+    //init the font library
     if (TTF_Init() != 0)
     {
         printf("failed to init SDL_ttf: %s\n", TTF_GetError());
@@ -35,7 +43,8 @@ void init_graphics(void)
 
 void cleanup_graphics(void)
 {
-
+    IMG_Quit();
+    TTF_Quit();
 }
 
 
